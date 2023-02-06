@@ -1,0 +1,4 @@
+{% autoescape off %} 
+Здравствуйте, {{ user.email }},
+Пожалуйста, перейдите по ссылке, чтобы подтвердить email: {{ protocol }}://{{ domain }}{% url 'users:activate_email' uidb64=uid token=token %}
+{% endautoescape %}

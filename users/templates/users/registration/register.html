@@ -1,0 +1,97 @@
+{% extends 'users/authentication/auth_base.html' %}
+{% load static %}
+{% block title %} Регистрация - Commery {% endblock %}
+{% block content %}
+<div class="auth_main-wrapper">
+    <h1 class="auth_main-title">Регистрация</h1>
+    <form action="." method="post" class="register_form">
+        {% csrf_token %}
+        <div class="input_items-wrapper">
+            <div class="input-item">
+                <div class="register_required-wrapper">
+                    <input
+                            type="email"
+                            style="{% if form.email.errors%}border: 1px solid #f65731;{% endif %}"
+                            name="{{form.email.html_name}}"
+                            value="{{form.email.value|default_if_none:''}}"
+                            autofocus
+                            required=""
+                            id="{{form.email.id_for_label}}"
+                            placeholder="Введите адрес почты"
+                    >
+                </div>
+                <div class="input_footer">
+                    {{ form.email.errors }}
+                </div>
+            </div>
+            <div class="input-item">
+                <div class="register_required-wrapper">
+                    <input
+                            type="password"
+                            name="{{form.password1.html_name}}"
+                            required=""
+                            autocomplete="new-password"
+                            id="{{form.password1.id_for_label}}"
+                            placeholder="Введите пароль"
+                    >
+                </div>
+                <div class="input_footer">
+                    {{ form.password1.errors }}
+                </div>
+            </div>
+            <div class="input-item">
+                <div class="register_required-wrapper">
+                    <input
+                            type="password"
+                            name="{{form.password2.html_name}}"
+                            required=""
+                            autocomplete="new-password"
+                            id="{{form.password2.id_for_label}}"
+                            placeholder="Повторите пароль"
+                    >
+                </div>
+                <div class="input_footer">
+                    {{ form.password2.errors }}
+                </div>
+            </div>
+            <div class="input-item">
+                <div class="register_required-wrapper">
+                    <input
+                            type="tel"
+                            data-tel-input
+                            name="{{form.phone.html_name}}"
+                            maxlength="18"
+                            id="{{form.phone.id_for_label}}"
+                            placeholder="Контактный телефон"
+                    >
+                </div>
+                <div class="input_footer">
+                    {{ form.phone.errors }}
+                </div>
+            </div>
+            <div class="input-item">
+                <input
+                        type="checkbox"
+                        required
+                        oninvalid="this.setCustomValidity('Необходимо согласие с условиями Оферты')"
+                        oninput="this.setCustomValidity('')"
+                        checked="checked"
+                        class="offert_checkbox"
+                        name="{{form.is_accepted_terms_of_offer.html_name}}"
+                        id="{{form.is_accepted_terms_of_offer.id_for_label}}"
+                >
+                <label class="checkbox_label" for="{{form.is_accepted_terms_of_offer.id_for_label}}">Согласен с условиями
+                    <a class="offert_link" href="">Оферты</a></label>
+                <div class="input_footer">
+                    {{ form.is_accepted_terms_of_offer.errors }}
+                </div>
+            </div>
+            <button class="auth_button" type="submit">Зарегистрироваться</button>
+        </div>
+    </form>
+    <p class="input_error" style="margin-top: 20px;">{{ user_error }}</p>
+    <a href="{% url 'users:login' %}" class="auth_link">Войти</a>
+</div>
+
+<script src="{% static 'users/js/register.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,264 @@
+.auth_wrapper {
+    background-color: #E2E8F0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth_header {
+    padding-top: 22px;
+}
+
+.auth_header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.auth_header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.auth_header-logo {
+    width: 60px;
+    height: 60px;
+}
+
+.auth_header-title {
+    text-transform: uppercase;
+    color: #000000;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.auth_header-back {
+    width: 15px;
+    height: 15px;
+}
+
+.auth_main {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.auth_main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.auth_form {
+    margin-top: 31px;
+}
+
+.input_items-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.input-item input {
+    border-radius: 7px;
+    border: 1px solid white;
+    background-color: #ffffff;
+    padding: 13px 48px;
+    color: black;
+    font-size: 17px;
+}
+
+.input-item input::-webkit-input-placeholder {
+    color:#b3b3b3;
+    text-align: center;
+}
+.input-item input::-moz-placeholder {
+    color:#b3b3b3;
+    text-align: center;
+}
+.input-item input:-moz-placeholder {
+    color:#b3b3b3;
+    text-align: center;
+}
+.input-item input:-ms-input-placeholder {
+    color:#b3b3b3;
+    text-align: center;
+}
+
+.input_error {
+    color: #f65731;
+    font-size: 11px;
+}
+
+.errorlist li {
+    color: #f65731;
+    text-align: center;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.offert_link {
+    text-decoration: underline;
+    margin-left: 5px;
+}
+
+.success_reg {
+    color: #33b83e;
+    animation: success 0.5s forwards;
+}
+
+@keyframes success {
+    0% {opacity: 0;}
+    100% {opacity: 1;}}
+
+.input-item p {
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.input-item p a:hover {
+    opacity: .7;
+}
+
+.auth_main-title {
+    font-weight: bold;
+    font-size: 34px;
+    color: #000000;
+}
+
+.auth_button {
+    color: white;
+    background-color: #f65731;
+    border: none;
+    text-transform: uppercase;
+    font-size: 11px;
+    border-radius: 7px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-weight: bold;
+    width: 72%;
+    max-width: 230px;
+    margin-top: 25px;
+}
+
+.auth_link {
+    margin-top: 50px;
+    text-decoration: underline;
+    font-size: 17px;
+    color: #000000;
+    font-weight: bold;
+}
+
+.register_form {
+    margin-top: 31px;
+}
+
+.required_img {
+    height: 10px;
+    width: 10px;
+}
+
+.checkbox_label {
+    font-size: 17px;
+    color: black;
+}
+
+.offert_checkbox {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+.offert_checkbox+label {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+}
+
+.offert_checkbox+label::before {
+    content: '';
+    display: inline-block;
+    background-color: white;
+    width: 1.2em;
+    height: 1.2em;
+    flex-shrink: 0;
+    flex-grow: 0;
+    border: 1px solid #adb5bd;
+    border-radius: 50%;
+    margin-right: 0.5em;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 50% 50%;
+}
+
+
+.offert_checkbox:checked+label::before {
+    border-color: #0b76ef;
+    background-color: #0b76ef;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+}
+
+.offert_checkbox:not(:disabled):not(:checked)+label:hover::before {
+    border-color: #b3d7ff;
+}
+
+.offert_checkbox:not(:disabled):active+label::before {
+    background-color: #b3d7ff;
+    border-color: #b3d7ff;
+}
+
+.offert_checkbox:focus+label::before {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.offert_checkbox:focus:not(:checked)+label::before {
+    border-color: #80bdff;
+}
+
+.offert_checkbox:disabled+label::before {
+    background-color: #e9ecef;
+}
+
+.email_info-wrapper {
+    text-align: center;
+}
+
+.email_info-wrapper h1 {
+    font-size: 34px;
+    font-weight: bold;
+}
+
+.email_info-message {
+    font-size: 17px;
+    margin-top: 36px;
+    margin-bottom: 62px;
+    max-width: 442px;
+}
+
+.resend_email-btn {
+    text-decoration: underline;
+    font-size: 17px;
+    color: #E75A3B;
+}
+
+.resend_email-btn:hover {
+    text-decoration: none;
+}
+
+.counter {
+    font-size: 11px;
+}
+
+.form_message {
+    font-size: 11px;
+    max-width: 442px;
+    color: green;
+}
+
+.resend_email-counter {
+    font-size: 11px;
+    line-height: 25px;
+}

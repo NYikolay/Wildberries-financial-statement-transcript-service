@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Аккаунт - Commery{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="account_main-wrapper">
+        <div class="account_header-wrapper">
+            <div class="account_nav-menu">
+                <ul class="account_nav-list">
+                    <li class="account_nav-item">
+                        {% url 'users:profile' as url %}
+                        <a href="{{ url }}" class="account_nav-link {% if request.path == url %} nav_link-active {% endif %}">
+                            Аккаунт
+                        </a>
+                    </li>
+                    <li class="account_nav-item">
+                        {% url 'users:companies_list' as url %}
+                        <a href="{{ url }}" class="account_nav-link {% if request.path == url %} nav_link-active {% endif %}">
+                            Магазин
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="account_content-wrapper">
+            <div class="account_main-right">
+                <div class="tariffs_title">
+                    <h1>Подписка</h1>
+                </div>
+                <div class="tariff_block-wrapper">
+                    <div class="tariff_item">
+                        <div class="tariff_main-content tariff_active">
+                            <div class="active_info-block">
+                                <div class="active_info-top">
+                                    Подключён
+                                </div>
+                                <p class="active_info-duration">ДЕЙСТВУЕТ ДО 01.01.2022</p>
+                            </div>
+                            <div class="tariff_duration-block">
+                                <p class="tariff_duration-text">beta</p>
+                            </div>
+                            <div class="tariff_prices-block">
+                                <h1 class="tariff_price">Бесплатно</h1>
+                            </div>
+                            <div class="percent_sale-block">
+                            </div>
+                            <div class="connect_tariff-block">
+                            </div>
+                        </div>
+                        <div class="tariff_footer">
+                            <img src="{% static 'images/check (2).svg' %}" alt="">
+                            <p class="tariff_footer-desc">
+                                Полный <br> функционал сервиса
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="account_footer-wrapper">
+            <div class="video_tour-block">
+
+            </div>
+            <div class="account_footer-main">
+                <p class="email_text">{{ request.user.email }}</p>
+                <p class="email_label">email</p>
+                <button type="button" class="change_password-link" style="color: #ff8364;">Изменить пароль</button>
+                <a href="{% url 'users:logout' %}" class="logout">Выйти</a>
+                <a href="" class="document_link">Оферта</a>
+                <a href="" class="document_link">ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="password_change-wrapper" id="password_change-wrapper">
+    <div class="password_change-container">
+        <h1>Задайте новый пароль</h1>
+        <form action="{% url 'users:change_user_password' %}" method="post" class="change_password-form">
+            {% csrf_token %}
+            <input class="change_password-input" type="password" id="id_old_password" name="old_password" placeholder="Введите старый пароль" required>
+            <input class="change_password-input" type="password" id="id_new_password" name="new_password" placeholder="Введите новый пароль" required>
+            <input class="change_password-input" type="password" id="id_reenter_password" name="reenter_password" placeholder="Повторите пароль" required>
+            <p class="change_password-errors"></p>
+            <button type="submit" class="change_password-btn">Сохранить пароль</button>
+            <button type="button" class="change_password-cancel">Отменить</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'users/js/change_password.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Дашборд - Commery{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="main_content-wrapper">
+        <div class="graphic_block">
+            <!--            <div class="graphic_block-filters">-->
+            <!--                <div class="filter_date-form">-->
+            <!--                    <form action="." method="post">-->
+            <!--                        <input type="month" value="2023-01">-->
+            <!--                        <button type="submit">Показать отчёт</button>-->
+            <!--                    </form>-->
+            <!--                </div>-->
+            <!--            </div>-->
+            <div class="graphic_canvas">
+                <canvas id="main_chart" width="790" height="300"></canvas>
+                <div class="rounded_values-wrapper">
+                    <div class="rounded_value-left">
+                        <div class="revenue_circle"></div>
+                        <p>Выручка</p>
+                    </div>
+                    <div class="rounded_value-right">
+                        <div class="profit_circle"></div>
+                        <p>Прибыль</p>
+                    </div>
+                </div>
+            </div>
+            <p class="report_reload-date">Дата обновления отчёта 10.05.2022</p>
+            <p class="report_reload-text">Обновить отчёт можно на странице <a href="." class="report_reload-link">"Список отчётов"</a></p>
+        </div>
+        <div class="doughnut_diagrams-wrapper">
+            <div class="doughnut_brand_wrapper">
+                <p class="diagram_text">ДОЛЯ БРЕНДА В ВЫРУЧКЕ</p>
+                <canvas id="doughnut_brand"></canvas>
+            </div>
+            <div class="doughnut_stock-wrapper">
+                <p class="diagram_text">ДОЛЯ ОТГРУЗОК СО СКЛАДА В ВЫРУЧКЕ</p>
+                <canvas id="doughnut_stock"></canvas>
+            </div>
+        </div>
+        <div class="report_block">
+            <div class="report_title-block">
+                <h1 class="report_title">Нарастающий итог</h1>
+                <p class="report_subtitle">Сумма показателей за период</p>
+            </div>
+            <div class="top_report-block">
+                <div class="top_block-item">
+                    <div class="top_block-inner">
+                        <h1 class="top_block-title">{{ report.revenue_total|floatformat:0|floatformat:"-3g" }}</h1>
+                        <p class="top_block-subtitle">Выручка</p>
+                    </div>
+                    <div class="top_block-inner">
+                        <h1 class="top_block-title" style="color: #ff8364;">{{ report.profit_total|floatformat:"-3g" }}</h1>
+                        <p class="top_block-subtitle">Прибыль</p>
+                    </div>
+                </div>
+                <div class="top_block-item">
+                    <div class="top_block-inner">
+                        <h1 class="top_block-title">{{ report.marginality_total }}%</h1>
+                        <p class="top_block-subtitle">Маржинальность</p>
+                    </div>
+                    <div class="top_block-inner">
+                        <h1 class="top_block-title">{{ report.profitability_total }}%</h1>
+                        <p class="top_block-subtitle">Рентабельность</p>
+                    </div>
+                </div>
+            </div>
+            <div class="middle_report-block">
+                <div class="middle_block-item">
+                    <h1 class="top_block-title">{{ report.sales_amount_total|floatformat:"-3g" }}</h1>
+                    <p class="top_block-subtitle">Продажи</p>
+                </div>
+                <div class="middle_block-item">
+                    <h1 class="top_block-title">{{ report.returns_amount_total|floatformat:"-3g" }}</h1>
+                    <p class="top_block-subtitle">Возвраты</p>
+                </div>
+            </div>
+            <div class="footer_report-block">
+                <div class="footer_block-item">
+                    <div class="footer_block-inner">
+                        <h1 class="footer_block-title">{{ report.commission_total|floatformat:"-3g" }}</h1>
+                        <p class="footer_block-subtitle">Комиссия</p>
+                    </div>
+                    <div class="footer_block-inner">
+                        <h1 class="footer_block-title">{{ report.logistics_total|floatformat:"-3g" }}</h1>
+                        <p class="footer_block-subtitle">Логистика</p>
+                    </div>
+                    <div class="footer_block-inner">
+                        <h1 class="footer_block-title">{{ report.wb_costs_total|floatformat:"-3g" }}</h1>
+                        <p class="footer_block-subtitle">Расходы вб</p>
+                    </div>
+                </div>
+                <div class="footer_block-item">
+                    <div class="footer_block-inner">
+                        <div class="footer_hint">
+                            <div class="left" style="width: 96px;">
+                                <h1 class="footer_block-title">{{ report.supplier_costs_total|floatformat:"-3g" }}</h1>
+                            </div>
+                        </div>
+                        <p class="footer_block-subtitle">Расходы поставщика</p>
+                    </div>
+                    <div class="footer_block-inner">
+                        <div class="footer_hint">
+                            <div class="left">
+                                <h1 class="footer_block-title">{{ report.net_costs_sum_total|floatformat:"-3g" }}</h1>
+                            </div>
+                        </div>
+                        <p class="footer_block-subtitle">СЕБЕСТОИМОСТЬ ПРОДАЖ</p>
+                    </div>
+                    <div class="footer_block-inner">
+                        <div class="footer_hint">
+                            <div class="left" style="width: 96px;">
+                                <h1 class="footer_block-title">{{ report.tax_total|floatformat:"-3g" }}</h1>
+                            </div>
+                        </div>
+                        <p class="footer_block-subtitle">НАЛОГ</p>
+                    </div>
+                </div>
+            </div>
+            <div class="errors_list">
+                <div class="error_list_item">
+                    <img src="{% static 'images/q_black.svg' %}" alt="" style="width: 14px; height: 14px;"><span
+                        style="color: black;">Lorem ipsum dolor sit amet.</span>
+                </div>
+                {% if report.is_empty_reports_values %}
+                <div class="error_list_item">
+                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Не заполнены данные в отчётах</span>
+                </div>
+                {% endif %}
+                {% if report.is_empty_netcosts_values %}
+                <div class="error_list_item">
+                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Не заполнены данные себестоимости</span>
+                </div>
+                {% endif %}
+                {% if not report.is_empty_tax_values %}
+                <div class="error_list_item">
+                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Не заполнена ставка налога</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="products_list-block">
+            <div class="products_block-filters">
+                <div class="plug"></div>
+                <div class="products_filter-item">
+                    <div class="text-wrapper">
+                        <p>Продажи</p>
+                    </div>
+                    <button type="button" id="sales_sort" onclick="salesSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
+                </div>
+                <div class="products_filter-item">
+                    <div class="text-wrapper">
+                        <p>Возвраты</p>
+                    </div>
+                    <button type="button" id="returns_sort" onclick="returnsSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
+                </div>
+                <div class="products_filter-item">
+                    <div class="text-wrapper">
+                        <p>Выручка</p>
+                    </div>
+                    <button type="button" id="revenue_sort" onclick="revenueSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
+                </div>
+                <div class="products_filter-item">
+                    <div class="text-wrapper">
+                        <p>Доля в выручке</p>
+                    </div>
+                    <button type="button" id="share_sort" onclick="shareSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
+                </div>
+                <div class="products_filter-item">
+                    <div class="text-wrapper">
+                        <p>Маржинальность</p>
+                    </div>
+                    <button type="button" id="marginality_sort" onclick="marginalitySort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
+                </div>
+            </div>
+            <div class="products_block" data-title="{{ report_by_products_json }}" id="products_block">
+                <!--                <div class="product_wrapper" id="products_wrapper_id">-->
+                <!--                    <div class="product_item">-->
+                <!--                        <img class="product_img" src="{{ product.image }}" alt="">-->
+                <!--                        <div class="text-wrapper">-->
+                <!--                            <p class="product_statistic">{{ product.sales_quantity_value|floatformat:"-3g" }}</p>-->
+                <!--                        </div>-->
+                <!--                        <div class="text-wrapper">-->
+                <!--                            <p class="product_statistic">{{ product.returns_quantity_value|floatformat:"-3g" }}</p>-->
+                <!--                        </div>-->
+                <!--                        <div class="text-wrapper">-->
+                <!--                            <p class="product_statistic">{{ product.revenue_by_article|floatformat:"-3g" }}</p>-->
+                <!--                        </div>-->
+                <!--                        <div class="text-wrapper">-->
+                <!--                            <p class="product_statistic">{{ product.share_in_profits }}%</p>-->
+                <!--                        </div>-->
+                <!--                        <div class="text-wrapper">-->
+                <!--                            <p class="product_statistic">{{ product.product_marginality }}%</p>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                    <p class="barcode">Артикул: {{ product.nm_id }}</p>-->
+                <!--                </div>-->
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script src="{% static 'reports/js/dashboard_products.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'reports/js/dashboard.js' %}"></script>
+{% endblock %}
+

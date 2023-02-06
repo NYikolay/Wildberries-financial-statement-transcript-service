@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% load static %}
+{% block title %} Изменение товара - Commery {% endblock %}
+{% block content %}
+<div class="container">
+    <div class="stock_main-wrapper">
+        <div class="product_list-wrapper">
+            <div class="products_list">
+                {% for p in products %}
+                <a
+                        href="{% url 'users:product_detail' p.nm_id %}?page={{ products.number }}"
+                        data-title="{{ p.product_name }}"
+                        class="stock_product-item {% if p.nm_id == product.nm_id %}stock_product-active{% endif %}">
+                    <div class="product_item-left">
+                        <img class="product_image" src="{{ p.image }}" alt="">
+                    </div>
+                    <div class="product_item-right">
+                        <div class="prodict_brand">
+                            <h1>{{ p.brand }}</h1>
+                            <p>Бренд</p>
+                        </div>
+                        <div class="product_article">
+                            <h1>{{ p.nm_id }}</h1>
+                            <p>Артикул</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="pagination_wrapper">
+                <p>Страница</p>
+                <input class="paginator_input" type="number" data-place="{{ products.paginator.num_pages }}" value="{{ products.number }}" onclick="generateInputValidationForPaginator()">
+                <p>из {{ products.paginator.num_pages }}</p>
+                <div class="paginator_arrows-wrapper">
+                    {% if products.has_previous %}
+                    <a href="?page={{ products.previous_page_number }}" class="arrow_item"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% else %}
+                    <a href="" class="arrow_item disabled_arrow"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% endif %}
+                    {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}" class="arrow_item"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% else %}
+                    <a href="" class="arrow_item disabled_arrow"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="product_settings-block">
+            <div class="product_edit-wrapper">
+                <form class="product_edit-form" action="{% url 'users:edit_product' product.nm_id %}?page={{ products.number }}" method="post">
+                    {% csrf_token %}
+                    <div class="product_edit-title">
+                        <h1>Себестоимость</h1>
+                        <div class="product_edit-info">
+                            <img src="{% static 'images/attention (2).svg' %}" alt="">
+                            <p>укажите себестоимость товара и она будет учтена при расчете прибыли от продаж</p>
+                        </div>
+                        <div class="product_inner-info">
+                            <img class="product_small-image" src="{{ product.image }}" alt="">
+                            <p class="product_small-name">{{ product.product_name }}</p>
+                        </div>
+                    </div>
+                    <div class="product_inputs-wrapper">
+                        {% if net_costs %}
+                        {% for cost in net_costs %}
+                        <div class="product_cost-item">
+                            <div class="product_input-wrapper">
+                                <input
+                                        type="number"
+                                        value="{{ cost.amount|unlocalize }}"
+                                        class="cost_input"
+                                        name="cost_input"
+                                        step="0.01"
+                                        min="0"
+                                        id="cost_input"
+                                >
+                                <p>Себестоимость</p>
+                            </div>
+                            <div class="product_input-wrapper">
+                                <input
+                                        type="date"
+                                        class="date_input"
+                                        name="product_cost_date"
+                                        value="{{ cost.cost_date|date:'Y-m-d' }}"
+                                        id="product_cost_date"
+                                >
+                                <p>Дата начала действия</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="product_cost-item">
+                            <div class="product_input-wrapper">
+                                <input type="number" class="cost_input" name="cost_input" step="0.01" id="cost_input">
+                                <p>Себестоимость</p>
+                            </div>
+                            <div class="product_input-wrapper">
+                                <input class="date_input" name="product_cost_date" id="product_cost_date" type="date">
+                                <p>Дата начала действия</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <button type="button" class="add_cost-button" id="add_cost">Добавить себестоимость</button>
+            </div>
+            <div class="company_edit-buttons">
+                <a href="{{request.META.HTTP_REFERER}}" class="cancel_link">Отменить</a>
+                <button class="send_form-button" type="submit">Сохранить</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'users/js/products.js' %}"></script>
+<script src="{% static 'users/js/products_pagination.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% load static %}
+{% if messages %}
+{% for message in messages %}
+{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+<div class="message_item-error">
+    <img class="message-img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">
+    <p class="message_text">{{ message }}</p>
+</div>
+{% else %}
+<div class="message_item-success">
+    <img class="message-img" src="{% static 'images/check (1).svg' %}" alt="">
+    <p class="message_text">{{ message }}</p>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}

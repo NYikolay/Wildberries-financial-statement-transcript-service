@@ -1,0 +1,46 @@
+{% extends 'users/authentication/auth_base.html' %}
+{% load static %}
+{% block title %} Авторизация - Commery{% endblock %}
+{% block content %}
+<div class="auth_main-wrapper">
+    <h1 class="auth_main-title">Вход</h1>
+    <form action="." method="post" class="auth_form">
+        {% csrf_token %}
+        <div class="input_items-wrapper">
+            <div class="input-item">
+                <input
+                        type="email"
+                        name="{{form.email.html_name}}"
+                        value="{{form.email.value|default_if_none:''}}"
+                        required=""
+                        id="{{form.email.id_for_label}}"
+                        placeholder="Введите адрес почты"
+                >
+                <p class="input_error" style="text-align: left">{{ form.email.errors }}</p>
+            </div>
+            <div class="input-item">
+                <input
+                        type="password"
+                        name="{{form.password.html_name}}"
+                        required=""
+                        id="{{form.password.id_for_label}}"
+                        placeholder="Введите пароль"
+                >
+                <div class="input_footer">
+                    <p class="input_error" style="text-align: left">{{ form.password.errors }}</p>
+                    <p><a href="{% url 'users:password_reset' %}" style="text-decoration: underline;">Забыли пароль?</a></p>
+                </div>
+            </div>
+        </div>
+        <button class="auth_button" type="submit">Войти</button>
+    </form>
+    <p class="input_error" style="margin-top: 20px;">{{ user_error }}</p>
+    <a href="{% url 'users:register' %}" class="auth_link">Зарегистрироваться</a>
+</div>
+
+<div class="messages-wrapper">
+    {% include 'includes/messages.html' %}
+</div>
+
+<script src="{% static 'js/messages.js' %}"></script>
+{% endblock %}

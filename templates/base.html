@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <!-- encoding -->
+    <meta charset="UTF-8" />
+
+    <!-- Mobile support -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="{% static 'images/logo_commery4.png' %}">
+    <title>{% block title %} {% endblock %}</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'reports/css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'reports/css/reports_list.css' %}">
+    <link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'users/css/products_list.css' %}">
+</head>
+
+<body>
+<div class="wrapper">
+    <header class="header">
+        {% include 'includes/header.html'%}
+    </header>
+    <div class="subheader">
+        {% include 'includes/subheader.html' %}
+    </div>
+    <section class="main">
+        {% block content %}
+        {% endblock %}
+    </section>
+    <footer class="footer">
+        {% include 'includes/footer.html' %}
+    </footer>
+</div>
+
+<!--<div class="preloader">-->
+<!--    <div class="preloader__row">-->
+<!--        <div class="preloader__item"></div>-->
+<!--        <div class="preloader__item"></div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div class="messages-wrapper">
+    {% include 'includes/messages.html' %}
+</div>
+<script src="{% static 'js/messages.js' %}"></script>
+</body>
+<script>
+   // window.onload = function () {
+   //     document.body.classList.add('loaded_hiding');
+   //     window.setTimeout(function () {
+   //         document.body.classList.add('loaded');
+   //         document.body.classList.remove('loaded_hiding');
+   //     }, 500);
+   // }
+</script>
+</html>

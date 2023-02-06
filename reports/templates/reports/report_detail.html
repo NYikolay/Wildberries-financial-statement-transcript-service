@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Отчёты - Commery{% endblock %}
+{% load reports_filters %}
+{% block content%}
+<div class="container">
+    <div class="reports_main-wrapper">
+        <div class="reports_info-top">
+            <p class="reports_bold-text">Дата обновления списка отчётов {{ current_api_key.last_reports_update|date:'d.m.Y' }}</p>
+            <form action="{% url 'users:send_request_for_report'%}" method="post" class="reload_reports-form">
+                {% csrf_token %}
+                <button class="reload_reports-button" id="load-btn" type="submit">Обновить список</button>
+            </form>
+            <div class="reports_warning-text">
+                <!--                <img class="warning_img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">-->
+                <!--                <p>-->
+                <!--                    На Wildberries отсутствуют отчеты на более свежую дату-->
+                <!--                </p>-->
+            </div>
+        </div>
+        <div class="reports_middle-wrapper">
+            <div class="reports_left-filters">
+                <p class="reports_filter-title">Дата формирования</p>
+<!--                <img class="rows_img" src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="">-->
+                {% for date in create_dt_list %}
+                <a class="report_link-wrapper" href="{% url 'reports:report_detail' date.date|date:'Y-m-d' %}"
+                   style="{% if date.date|date:'d.m.Y' == reports.0.create_dt|date:'d.m.Y' %}border: 1px solid #ff8364{% endif %}">
+                    <div class="report_link-div">{% if date in blank_reports_list %}<img class="report_link-img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">{% endif %}</div>
+                    <p class="report_date-link warning_message">{{ date.date|date:'d.m.Y' }}</p>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="reports_right-content">
+                <div class="reports_right-top">
+                    <div class="reports_period-date">
+                        <p class="reports_bold-text">{{ reports.0.date_from|date:'d.m.Y' }}</p>
+                        <p class="reports_small-text">Дата начала периода</p>
+                    </div>
+                    <div class="reports_period-date">
+                        <p class="reports_bold-text">{{ reports.0.date_to|date:'d.m.Y' }}</p>
+                        <p class="reports_small-text">Дата окончания периода</p>
+                    </div>
+                </div>
+                <form class="reports_data-form" action="{% url 'reports:report_detail' reports.0.create_dt|date:'Y-m-d' %}" method="post">
+                    {% csrf_token %}
+                    <div class="reports_data-block">
+                        {% for form, report in forms|zip:reports %}
+                        <div class="reports_data-item">
+                            <div class="report_number-data">
+                                <p class="reports_bold-text">
+                                    {{ report.realizationreport_id }}
+                                </p>
+                                <p class="reports_small-text">№ ОТЧЕТА</p>
+                            </div>
+                            <div class="report_inputs">
+                                <div class="report_input-wrapper">
+                                    {{ form.storage_cost }}
+                                    <p class="reports_small-text">Стоимость хранения</p>
+                                </div>
+                                <div class="report_input-wrapper">
+                                    {{ form.cost_paid_acceptance }}
+                                    <p class="reports_small-text">СТОИМОСТЬ ПЛАТНОЙ ПРИЕМКИ</p>
+                                </div>
+                                <div class="report_input-wrapper">
+                                    {{ form.other_deductions }}
+                                    <p class="reports_small-text">ПРОЧИЕ УДЕРЖАНИЯ</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="reports_data-item">
+                            <div class="supplier_costs-wrapper">
+                                <div class="report_input-wrapper">
+                                    {{ forms.0.supplier_costs }}
+                                    <p class="reports_small-text">Расходы поставщика</p>
+                                </div>
+                                <div class="help_text-wrapper">
+                                    <img class="q_img" src="{% static 'images/attention (2).svg' %}" alt="">
+                                    <p class="reports_small-text" style="line-height: 12px; margin-left: 8px;">укажите сумму расходов поставщика за период отчета, например, интернет, фот и т.д. и она будет учтена при расчете прибыли от продаж (расходы не должны быть учтены в себестоимости)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form_buttons-wrapper">
+                        <button type="button" class="clear_data" id="clear_data_id">Сбросить</button>
+                        <button type="submit" class="send_data">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'reports/js/reports.js' %}"></script>
+<script src="{% static 'reports/js/reports_loader.js' %}"></script>
+{% endblock %}

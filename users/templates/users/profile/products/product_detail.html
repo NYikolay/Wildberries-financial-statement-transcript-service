@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Товары - Commery{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="stock_main-wrapper">
+        <div class="product_list-wrapper">
+            <div class="products_list" id="products_list">
+                {% for p in products %}
+                <a
+                        href="{% url 'users:product_detail' p.nm_id %}?page={{ products.number }}"
+                        data-title="{{ p.product_name }}"
+                        class="stock_product-item {% if p.nm_id == product.nm_id %}stock_product-active{% endif %}">
+                    <div class="product_item-left">
+                        <img class="product_image" src="{% if p.image %}{{ p.image }}{% else %}{% static 'images/empty_photo2.png' %}{% endif %}" alt="">
+                    </div>
+                    <div class="product_item-right">
+                        <div class="prodict_brand">
+                            <h1>{{ p.brand }}</h1>
+                            <p>Бренд</p>
+                        </div>
+                        <div class="product_article">
+                            <h1>{{ p.nm_id }}</h1>
+                            <p>Артикул</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="pagination_wrapper">
+                <p>Страница</p>
+                <input class="paginator_input" type="number" data-place="{{ products.paginator.num_pages }}" value="{{ products.number }}" onclick="generateInputValidationForPaginator()">
+                <p>из {{ products.paginator.num_pages }}</p>
+                <div class="paginator_arrows-wrapper">
+                    {% if products.has_previous %}
+                    <a href="?page={{ products.previous_page_number }}" class="arrow_item"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% else %}
+                    <a href="" class="arrow_item disabled_arrow"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% endif %}
+                    {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}" class="arrow_item"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% else %}
+                    <a href="" class="arrow_item disabled_arrow"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="product_settings-block">
+            <div class="cost_info-wrapper">
+                <div class="product_edit-title">
+                    <h1>Себестоимость</h1>
+                    <div class="product_edit-info">
+                        <img src="{% static 'images/attention (2).svg' %}" alt="">
+                        <p>укажите себестоимость товара и она будет учтена при расчете прибыли от продаж</p>
+                    </div>
+                    <div class="product_inner-info">
+                        <img class="product_small-image" src="{{ product.image }}" alt="">
+                        <p class="product_small-name">{{ product.product_name }}</p>
+                    </div>
+                </div>
+                {% if net_costs %}
+                {% for cost in net_costs %}
+                <div class="const_info-item">
+                    <div class="product_cost-wrapper">
+                        <h2>{{ cost.amount }}</h2>
+                        <p>Себестоимость</p>
+                    </div>
+                    <div class="product_cost-wrapper">
+                        <h2>{{ cost.cost_date|date:'d.m.Y' }}</h2>
+                        <p>ДАТА НАЧАЛА ДЕЙСТВИЯ</p>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="const_info-item">
+                    <div class="product_cost-wrapper">
+                        <h2>0,00</h2>
+                        <p>Себестоимость</p>
+                    </div>
+                    <div class="product_cost-wrapper">
+                        <h2>дд.мм.гггг</h2>
+                        <p>ДАТА НАЧАЛА ДЕЙСТВИЯ</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="product_footer-links">
+                <a class="edit_link" href="{% url 'users:edit_product' product.nm_id %}?page={{ products.number }}">Редактировать</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'users/js/products_pagination.js' %}"></script>
+{% endblock %}

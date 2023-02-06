@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Дашборд - Commery{% endblock %}
+{% block content%}
+<div class="container">
+    <div class="empty_reports-wrapper">
+        {% if not current_api_key %}
+        <div class="empty_reports-item">
+            <p>Для формирования финансового отчёта <br> подключите Ваш магазин</p>
+            <a href="{% url 'users:companies_list' %}">Подключить</a>
+        </div>
+        {% endif %}
+        {% if current_api_key and not current_api_key.is_wb_data_loaded %}
+        <div class="empty_reports-item">
+            <p>Для формирования финансового отчёта<br> загрузите отчеты из Wildberries автоматически</p>
+            <a href="{% url 'reports:empty_reports' %}">Загрузить отчёты</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script src="{% static 'reports/js/reports_loader.js' %}"></script>
+{% endblock %}

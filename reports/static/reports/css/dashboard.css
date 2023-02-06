@@ -1,0 +1,381 @@
+/* MAIN CONTENT */
+.main_content-wrapper {
+    display: grid;
+    grid-template-areas:
+                    'graphic_block report_block'
+                    'doughnut_diagrams-wrapper report_block'
+                    'products_list-block report_block';
+    grid-template-columns: 65% 35%;
+    grid-auto-rows: minmax(0, auto);
+}
+
+.graphic_block {
+    grid-area: graphic_block;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px 20px 15px 20px;
+    align-self: start;
+}
+
+.doughnut_diagrams-wrapper {
+    margin-top: 55px;
+    grid-area: doughnut_diagrams-wrapper;
+    display: flex;
+    align-items: center;
+    gap: 100px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px 20px 15px 20px;
+    align-self: start;
+}
+
+.diagram_text {
+    color: #9c9a9a;
+    font-size: 8px;
+}
+
+.products_list-block {
+    grid-area: products_list-block;
+    margin-top: 55px;
+    padding: 20px 20px 40px 20px;
+    background-color: white;
+    border-radius: 10px;
+    align-self: start;
+}
+
+.report_block {
+    grid-area: report_block;
+    align-self: start;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 58px;
+    padding-bottom: 19px;
+    margin-left: 20px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+
+/* graphic block styling */
+
+
+.filter_date-form button {
+    border: 1px solid #DBDBDB;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 15px;
+    background-color: #ffe6e0;
+}
+
+input[type="month"] {
+    outline: none;
+    border: 1px solid #DBDBDB;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 15px;
+}
+
+.filter_date-form {
+    align-items: center;
+}
+
+
+.graphic_canvas {
+    border: 1px solid #DBDBDB;
+    margin-top: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+    border-radius: 10px;
+}
+
+
+.rounded_values-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 19px;
+    margin-bottom: 19px;
+}
+
+.rounded_value-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.revenue_circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50px;
+    background-color: #dbdbdb;
+}
+
+.rounded_value-left p {
+    color: #9c9a9a;
+    font-size: 8px;
+    text-transform: uppercase;
+}
+
+
+.rounded_value-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 11px;
+}
+
+.rounded_value-right p {
+    color: #9c9a9a;
+    font-size: 8px;
+    text-transform: uppercase;
+}
+
+.profit_circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50px;
+    background-color: #ff8364;
+}
+
+.report_reload-date {
+    margin-top: 5px;
+    color: #000000;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.report_reload-text {
+    font-size: 11px;
+    line-height: 20px;
+    color: #000000;
+}
+
+.report_reload-link {
+    text-decoration: underline;
+}
+
+/* graphic block styling end */
+
+/* report block styling */
+
+.report_title-block {
+    text-align: center;
+}
+
+.report_title {
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.report_subtitle {
+    color: #9c9a9a;
+    text-transform: uppercase;
+    font-size: 8px;
+    margin-top: 10px;
+}
+
+.top_report-block {
+    display: flex;
+    gap: 20px;
+    padding-top: 19px;
+
+}
+
+.top_block-item {
+    border: 1px solid #DBDBDB;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    text-align: center;
+    width: 171px;
+    height: 171px;
+}
+
+
+.top_block-title {
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.top_block-subtitle {
+    text-transform: uppercase;
+    color: #9c9a9a;
+    font-weight: normal;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+
+.middle_report-block {
+    display: flex;
+    gap: 20px;
+    justify-content: space-around;
+    margin-bottom: 32px;
+    margin-top: 32px;
+}
+
+.middle_block-item {
+    align-items: center;
+    text-align: center;
+}
+
+
+.footer_report-block {
+    border: 1px solid #DBDBDB;
+    border-radius: 10px;
+    display: flex;
+    padding-bottom: 32px;
+    padding-top: 32px;
+    justify-content: space-between;
+}
+
+.footer_block-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 19px;
+    width: 47%;
+    text-align: center;
+    align-items: center;
+}
+
+
+.footer_block-title {
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.footer_block-subtitle {
+    text-transform: uppercase;
+    color: #9c9a9a;
+    font-size: 8px;
+}
+
+.footer_hint {
+    display: flex;
+    align-items: center;
+}
+
+.left {
+    flex-grow: 1;
+}
+
+.left h1 {
+    text-align: center;
+}
+
+.right img {
+    width: 14px;
+    height: 14px;
+}
+
+.error_list_item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.error_list_item span {
+    font-size: 11px;
+    color: #ff8364;
+}
+
+
+/* report block styling end */
+
+
+/* products block styling start */
+.products_filter-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.products_filter-item p {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 8px;
+}
+
+.products_filter-item img {
+    width: 15px;
+    height: 15px;
+}
+
+.products_block-filters {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #DBDBDB;
+    margin-bottom: 20px;
+    padding-bottom: 6px;
+    padding-right: 20px;
+}
+
+.products_block {
+    overflow: auto;
+    overflow-x: hidden;
+    max-height: 500px;
+}
+
+.plug {
+    width: 60px;
+}
+
+.products_block::-webkit-scrollbar {
+    width: 3px;
+    background-color: transparent;
+}
+
+.products_block::-webkit-scrollbar-thumb {
+    background-color: #a8a8a8;
+    border-radius: 2px;
+}
+
+
+.product_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #F4F4F4;
+    border-radius: 10px;
+    padding-right: 20px;
+}
+
+.barcode {
+    font-size: 8px;
+    text-transform: uppercase;
+    margin-top: 3px;
+    margin-bottom: 8px;
+}
+
+.text-wrapper {
+    width: 82px;
+    text-align: center;
+}
+
+.product_statistic {
+    font-weight: bold;
+    font-size: 17px;
+    color: #000000;
+}
+
+.product_img {
+    background: url("/static/images/Rolling-1s-80px.svg") center / 20px no-repeat;
+    width: 60px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+/* products block styling end */
+
+
+/* MAIN CONTENT END */

@@ -1,0 +1,72 @@
+{% load static %}
+<div class="container">
+    <div class="header_wrapper">
+        <div class="lobo_block" style="display: flex; align-items: center">
+            <a href=""><img src="{% static 'images/logo_commery4.png' %}" alt=""></a>
+            <a href=""><h2 class="app_title">Commery</h2></a>
+        </div>
+        <nav class="menu">
+            <ul class="left_nav-list">
+                {% if request.user.is_authenticated %}
+                {% url 'reports:dashboard' as url %}
+                <li>
+                    <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">
+                        Дашборд
+                    </a>
+                </li>
+
+                {% if last_report_date and current_api_key.is_wb_data_loaded %}
+                {% url 'reports:report_detail' last_report_date.date|date:'Y-m-d' as url %}
+                <li>
+                    <a href="{{ url }}" class="nav_link {% if '/report/' in request.path %} nav_link-active {% endif %}">
+                        Список отчётов
+                    </a>
+                </li>
+                {% else %}
+                {% url 'reports:empty_reports' as url %}
+                <li>
+                    <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">
+                        Список отчётов
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if product_article and current_api_key.is_products_loaded %}
+                {% url 'users:product_detail' product_article as url %}
+                <li>
+                    <a href="{{ url }}" class="nav_link {% if '/profile/product/' in request.path %} nav_link-active {% endif %}">Склад</a>
+                </li>
+                {% else %}
+                {% url 'users:empty_products' as url %}
+                <li>
+                    <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">Склад</a>
+                </li>
+                {% endif %}
+
+                {% url 'users:profile' as url %}
+                <li><a href="{{ url }}" class="nav_link {% if request.path == url or '/profile/compan' in request.path %} nav_link-active {% endif %}">Настройки</a></li>
+                {% else %}
+                {% url 'users:login' as url %}
+                <li>
+                    <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">
+                        Авторизация
+                    </a>
+                </li>
+                {% url 'users:register' as url %}
+                <li>
+                    <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">
+                        Регистрация
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <ul class="right_nav-list">
+            <li><a href="" class="nav_link-normal"> <img class="link_normal-img" src="{% static 'images/iconizer-686084.svg' %}"
+                                                         alt="">Предложи идею</a></li>
+            <li><a href="" class="nav_link-normal"> <img class="link_normal-img" src="{% static 'images/iconizer-4086231 (2).svg' %}"
+                                                         alt="">Сообщество продавцов</a></li>
+
+        </ul>
+    </div>
+</div>

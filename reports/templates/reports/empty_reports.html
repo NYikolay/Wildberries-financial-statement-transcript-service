@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Отчёты - Commery{% endblock %}
+{% block content%}
+<div class="container">
+    <div class="empty_reports-wrapper">
+        {% if not current_api_key %}
+        <div class="empty_reports-item">
+            <p>Для формирования списка отчётов <br> подключите Ваш магазин</p>
+            <a href="{% url 'users:companies_list' %}">Подключить</a>
+        </div>
+        {% else %}
+        <div class="empty_reports-item">
+            <p id="reports_load-info">Загрузить список отчётов автоматически</p>
+            <form class="load_report-form" action="{% url 'users:send_request_for_report' %}" method="post">
+                {% csrf_token %}
+                <button class="load_reports-button" id="load-btn" type="submit">Загрузить</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script src="{% static 'reports/js/reports_loader.js' %}"></script>
+{% endblock %}

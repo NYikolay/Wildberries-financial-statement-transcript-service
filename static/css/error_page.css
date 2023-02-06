@@ -1,0 +1,54 @@
+.error_page-wrapper {
+    background-color: #b8d5ff;
+    height: 100%;
+}
+
+.error_page-header {
+    display: flex;
+    gap: 15px;
+    padding-top: 22px;
+    align-items: center;
+}
+
+.error_page-header img {
+    width: 60px;
+    height: 60px;
+}
+
+.error_page-header h1 {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.error_page-main {
+    display: flex;
+    align-items: center;
+    padding-top: 10%;
+    gap: 50px;
+}
+
+.nlo_img {
+    width: 590px;
+}
+
+.error_body h1 {
+    font-weight: bold;
+    font-size: 34px;
+}
+
+.error_body p {
+    font-size: 17px;
+    margin-top: 42px;
+    margin-bottom: 50px;
+}
+
+
+.error_body a {
+    color: white;
+    background-color: #f65731;
+    padding: 10px 35px;
+    text-transform: uppercase;
+    border-radius: 20px;
+    font-size: 11px;
+}

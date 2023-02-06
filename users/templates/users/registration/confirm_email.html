@@ -1,0 +1,24 @@
+{% extends 'users/authentication/auth_base.html' %}
+{% load static %}
+{% block title %} Регистрация - Commery {% endblock %}
+{% block content %}
+<div class="email_info-wrapper">
+    <h1>Регистрация</h1>
+    <p class="email_info-message">
+        Для использования сервиса необходимо подтвердить свою почту. <br><br>
+        На {{ email }} уже направлено письмо. Перейдите по ссылке в письме для подтверждения почты.
+    </p>
+
+    <form action="{% url 'users:email_confirmation_info' %}" method="post" class="resend_email-form" id="resend_email_form_id">
+        {% csrf_token %}
+        <button type="submit" class="resend_email-btn">Письмо не пришло, отправить еще раз.</button>
+        <p class="resend_email-counter">Получить новое письмо можно через <span class="counter">60</span> секунд</p>
+    </form>
+</div>
+
+<div class="messages-wrapper">
+    {% include 'includes/messages.html' %}
+</div>
+
+<script src="{% static 'users/js/email_confirm.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:14.6
+    container_name: commery_postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+  web:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: "dev"
+    image: commery_docker:latest
+    container_name: commery_django
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - static_volume:/commery_project/static
+      - media_volume:/commery_project/media
+      - .:/commery_project
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+  redis:
+    image: redis:6.0.17
+    container_name: commery_redis
+  celery:
+    build: .
+    container_name: commery_celery
+    command: celery -A config worker -l info
+    volumes:
+      - ./:/commery_project/commery_celery
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - web
+  selenium:
+    image: selenium/standalone-chrome
+    ports:
+      - "4444:4444"
+    environment:
+      - SE_NODE_MAX_INSTANCES=4
+      - SE_NODE_MAX_SESSIONS=4
+    depends_on:
+      - celery
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
