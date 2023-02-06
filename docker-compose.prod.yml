@@ -59,10 +59,11 @@ services:
     depends_on:
       - celery
   nginx:
-
+    build:
+      dockerfile: ./Dockerfile
+      context: ./data/nginx
     container_name: commery_nginx
     restart: unless-stopped
-    image: nginx:1.23.3
     volumes:
       - static_volume:/commery_project/staticfiles
       - media_volume:/commery_project/media
