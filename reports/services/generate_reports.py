@@ -505,3 +505,5 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
         'stocks_share_in_revenue_dict': json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False)
     }
 
+
+
