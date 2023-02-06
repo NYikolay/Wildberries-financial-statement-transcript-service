@@ -59,6 +59,7 @@ services:
     depends_on:
       - celery
   nginx:
+
     container_name: commery_nginx
     restart: unless-stopped
     image: nginx:1.23.3
