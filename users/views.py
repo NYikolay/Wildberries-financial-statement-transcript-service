@@ -52,6 +52,7 @@ class RegisterPageView(CreateView):
         current_site = get_current_site(self.request)
         mail_message = render_to_string('users/registration/account_activation.html', {
             'user': user,
+            'protocol': 'http',
             'domain': current_site.domain,
             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
             'token': account_activation_token.make_token(user),
@@ -199,7 +200,6 @@ class ProfilePage(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
-        logger_debug.info('asd')
         context = {
             'api_keys': request.user.keys.filter(),
             'sales': request.user.sales.all(),
