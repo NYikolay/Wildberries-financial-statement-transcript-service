@@ -59,32 +59,27 @@ services:
     depends_on:
       - celery
   nginx:
-    image: nginx:latest
+    build:
+      dockerfile: ./Dockerfile
+      context: ./docker_nginx/nginx
     container_name: commery_nginx
-    restart: unless-stopped
+    restart: always
     volumes:
       - static_volume:/commery_project/staticfiles
       - media_volume:/commery_project/media
-      - ./docker_nginx/nginx/default.conf:/etc/nginx/default.conf
-      - ./etc/letsencrypt:/etc/letsencrypt
-      - ./certbot/data:/var/www/certbot
-      - /var/log/nginx:/var/log/nginx
+      - ./docker_nginx/certbot/conf:/etc/letsencrypt
+      - ./docker_nginx/certbot/www:/var/www/certbot
     ports:
       - 80:80
       - 443:443
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
   certbot:
     container_name: certbot
     image: certbot/certbot:latest
     depends_on:
       - nginx
-    command: >-
-             certonly --reinstall --webroot --webroot-path=/var/www/certbot
-             --email support@commery.ru --agree-tos --no-eff-email
-             -d app.commery.ru
     volumes:
-      - ./etc/letsencrypt:/etc/letsencrypt
-      - ./certbot/data:/var/www/certbot
+      - ./docker_nginx/certbot/conf:/etc/letsencrypt
+      - ./docker_nginx/certbot/www:/var/www/certbot
 
 volumes:
   static_volume:
