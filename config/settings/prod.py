@@ -5,7 +5,6 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     'app.commery.ru',
-    'commery.ru',
     '62.217.182.252'
 ]
 
