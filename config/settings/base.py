@@ -171,7 +171,7 @@ LOGGING = {
         # 'file': {
         #     'class': 'logging.FileHandler',
         #     'formatter': 'json_formatter',
-        #     'filename': 'info.log'
+        #     'filename': 'logs/info.log'
         # },
     },
     'loggers': {

@@ -5,7 +5,7 @@ from users.views import (
     ProfilePage, LoadDataFromWBView, ChangeProfileData,
     ChangePasswordView, CompaniesListView, CompanyEditView,
     EditProductView, ProductDetailView, EmptyProductsListView,
-    DeleteCompanyView, ara, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
+    DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
     PasswordResetDoneView
 )
 
@@ -14,7 +14,7 @@ app_name = 'users'
 urlpatterns = [
     path('login/', LoginPageView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('ara/', ara, name='ara'),
+
     path('password-reset/', PasswordResetView.as_view(), name='password_reset'),
     path('password-reset/done/', PasswordResetDoneView.as_view(), name='password_reset_done'),
     path(

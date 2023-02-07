@@ -8,7 +8,7 @@ from reports.views import DashboardView, ReportDetailView, EmptyReportsView
 app_name = 'reports'
 
 urlpatterns = [
-    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('', DashboardView.as_view(), name='dashboard'),
     path('reports/', EmptyReportsView.as_view(), name='empty_reports'),
     path('report/<str:create_dt>', ReportDetailView.as_view(), name='report_detail')
 ]

@@ -31,11 +31,7 @@ from users.tasks import generate_user_products, send_email_verification
 from users.token import account_activation_token, password_reset_token
 
 
-logger = logging.getLogger('main')
-
-
-def ara(request):
-    return render(request, 'custom_error_pages/404_page.html')
+logger_debug = logging.getLogger('main')
 
 
 class RegisterPageView(CreateView):
@@ -203,6 +199,7 @@ class ProfilePage(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
+        logger_debug.info('asd')
         context = {
             'api_keys': request.user.keys.filter(),
             'sales': request.user.sales.all(),
@@ -602,7 +599,6 @@ class EditProductView(LoginRequiredMixin, View):
             api_key__user=request.user,
             api_key__is_current=True
         )
-
 
         products_list = ClientUniqueProduct.objects.filter(
             api_key__user=request.user, api_key__is_current=True

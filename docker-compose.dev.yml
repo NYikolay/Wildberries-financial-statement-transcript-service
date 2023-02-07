@@ -25,6 +25,7 @@ services:
     volumes:
       - static_volume:/commery_project/static
       - media_volume:/commery_project/media
+      - logs_volume:/commery_project/logs
       - .:/commery_project
     ports:
       - "8000:8000"
@@ -61,3 +62,4 @@ volumes:
   static_volume:
   media_volume:
   postgres_data:
+  logs_volume:
