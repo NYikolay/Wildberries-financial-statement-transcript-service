@@ -14,7 +14,7 @@ services:
     env_file:
       - .env
     expose:
-      - "5432:5432"
+      - "5432"
   web:
     build:
       dockerfile: Dockerfile
@@ -53,7 +53,7 @@ services:
   selenium:
     image: selenium/standalone-chrome
     expose:
-      - "4444:4444"
+      - "4444"
     environment:
       - SE_NODE_MAX_INSTANCES=1
       - SE_NODE_MAX_SESSIONS=1
