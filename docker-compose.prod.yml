@@ -13,7 +13,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     env_file:
       - .env
-    ports:
+    expose:
       - "5432:5432"
   web:
     build:
@@ -52,7 +52,7 @@ services:
       - nginx
   selenium:
     image: selenium/standalone-chrome
-    ports:
+    expose:
       - "4444:4444"
     environment:
       - SE_NODE_MAX_INSTANCES=1
