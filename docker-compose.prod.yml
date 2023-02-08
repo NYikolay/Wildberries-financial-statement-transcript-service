@@ -30,6 +30,10 @@ services:
       - .:/commery_project
     ports:
       - "8000:80"
+    networks:
+      main:
+        aliases:
+          - web
     env_file:
       - .env
     depends_on:
@@ -74,6 +78,10 @@ services:
     ports:
       - 80:80
       - 443:443
+    networks:
+      main:
+        aliases:
+          - nginx
   certbot:
     container_name: certbot
     image: certbot/certbot:latest
