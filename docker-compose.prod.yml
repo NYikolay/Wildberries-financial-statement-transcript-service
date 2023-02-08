@@ -29,7 +29,7 @@ services:
       - media_volume:/commery_project/media
       - .:/commery_project
     ports:
-      - "8000:8000"
+      - "8000:80"
     env_file:
       - .env
     depends_on:
