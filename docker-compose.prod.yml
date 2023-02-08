@@ -71,6 +71,7 @@ services:
       - media_volume:/commery_project/media
       - ./docker_nginx/certbot/conf:/etc/letsencrypt
       - ./docker_nginx/certbot/www:/var/www/certbot
+      - ./docker_nginx/ip_ssl_certificate:/etc/ip_ssl_certificate
     ports:
       - 80:80
       - 443:443
