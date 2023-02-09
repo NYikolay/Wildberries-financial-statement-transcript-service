@@ -257,7 +257,7 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
         'tax_total': round(sum(tax_total)),
         'profit_total': round(sum(profit_total)),
         'profitability_total': round((sum(profit_total) / sum(revenue_total) * 100)),
-        'reports_by_week': reports_by_week
+        'reports_by_week': json.dumps(reports_by_week, ensure_ascii=False)
     }
 
 

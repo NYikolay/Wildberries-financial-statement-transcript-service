@@ -275,9 +275,15 @@
 
 
 /* MAIN CONTENT END */
+
+/* GRAPHICS BLOCK START*/
+
 .graphs {
     font-family: Arial, sans-serif;
 }
+
+
+
 
 .graphs-bar-prewrap {
     height: 359px;
@@ -289,7 +295,7 @@
     background-color: #fff;
 
     margin-bottom: 40px;
-    padding: 15px 20px;
+    padding: 20px 20px;
 
     box-sizing: border-box;
 }
@@ -326,7 +332,7 @@
 
 .graphs-bar__bars {
     width: 100%;
-    height: 200px;
+    height: 185px;
     box-sizing: border-box;
 
     padding: 0;
@@ -360,7 +366,7 @@
 
     position: absolute;
     left: 0;
-    bottom: 60px;
+    bottom: 0px;
 
     padding: 0;
 }
@@ -377,7 +383,13 @@
 
     margin: 0 5px;
 
+    max-width: 43px;
+
     cursor: pointer;
+}
+
+.graphs-bar__revenue-item {
+    border-radius: 5px 5px 0 0;
 }
 
 .graphs-bar__profit-item-check {
@@ -405,7 +417,6 @@
     box-sizing: border-box;
 
     display: flex;
-    justify-content: space-between;
 
     padding: 0;
     margin-top: 0px;
@@ -419,6 +430,8 @@
     border-radius: 8px;
 
     width: 100%;
+    max-width: 43px;
+    box-sizing: border-box;
 
     text-align: center;
 
@@ -433,9 +446,9 @@
 /* --- UPDATE --- */
 .graphs-bar-update {
     font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
 
-    margin-top: 10px;
+    padding: 20px;
 }
 
 .graphs-bar-update__title {
@@ -468,8 +481,8 @@
     display: block;
     border-radius: 50%;
 
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
 
     background-color: #dbdbdb;
 
@@ -491,8 +504,8 @@
 /* --- TOOLTIP --- */
 .graphs-bar__tooltip {
     position: absolute;
-    top: -12px;
-    right: -17px;
+    top: -10px;
+    right: -15px;
 
     display: flex;
     flex-direction: row-reverse;
@@ -500,32 +513,41 @@
 
 .graphs-bar__tooltip-btn {
     color: #ff8364;
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 400;
     text-align: center;
     width: 20px;
     height: 20px;
 
-    background-color: transparent;
-    background-image: url('/static/images/icon_q.png');
+    /*background-color: transparent;
+    background-image: url('../img/icon_q.png');
     background-size: 50% 80%;
     background-position: center;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat;*/
 
     border: 2px solid #ff8364;
     border-radius: 50%;
 
     cursor: pointer;
+
+    transition: 0.3s;
 }
+/*.graphs-bar__tooltip-btn:hover {
+	background-color: #dbdbdb;
+
+	transition: 0.3s;
+}*/
 
 .graphs-bar__tooltip-info {
     display: none;
     width: 40%;
 
-    border: 1px solid #dbdbdb;
+    /*border: 1px solid #dbdbdb;*/
     border-radius: 5px;
 
-    font-size: 14px;
+    font-size: 8px;
+    color: #9c9a9a;
+    text-transform: uppercase;
     background-color: #fff;
 
     padding: 10px;
@@ -612,8 +634,8 @@
 .graphs-bar__info-string:before {
     content: '';
     display: block;
-    width: 8px;
-    height: 8px;
+    width: 5px;
+    height: 5px;
 
     border-radius: 50%;
 
@@ -660,13 +682,29 @@
     display: flex;
     justify-content: space-between;
 
+    height: 239px;
+    box-sizing: border-box;
+
     border-radius: 10px;
     background-color: #fff;
-    padding: 20px;
+    padding: 0 20px 20px;
+}
+.graphs-diog__wrap {
+    display: flex;
+}
+
+.graphs-diog__title {
+    color: #9c9a9a;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    margin: 20px 0;
 }
 
 .graphs-diog {
     display: flex;
+    flex-direction: column;
 
     width: 50%;
 
@@ -688,7 +726,7 @@
 
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .graphs-diog__legend-text {
@@ -700,17 +738,24 @@
     font-weight: 700;
     text-transform: uppercase;
 
-    margin-bottom: 3px;
+    /*margin-bottom: 3px;*/
+    margin: 5px 0;
+}
+.graphs-diog__legend-text.hidden {
+    display: none;
 }
 
 .graphs-diog__legend-text-content {
     max-width: calc(100% - 60px);
+    white-space: nowrap;
+
+    overflow: hidden;
 }
 
 .graphs-diog__legend-color {
     display: block;
 
-    width: 50px;
+    width: 40px;
     height: 10px;
 
     border-radius: 5px;

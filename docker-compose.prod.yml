@@ -23,7 +23,7 @@ services:
     image: commery_docker:prod
     container_name: commery_django
     command: >
-      bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && gunicorn -b 0.0.0.0:8000 config.wsgi:application"
+      bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && gunicorn --workers 5 -b 0.0.0.0:8000 config.wsgi:application"
     volumes:
       - static_volume:/commery_project/staticfiles
       - media_volume:/commery_project/media

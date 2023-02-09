@@ -1,227 +1,8 @@
-data1 = [
-	{
-		"date_from": "2022-10-31",
-		"date_to": "2022-11-06",
-		"week_num": 44,
-		"revenue": 16192.36,
-		"sales_amount": 32,
-		"returns_amount": 0,
-		"logistics": 8332.5,
-		"net_costs_sum": 3200,
-		"marginality": 80.23759353176436,
-		"commission": 3189.110000000004,
-		"supplier_costs": 30000,
-		"wb_costs": 880,
-		"tax": 1133.4652,
-		"profit": -30042.715200000002,
-		"profitability": -188.62423513311217
-	},
-	{
-		"date_from": "2022-11-07",
-		"date_to": "2022-11-13",
-		"week_num": 45,
-		"revenue": 74653.4200000003,
-		"sales_amount": 176,
-		"returns_amount": 0,
-		"logistics": 17471,
-		"net_costs_sum": 17600,
-		"marginality": 76.42438886255991,
-		"commission": 6207.160000000338,
-		"supplier_costs": 0,
-		"wb_costs": 21930,
-		"tax": 5225.739400000013,
-		"profit": 6219.5205999999525,
-		"profitability": 8.331193132210055
-	},
-	{
-		"date_from": "2022-11-14",
-		"date_to": "2022-11-20",
-		"week_num": 46,
-		"revenue": 91088.41000000032,
-		"sales_amount": 209,
-		"returns_amount": 0,
-		"logistics": 22828,
-		"net_costs_sum": 20900,
-		"marginality": 77.05525873159942,
-		"commission": 12742.530000000246,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 6376.188700000013,
-		"profit": 28241.691300000064,
-		"profitability": 31.00470334260963
-	},
-	{
-		"date_from": "2022-11-21",
-		"date_to": "2022-11-27",
-		"week_num": 47,
-		"revenue": 186608.009999999,
-		"sales_amount": 495,
-		"returns_amount": 0,
-		"logistics": 34896,
-		"net_costs_sum": 49500,
-		"marginality": 73.47380747482369,
-		"commission": 15728.859999999171,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 13062.560699999987,
-		"profit": 73420.58929999983,
-		"profitability": 39.34482196128678
-	},
-	{
-		"date_from": "2022-11-28",
-		"date_to": "2022-12-04",
-		"week_num": 48,
-		"revenue": 151317.65000000005,
-		"sales_amount": 403,
-		"returns_amount": 1,
-		"logistics": 23679.5,
-		"net_costs_sum": 40200,
-		"marginality": 73.43337013230116,
-		"commission": 7270.210000000156,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 10592.23550000001,
-		"profit": 69575.70449999989,
-		"profitability": 45.979900229748395
-	},
-	{
-		"date_from": "2022-12-05",
-		"date_to": "2022-12-11",
-		"week_num": 49,
-		"revenue": 112608.10999999988,
-		"sales_amount": 228,
-		"returns_amount": 0,
-		"logistics": 15328,
-		"net_costs_sum": 22800,
-		"marginality": 79.75279045177118,
-		"commission": 26332.02999999997,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 7882.567700000008,
-		"profit": 40265.51229999991,
-		"profitability": 35.757204609863315
-	},
-	{
-		"date_from": "2022-12-12",
-		"date_to": "2022-12-18",
-		"week_num": 50,
-		"revenue": 157598.46999999988,
-		"sales_amount": 268,
-		"returns_amount": 0,
-		"logistics": 18804,
-		"net_costs_sum": 26800,
-		"marginality": 82.99475876891444,
-		"commission": 34685.47999999997,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 11031.892900000006,
-		"profit": 66277.09709999991,
-		"profitability": 42.05440389110374
-	},
-	{
-		"date_from": "2022-12-19",
-		"date_to": "2022-12-25",
-		"week_num": 51,
-		"revenue": 153829.11000000002,
-		"sales_amount": 250,
-		"returns_amount": 0,
-		"logistics": 10136,
-		"net_costs_sum": 25000,
-		"marginality": 83.74819954428652,
-		"commission": 34619.35000000009,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 10768.037700000003,
-		"profit": 73230.72229999992,
-		"profitability": 47.60524344189466
-	},
-	{
-		"date_from": "2022-12-26",
-		"date_to": "2022-12-28",
-		"week_num": 52,
-		"revenue": 61496.36999999995,
-		"sales_amount": 95,
-		"returns_amount": 0,
-		"logistics": 4770,
-		"net_costs_sum": 9500,
-		"marginality": 84.5519337157624,
-		"commission": 13862.07999999998,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 4304.745899999999,
-		"profit": 29059.544099999974,
-		"profitability": 47.25408036279214
-	},
-	{
-		"date_from": "2022-12-29",
-		"date_to": "2023-01-01",
-		"week_num": 52,
-		"revenue": 67709.83999999997,
-		"sales_amount": 105,
-		"returns_amount": 0,
-		"logistics": 3392.5,
-		"net_costs_sum": 10500,
-		"marginality": 84.4926527665698,
-		"commission": 15381.089999999938,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 4739.688799999995,
-		"profit": 33696.56120000003,
-		"profitability": 49.766121438183944
-	},
-	{
-		"date_from": "2023-01-02",
-		"date_to": "2023-01-08",
-		"week_num": 1,
-		"revenue": 94066.55000000013,
-		"sales_amount": 145,
-		"returns_amount": 0,
-		"logistics": 11071.5,
-		"net_costs_sum": 14500,
-		"marginality": 84.58538130717031,
-		"commission": 21185.06000000013,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 6584.658499999989,
-		"profit": 40600.331500000015,
-		"profitability": 43.16128474999876
-	},
-	{
-		"date_from": "2023-01-09",
-		"date_to": "2023-01-15",
-		"week_num": 2,
-		"revenue": 112628.84000000019,
-		"sales_amount": 179,
-		"returns_amount": 0,
-		"logistics": 10769.36,
-		"net_costs_sum": 17900,
-		"marginality": 84.10709015559428,
-		"commission": 25336.260000000228,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 7884.018799999969,
-		"profit": 50639.20119999999,
-		"profitability": 44.96113180247608
-	},
-	{
-		"date_from": "2023-01-16",
-		"date_to": "2023-01-22",
-		"week_num": 3,
-		"revenue": 119971.36000000018,
-		"sales_amount": 187,
-		"returns_amount": 0,
-		"logistics": 10586.200000000003,
-		"net_costs_sum": 18700,
-		"marginality": 84.41294655657819,
-		"commission": 27106.620000000228,
-		"supplier_costs": 0,
-		"wb_costs": 0,
-		"tax": 8397.995199999961,
-		"profit": 55196.54479999998,
-		"profitability": 46.0081012668356
-	}
-]
-
+const graphWrapper = document.getElementById("graphs-bar-wrap")
+const graphDiogWrapper = document.getElementById("graphs-diog-wrap")
+const brandShareInRevenueData = JSON.parse(graphDiogWrapper.getAttribute("data-brands-share"))
+const stockShareInRevenueData = JSON.parse(graphDiogWrapper.getAttribute("data-stock-share"))
+const reportByWeekData = JSON.parse(graphWrapper.getAttribute('data-report'))
 
 
 let bars_x = 0;
@@ -259,8 +40,7 @@ function createBar(data_bar) {
 	let bar_profit_min = 0;
 	let bar_profit_max = 0;
 
-	for (var i = 0; i < bar_count; i++) {
-
+	for (let i = 0; i < bar_count; i++) {
 		if (data_bar[i]['revenue'] > bar_revenue_max) {
 			bar_revenue_max = data_bar[i]['revenue'];
 		}
@@ -337,8 +117,17 @@ function createBar(data_bar) {
 
 // Открытие подсказки
 let bar_tooltip = document.querySelector('.graphs-bar__tooltip-info');
+let bar_tooltip_btn = document.querySelector('.graphs-bar__tooltip-btn');
 
-document.addEventListener('click', function(e) {
+bar_tooltip_btn.addEventListener('mouseover', function() {
+	bar_tooltip.classList.add('showed');
+});
+
+bar_tooltip_btn.addEventListener('mouseleave', function() {
+	bar_tooltip.classList.remove('showed');
+});
+
+/*document.addEventListener('click', function(e) {
 	target = e.target.classList;
 
 	if (target.contains('graphs-bar__tooltip-btn') || target.contains('graphs-bar__tooltip-info')) {
@@ -355,7 +144,33 @@ document.addEventListener('click', function(e) {
 	} else {
 		bar_tooltip.classList.remove('showed');
 	}
-});
+});*/
+
+
+/*document.addEventListener('mouseover', function(e) {
+	target = e.target.classList;
+
+	if (target.contains('graphs-bar__tooltip-btn') || target.contains('graphs-bar__tooltip-info')) {
+		if (target.contains('graphs-bar__tooltip-btn')) {
+			if (bar_tooltip.classList.contains('showed')) {
+				bar_tooltip.classList.remove('showed');
+			} else {
+				bar_tooltip.classList.add('showed');
+			}
+		} else {
+			bar_tooltip.classList.add('showed');
+		}
+
+	} else {
+		bar_tooltip.classList.remove('showed');
+	}
+});*/
+
+
+
+/*bars_profit[i].addEventListener('mouseleave', function() {
+			bar_info.classList.remove('showed');
+		});*/
 
 
 // Логика работы всплывающего окна с информацией
@@ -405,8 +220,8 @@ function showBarInfo() {
 			bars_info_title.textContent = result[0] + ' - ' + result[1];
 
 			bars_info_span[0].textContent = result[13];
-			bars_info_span[1].textContent = result[8];
-			bars_info_span[2].textContent = result[14];
+			bars_info_span[1].textContent = result[8] + ' %';
+			bars_info_span[2].textContent = result[14] + ' %';
 			bars_info_span[3].textContent = result[4];
 			bars_info_span[4].textContent = result[5];
 			bars_info_span[5].textContent = result[3];
@@ -609,23 +424,11 @@ function showBarInfo() {
 
 }
 
-
-
-var diog_data1 = {
-	"Коледино": 64.52852239495367,
-	"Склад Казань": 7.444979651992475,
-	"Краснодар": 6.102747704352554,
-	"Электросталь": 5.946136807622129,
-	"Новосибирск": 5.640040478121926,
-	"Санкт-Петербург Ш блок 1": 5.571520576438181,
-	"Екатеринбург": 3.8970308304551766,
-	"null": 0.39724211539265253,
-	"остальные": 0.47177944067179695
-}
-
 var diog_current_title = '';
 
 function createDiogram(data, position) {
+
+	let data_original = data;
 
 	let cur_block = 'diog-' + position;
 
@@ -634,9 +437,12 @@ function createDiogram(data, position) {
 	let diog_labeles = [];
 	let diog_data = [];
 
+	let count_key = 0;
 	for (key in data) {
-		diog_labeles.push(key);
+		diog_labeles.push(key.toUpperCase());
 		diog_data.push(data[key]);
+
+		count_key = count_key + 1;
 	}
 
 	let diog_legend_block = 'graphs-diog__legend-' + position;
@@ -646,6 +452,29 @@ function createDiogram(data, position) {
 		diog_legend_block[i].children[1].textContent = diog_labeles[i];
 	}
 
+	// Удаление лиших цветов
+	let colors = [
+		'#ff562b',
+		'#ff815c',
+		'#ffa78b',
+		'#ffcabc',
+		'#edecec',
+		'#dfe5e9',
+		'#d6dde6',
+		'#b9cee2',
+		'#c1d2e3',
+	];
+	if (count_key < 9) {
+		colors = colors.slice(0, count_key);
+	}
+	let spans = diog_content.parentElement.parentElement.children[1].children;
+	for (var i = 0; i < 9; i++) {
+		if (i >= diog_data.length) {
+			spans[i].classList.add('hidden');
+		}
+	}
+
+
 	new Chart(diog_content, {
 		type: 'doughnut',
 		data: {
@@ -653,17 +482,7 @@ function createDiogram(data, position) {
 			datasets: [{
 				label: '',
 				data: diog_data,
-				backgroundColor: [
-					'#ff562b',
-					'#ff815c',
-					'#ffa78b',
-					'#ffcabc',
-					'#edecec',
-					'#dfe5e9',
-					'#d6dde6',
-					'#b9cee2',
-					'#c1d2e3',
-				],
+				backgroundColor: colors,
 			}
 			]},
 		options: {
@@ -687,7 +506,7 @@ function createDiogram(data, position) {
 				titleFontColor: '#0066ff',
 				bodyFontSize: 8,
 				displayColors: false,
-				backgroundColor: 'rgba(0, 0, 0, 1)',
+				backgroundColor: '#424242',
 
 
 
@@ -700,7 +519,11 @@ function createDiogram(data, position) {
 
 }
 
-createBar(data1);
+createBar(reportByWeekData);
 
-createDiogram(diog_data1, 'left');
-createDiogram(diog_data1, 'right');
+createDiogram(brandShareInRevenueData, 'left');
+createDiogram(stockShareInRevenueData, 'right');
+
+graphWrapper.removeAttribute("data-report")
+graphDiogWrapper.removeAttribute("data-brands-share")
+graphDiogWrapper.removeAttribute("data-stock-share")

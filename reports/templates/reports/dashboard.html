@@ -6,27 +6,20 @@
     <div class="main_content-wrapper">
         <div class="graphs">
             <div class="graphs-bar-prewrap">
-                <div class="graphs-bar-wrap">
+                <div class="graphs-bar-wrap" id="graphs-bar-wrap" data-report="{{ report.reports_by_week }}">
                     <div class="graphs-bar">
-
                         <div class="graphs-bar__bars">
                             <div class="graphs-bar__revenue">
                                 <div class="graphs-bar__profit-item-check"></div>
                             </div>
-
                             <div class="graphs-bar__profit">
-
                             </div>
-
-
-
                             <div class="graphs-bar__tooltip">
-                                <button class="graphs-bar__tooltip-btn"></button>
+                                <button class="graphs-bar__tooltip-btn">?</button>
                                 <p class="graphs-bar__tooltip-info">
                                     ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ
                                 </p>
                             </div>
-
                             <div class="graphs-bar__info">
                                 <p class="graphs-bar__info-title">01.01.2023 - 07.01.2023</p>
                                 <div class="graphs-bar__info-text">
@@ -46,113 +39,115 @@
                                 <span class="graphs-bar__info-add"></span>
                             </div>
                         </div>
-
                         <div class="graphs-bar__count">
-
                         </div>
-
                         <div class="graphs-bar__legend">
                             <span class="graphs-bar__legend-item">Неделя</span>
                             <span class="graphs-bar__legend-item">Выручка</span>
                             <span class="graphs-bar__legend-item">Прибыль</span>
                         </div>
-
                     </div>
                 </div>
-
                 <div class="graphs-bar-update">
                     <p class="graphs-bar-update__title">Дата обновления отчета <span>10.05.2022</span></p>
                     <p class="graphs-bar-update__text">Обновить отчет можно на странице <a href="#" class="graphs-bar-update__link">"Список отчетов"</a></p>
                 </div>
-
             </div>
-
-            <div class="graphs-diog-wrap">
+            <div class="graphs-diog-wrap" id="graphs-diog-wrap" data-brands-share="{{ report.brands_share_in_revenue_dict }}" data-stock-share="{{ report.stocks_share_in_revenue_dict }}">
                 <div class="graphs-diog">
-                    <div class="graphs-canvas-wrap">
-                        <canvas class="graphs-diog__item" id="diog-left"></canvas>
-                    </div>
-                    <div class="graphs-diog__legend" id="graphs-diog__legend-left">
-					<span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color1"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color2"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color3"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color4"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color5"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color6"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color7"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color8"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color9"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
+                    <p class="graphs-diog__title">ДОЛЯ БРЕНДА В ВЫРУЧКЕ</p>
+
+                    <div class="graphs-diog__wrap">
+
+                        <div class="graphs-canvas-wrap">
+                            <canvas class="graphs-diog__item" id="diog-left"></canvas>
+                        </div>
+                        <div class="graphs-diog__legend" id="graphs-diog__legend-left">
+						<span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color1"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color2"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color3"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color4"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color5"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color6"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color7"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color8"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color9"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="graphs-diog">
-                    <div class="graphs-canvas-wrap">
-                        <canvas class="graphs-diog__item" id="diog-right"></canvas>
-                    </div>
-                    <div class="graphs-diog__legend" id="graphs-diog__legend-right">
-					<span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color1"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color2"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color3"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color4"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color5"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color6"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color7"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color8"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
-                        <span class="graphs-diog__legend-text">
-						<span class="graphs-diog__legend-color graphs-diog__legend-color9"></span>
-						<span class="graphs-diog__legend-text-content"></span>
-					</span>
+                    <p class="graphs-diog__title">ДОЛЯ ОТГРУЗОК СО СКЛАДА В ВЫРУЧКЕ</p>
+                    <div class="graphs-diog__wrap">
+                        <div class="graphs-canvas-wrap">
+                            <canvas class="graphs-diog__item" id="diog-right"></canvas>
+                        </div>
+
+                        <div class="graphs-diog__legend" id="graphs-diog__legend-right">
+						<span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color1"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color2"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color3"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color4"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color5"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color6"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color7"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color8"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                            <span class="graphs-diog__legend-text">
+							<span class="graphs-diog__legend-color graphs-diog__legend-color9"></span>
+							<span class="graphs-diog__legend-text-content"></span>
+						</span>
+                        </div>
                     </div>
                 </div>
             </div>
