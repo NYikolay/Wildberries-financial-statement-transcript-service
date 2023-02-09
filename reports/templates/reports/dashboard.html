@@ -4,40 +4,159 @@
 {% block content %}
 <div class="container">
     <div class="main_content-wrapper">
-        <div class="graphic_block">
-            <!--            <div class="graphic_block-filters">-->
-            <!--                <div class="filter_date-form">-->
-            <!--                    <form action="." method="post">-->
-            <!--                        <input type="month" value="2023-01">-->
-            <!--                        <button type="submit">Показать отчёт</button>-->
-            <!--                    </form>-->
-            <!--                </div>-->
-            <!--            </div>-->
-            <div class="graphic_canvas">
-                <canvas id="main_chart" width="790" height="300"></canvas>
-                <div class="rounded_values-wrapper">
-                    <div class="rounded_value-left">
-                        <div class="revenue_circle"></div>
-                        <p>Выручка</p>
+        <div class="graphs">
+            <div class="graphs-bar-prewrap">
+                <div class="graphs-bar-wrap">
+                    <div class="graphs-bar">
+
+                        <div class="graphs-bar__bars">
+                            <div class="graphs-bar__revenue">
+                                <div class="graphs-bar__profit-item-check"></div>
+                            </div>
+
+                            <div class="graphs-bar__profit">
+
+                            </div>
+
+
+
+                            <div class="graphs-bar__tooltip">
+                                <button class="graphs-bar__tooltip-btn"></button>
+                                <p class="graphs-bar__tooltip-info">
+                                    ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ
+                                </p>
+                            </div>
+
+                            <div class="graphs-bar__info">
+                                <p class="graphs-bar__info-title">01.01.2023 - 07.01.2023</p>
+                                <div class="graphs-bar__info-text">
+                                    <p class="graphs-bar__info-string">ПРИБЫЛЬ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">МАРЖИНАЛЬНОСТЬ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">РЕНТАБЕЛЬНОСТЬ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">ПРОДАЖИ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">ВОЗВРАТЫ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">ВЫРУЧКА: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">СЕБЕСТОИМОСТЬ ПРОДАЖ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">КОМИССИЯ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">ЛОГИСТИКА: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">РАСХОДЫ WB: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">ПРОЧИЕ РАСХОДЫ: <span class="graphs-bar__info-span"></span></p>
+                                    <p class="graphs-bar__info-string">НАЛОГ: <span class="graphs-bar__info-span"></span></p>
+                                </div>
+                                <span class="graphs-bar__info-add"></span>
+                            </div>
+                        </div>
+
+                        <div class="graphs-bar__count">
+
+                        </div>
+
+                        <div class="graphs-bar__legend">
+                            <span class="graphs-bar__legend-item">Неделя</span>
+                            <span class="graphs-bar__legend-item">Выручка</span>
+                            <span class="graphs-bar__legend-item">Прибыль</span>
+                        </div>
+
                     </div>
-                    <div class="rounded_value-right">
-                        <div class="profit_circle"></div>
-                        <p>Прибыль</p>
+                </div>
+
+                <div class="graphs-bar-update">
+                    <p class="graphs-bar-update__title">Дата обновления отчета <span>10.05.2022</span></p>
+                    <p class="graphs-bar-update__text">Обновить отчет можно на странице <a href="#" class="graphs-bar-update__link">"Список отчетов"</a></p>
+                </div>
+
+            </div>
+
+            <div class="graphs-diog-wrap">
+                <div class="graphs-diog">
+                    <div class="graphs-canvas-wrap">
+                        <canvas class="graphs-diog__item" id="diog-left"></canvas>
+                    </div>
+                    <div class="graphs-diog__legend" id="graphs-diog__legend-left">
+					<span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color1"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color2"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color3"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color4"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color5"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color6"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color7"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color8"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color9"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                    </div>
+                </div>
+
+                <div class="graphs-diog">
+                    <div class="graphs-canvas-wrap">
+                        <canvas class="graphs-diog__item" id="diog-right"></canvas>
+                    </div>
+                    <div class="graphs-diog__legend" id="graphs-diog__legend-right">
+					<span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color1"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color2"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color3"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color4"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color5"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color6"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color7"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color8"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
+                        <span class="graphs-diog__legend-text">
+						<span class="graphs-diog__legend-color graphs-diog__legend-color9"></span>
+						<span class="graphs-diog__legend-text-content"></span>
+					</span>
                     </div>
                 </div>
             </div>
-            <p class="report_reload-date">Дата обновления отчёта 10.05.2022</p>
-            <p class="report_reload-text">Обновить отчёт можно на странице <a href="." class="report_reload-link">"Список отчётов"</a></p>
-        </div>
-        <div class="doughnut_diagrams-wrapper">
-            <div class="doughnut_brand_wrapper">
-                <p class="diagram_text">ДОЛЯ БРЕНДА В ВЫРУЧКЕ</p>
-                <canvas id="doughnut_brand"></canvas>
-            </div>
-            <div class="doughnut_stock-wrapper">
-                <p class="diagram_text">ДОЛЯ ОТГРУЗОК СО СКЛАДА В ВЫРУЧКЕ</p>
-                <canvas id="doughnut_stock"></canvas>
-            </div>
+
         </div>
         <div class="report_block">
             <div class="report_title-block">
@@ -201,8 +320,8 @@
     </div>
 </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 <script src="{% static 'reports/js/dashboard_products.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'reports/js/dashboard.js' %}"></script>
 {% endblock %}
 
