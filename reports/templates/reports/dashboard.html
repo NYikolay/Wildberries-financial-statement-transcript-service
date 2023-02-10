@@ -4,9 +4,9 @@
 {% block content %}
 <div class="container">
     <div class="main_content-wrapper">
-        <div class="graphs">
+        <div class="graphs" id="graphs-bar-wrap" data-report="{{ report.reports_by_week }}">
             <div class="graphs-bar-prewrap">
-                <div class="graphs-bar-wrap" id="graphs-bar-wrap" data-report="{{ report.reports_by_week }}">
+                <div class="graphs-bar-wrap">
                     <div class="graphs-bar">
                         <div class="graphs-bar__bars">
                             <div class="graphs-bar__revenue">
@@ -17,7 +17,7 @@
                             <div class="graphs-bar__tooltip">
                                 <button class="graphs-bar__tooltip-btn">?</button>
                                 <p class="graphs-bar__tooltip-info">
-                                    ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ ПРИБЫЛЬ
+                                    Короткий текст
                                 </p>
                             </div>
                             <div class="graphs-bar__info">
@@ -39,20 +39,27 @@
                                 <span class="graphs-bar__info-add"></span>
                             </div>
                         </div>
+
                         <div class="graphs-bar__count">
+
                         </div>
+
                         <div class="graphs-bar__legend">
                             <span class="graphs-bar__legend-item">Неделя</span>
                             <span class="graphs-bar__legend-item">Выручка</span>
                             <span class="graphs-bar__legend-item">Прибыль</span>
                         </div>
+
                     </div>
                 </div>
+
                 <div class="graphs-bar-update">
-                    <p class="graphs-bar-update__title">Дата обновления отчета <span>10.05.2022</span></p>
-                    <p class="graphs-bar-update__text">Обновить отчет можно на странице <a href="#" class="graphs-bar-update__link">"Список отчетов"</a></p>
+                    <p class="graphs-bar-update__title">Дата обновления отчета <span>{{ current_api_key.last_reports_update|date:'d.m.Y' }}</span></p>
+                    <p class="graphs-bar-update__text">Обновить отчет можно на странице <a href="{% url 'reports:report_detail' last_report_date.date|date:'Y-m-d' %}" class="graphs-bar-update__link">"Список отчетов"</a></p>
                 </div>
+
             </div>
+
             <div class="graphs-diog-wrap" id="graphs-diog-wrap" data-brands-share="{{ report.brands_share_in_revenue_dict }}" data-stock-share="{{ report.stocks_share_in_revenue_dict }}">
                 <div class="graphs-diog">
                     <p class="graphs-diog__title">ДОЛЯ БРЕНДА В ВЫРУЧКЕ</p>
@@ -100,11 +107,14 @@
 							<span class="graphs-diog__legend-text-content"></span>
 						</span>
                         </div>
+
                     </div>
                 </div>
 
                 <div class="graphs-diog">
                     <p class="graphs-diog__title">ДОЛЯ ОТГРУЗОК СО СКЛАДА В ВЫРУЧКЕ</p>
+
+
                     <div class="graphs-diog__wrap">
                         <div class="graphs-canvas-wrap">
                             <canvas class="graphs-diog__item" id="diog-right"></canvas>
@@ -147,12 +157,14 @@
 							<span class="graphs-diog__legend-color graphs-diog__legend-color9"></span>
 							<span class="graphs-diog__legend-text-content"></span>
 						</span>
+
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
+
         <div class="report_block">
             <div class="report_title-block">
                 <h1 class="report_title">Нарастающий итог</h1>
@@ -233,23 +245,23 @@
                 </div>
             </div>
             <div class="errors_list">
-                <div class="error_list_item">
-                    <img src="{% static 'images/q_black.svg' %}" alt="" style="width: 14px; height: 14px;"><span
-                        style="color: black;">Lorem ipsum dolor sit amet.</span>
-                </div>
+<!--                <div class="error_list_item">-->
+<!--                    <img src="{% static 'images/q_black.svg' %}" alt="" style="width: 14px; height: 14px;"><span-->
+<!--                        style="color: black;">Чтобы считалась чистая прибыль от продаж необходимо отразить расходы по продажам, себестоимость товаров и действующую на момент продаж ставку налога.</span>-->
+<!--                </div>-->
                 {% if report.is_empty_reports_values %}
                 <div class="error_list_item">
-                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Не заполнены данные в отчётах</span>
+                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Прибыль считается некорректно - на странице "Список отчетов" не заполнены обязательные поля: Стоимость хранения, Стоимость платной приемки и Прочие удержания.</span>
                 </div>
                 {% endif %}
                 {% if report.is_empty_netcosts_values %}
                 <div class="error_list_item">
-                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Не заполнены данные себестоимости</span>
+                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Прибыль считается некорректно - на странице "Склад" не указана себестоимость товаров.</span>
                 </div>
                 {% endif %}
                 {% if not report.is_empty_tax_values %}
                 <div class="error_list_item">
-                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Не заполнена ставка налога</span>
+                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Прибыль считается некорректно - на странице "Настройки - Магазин" не указана ставка налога.</span>
                 </div>
                 {% endif %}
             </div>

@@ -28,6 +28,8 @@ services:
       - .:/commery_project
     ports:
       - "8000:8000"
+    environment:
+      - LOGS_DIR=/var/www/logs
     env_file:
       - .env
     depends_on:
@@ -36,7 +38,10 @@ services:
     image: redis:6.0.17
     container_name: commery_redis
   celery:
-    build: .
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: "dev"
     container_name: commery_celery
     command: celery -A config worker -l info
     volumes:

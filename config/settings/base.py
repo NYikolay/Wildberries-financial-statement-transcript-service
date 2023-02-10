@@ -171,14 +171,15 @@ LOGGING = {
         # 'file': {
         #     'class': 'logging.FileHandler',
         #     'formatter': 'json_formatter',
-        #     'filename': 'logs/info.log'
+        #     'filename': os.path.join(BASE_DIR, 'logs/django_logs.json')
         # },
     },
     'loggers': {
         'main': {
             'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['console', ],
             'propagate': False
         },
     },
 }
+

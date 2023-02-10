@@ -282,9 +282,6 @@
     font-family: Arial, sans-serif;
 }
 
-
-
-
 .graphs-bar-prewrap {
     height: 359px;
 
@@ -308,7 +305,7 @@
     border: 1px solid #dbdbdb;
 
     border-radius: 10px;
-    padding: 0px;
+    padding: 0;
 
     background-color: #fff;
     margin-bottom: 0;
@@ -359,14 +356,15 @@
     background-color: #dbdbdb;
 
     position: absolute;
+    z-index: 1;
 }
 
 .graphs-bar__profit {
-    height: 0px;
+    height: 0;
 
     position: absolute;
     left: 0;
-    bottom: 0px;
+    bottom: 0;
 
     padding: 0;
 }
@@ -437,9 +435,12 @@
 
     margin: 10px 5px 0;
     padding: 5px 10px;
-
 }
 
+.graphs-bar__count-item-min {
+    padding: 0;
+    border: none;
+}
 
 
 
@@ -457,14 +458,15 @@
 
 .graphs-bar-update__link {
     color: #000;
+    text-decoration: underline;
 }
-
-
-
 
 /*   LEGEND   */
 .graphs-bar__legend {
-    margin: 10px auto 0;
+    margin: 15px auto 0;
+
+    display: flex;
+    justify-content: center;
 }
 .graphs-bar__legend-item {
     color: #9c9a9a;
@@ -475,6 +477,7 @@
     position: relative;
     margin-left: 35px;
 }
+
 .graphs-bar__legend-item:before {
     content: '';
 
@@ -492,6 +495,8 @@
     transform: translateY(-50%);
 }
 
+
+
 .graphs-bar__legend-item:nth-child(1):before {
     background-color: transparent;
     border: 1px solid #dbdbdb;
@@ -499,6 +504,13 @@
 }
 .graphs-bar__legend-item:nth-child(3):before {
     background-color: #ff8364;
+}
+
+.graphs-bar__legend-item.graphs-bar__legend-item-min:before  {
+    content: '1';
+    border: none;
+    text-align: center;
+    font-size: 12px;
 }
 
 /* --- TOOLTIP --- */
@@ -540,9 +552,9 @@
 
 .graphs-bar__tooltip-info {
     display: none;
-    width: 40%;
+    width: 255px;
 
-    /*border: 1px solid #dbdbdb;*/
+    border: 1px solid #dbdbdb;
     border-radius: 5px;
 
     font-size: 8px;
@@ -550,7 +562,7 @@
     text-transform: uppercase;
     background-color: #fff;
 
-    padding: 10px;
+    padding: 7px;
     margin-top: 22px;
 
     z-index: 100;
@@ -879,6 +891,7 @@
 
     .graphs-bar-update__link {
         display: block;
+        text-decoration: underline;
     }
     .graphs-bar-update {
         font-size: 10px;

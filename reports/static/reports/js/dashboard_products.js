@@ -51,19 +51,22 @@ const options = {
     threshold: 0.1
 }
 
-function handleImg(myImg, observer) {
+const handleImg = (myImg, observer) => {
     myImg.forEach(myImgSingle => {
         if (myImgSingle.intersectionRatio > 0) {
             loadImage(myImgSingle.target);
         }
     })
-}
+}; 
 
-function loadImage(image) {
-    image.src = image.dataset.src;
+const loadImage = image => {
+    image.src = image.dataset.src
+
     image.removeAttribute('data-src');
-    observer.unobserve(image)
-}
+
+    observer.unobserve(image);
+
+};
 
 const observer = new IntersectionObserver(handleImg, options)
 
@@ -77,54 +80,57 @@ function insertAfter(elem, refElem) {
     return refElem.parentNode.insertBefore(elem, refElem.nextSibling);
 }
 
-function descSortItemsByAttr(attr) {
-    for (let i = 0; i < productWrapper.children.length; i++) {
-        for (let j = i; j < productWrapper.children.length; j++) {
-            if (+productWrapper.children[i].getAttribute(attr) > +productWrapper.children[j].getAttribute(attr)) {
-                let replacedNode = productWrapper.replaceChild(productWrapper.children[j], productWrapper.children[i]);
-                insertAfter(replacedNode, productWrapper.children[i]);
-            }
-        }
-    }
+function sortHigher(dataAttr) {
+    let sorted = [...productWrapper.children].sort((a, b) => {
+        return b.dataset[dataAttr] - a.dataset[dataAttr];
+    });
+
+    parent.innerHTML = '';
+
+    sorted.forEach(child => {
+        productWrapper.appendChild(child);
+    });
 }
 
-function sortItemsByAttr(attr) {
-    for (let i = 0; i < productWrapper.children.length; i++) {
-        for (let j = i; j < productWrapper.children.length; j++) {
-            if (+productWrapper.children[i].getAttribute(attr) < +productWrapper.children[j].getAttribute(attr)) {
-                let replacedNode = productWrapper.replaceChild(productWrapper.children[j], productWrapper.children[i]);
-                insertAfter(replacedNode, productWrapper.children[i]);
-            }
-        }
-    }
+
+function sortLower(dataAttr) {
+    let sorted = [...productWrapper.children].sort((a, b) => {
+        return a.dataset[dataAttr] - b.dataset[dataAttr];
+    });
+
+    parent.innerHTML = '';
+
+    sorted.forEach(child => {
+        productWrapper.appendChild(child);
+    });
 }
 
 function salesSort() {
     if (salesSorted) {
-        descSortItemsByAttr('data-sales')
+        sortLower('sales')
         salesSorted = false
     } else {
-        sortItemsByAttr('data-sales')
+        sortHigher('sales')
         salesSorted = true
     }
 }
 
 function returnsSort() {
     if (returnsSorted) {
-        descSortItemsByAttr('data-returns')
+        sortLower('returns')
         returnsSorted = false
     } else {
-        sortItemsByAttr('data-returns')
+        sortHigher('returns')
         returnsSorted = true
     }
 }
 
 function revenueSort() {
     if (revenueSorted) {
-        descSortItemsByAttr('data-revenue')
+        sortLower('revenue')
         revenueSorted = false
     } else {
-        sortItemsByAttr('data-revenue')
+        sortHigher('revenue')
         revenueSorted = true
     }
 }
@@ -132,20 +138,20 @@ function revenueSort() {
 
 function shareSort() {
     if (shareSorted) {
-        descSortItemsByAttr('data-share')
+        sortLower('share')
         shareSorted = false
     } else {
-        sortItemsByAttr('data-share')
+        sortHigher('share')
         shareSorted = true
     }
 }
 
 function marginalitySort() {
     if (marginalitySorted) {
-        descSortItemsByAttr('data-marginality')
+        sortLower('marginality')
         marginalitySorted = false
     } else {
-        sortItemsByAttr('data-marginality')
+        sortHigher('marginality')
         marginalitySorted = true
     }
 }

@@ -19,7 +19,7 @@ def create_report_object(request, api_key, sale, unique_week_uuid):
 
 
 def generate_reports(request, api_key):
-    sales = SaleObject.objects.filter(
+    sale_objects = SaleObject.objects.filter(
         owner=request.user,
         api_key=api_key
     ).distinct('realizationreport_id').order_by('realizationreport_id')
@@ -28,7 +28,7 @@ def generate_reports(request, api_key):
 
     unique_weeks_uuid = {}
 
-    for sale in sales:
+    for sale in sale_objects:
         if SaleReport.objects.filter(api_key__is_current=True,
                                      api_key__user=request.user,
                                      realizationreport_id=sale.realizationreport_id).exists():

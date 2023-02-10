@@ -34,9 +34,7 @@ class DashboardView(LoginRequiredMixin, View):
         if not report:
             report = get_report(request, current_api_key, last_weeks_nums)
             cache.set('report_cache', report, 600)
-
         report_by_products_json = json.dumps(report.get('report_by_products'))
-
         context = {
             'report': report,
             'report_by_products_json': report_by_products_json

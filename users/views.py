@@ -191,6 +191,7 @@ class LogoutView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
+        cache.delete('report_cache')
         logout(request)
         return redirect('users:login')
 
@@ -200,6 +201,7 @@ class ProfilePage(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
+        logger_debug.error('ARARARAR')
         context = {
             'api_keys': request.user.keys.filter(),
             'sales': request.user.sales.all(),

@@ -2,7 +2,7 @@
 <div class="container">
     <div class="header_wrapper">
         <div class="lobo_block" style="display: flex; align-items: center">
-            <a href=""><img src="{% static 'images/logo_text.png' %}" alt=""></a>
+            <a href="{% url 'reports:dashboard' %}"><img src="{% static 'images/logo_text.png' %}" alt=""></a>
         </div>
         <nav class="menu">
             <ul class="left_nav-list">
@@ -61,10 +61,10 @@
             </ul>
         </nav>
         <ul class="right_nav-list">
-            <li><a href="" class="nav_link-normal"> <img class="link_normal-img" src="{% static 'images/iconizer-686084.svg' %}"
-                                                         alt="">Предложи идею</a></li>
+            <li><a href="https://forms.yandex.ru/u/63d68e9ec417f30bd20c7182/" target="_blank" class="nav_link-normal"> <img class="link_normal-img" src="{% static 'images/iconizer-686084.svg' %}"
+                                                                                                                            alt="">Предложи идею</a></li>
             <li><a href="https://t.me/+CFhOWMG-qnIxY2Iy" target="_blank" class="nav_link-normal"> <img class="link_normal-img" src="{% static 'images/telegram_image.jpg' %}"
-                                                         alt="">Сообщество продавцов</a></li>
+                                                                                                       alt="">Сообщество продавцов</a></li>
 
         </ul>
     </div>

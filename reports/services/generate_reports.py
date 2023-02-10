@@ -9,7 +9,6 @@ from django.db.models import (
     Case, When, Func,
     CharField)
 from django.db.models.functions import Coalesce, TruncYear, ExtractYear, ExtractWeek
-from django.contrib.postgres.aggregates import ArrayAgg
 
 from users.models import (
     SaleObject, User, ClientUniqueProduct,
@@ -193,8 +192,8 @@ def get_calculated_financials(
     profitability: float = (profit / revenue) * 100
 
     return {
-        'date_from': sales_objects_figures.get('date_from').strftime("%Y-%m-%d"),
-        'date_to': sales_objects_figures.get('date_to').strftime("%Y-%m-%d"),
+        'date_from': sales_objects_figures.get('date_from').strftime("%d.%m.%Y"),
+        'date_to': sales_objects_figures.get('date_to').strftime("%d.%m.%Y"),
         'week_num': sales_objects_figures.get('week_num'),
         'revenue': revenue,
         'sales_amount': sales_quantity_value,
@@ -241,9 +240,10 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
         tax_total.append(data.get('tax'))
         profit_total.append(data.get('profit'))
         profitability_total.append(data.get('profitability'))
-
-    marginality = ((sum(revenue_total) - sum(net_costs_sum_total)) / sum(revenue_total) * 100)
-
+    if sum(net_costs_sum_total) > 0:
+        marginality = ((sum(revenue_total) - sum(net_costs_sum_total)) / sum(revenue_total) * 100)
+    else:
+        marginality = 0
     return {
         'revenue_total': sum(revenue_total),
         'sales_amount_total': sum(sales_amount_total),

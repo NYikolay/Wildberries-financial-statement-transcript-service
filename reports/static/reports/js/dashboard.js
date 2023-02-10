@@ -4,7 +4,6 @@ const brandShareInRevenueData = JSON.parse(graphDiogWrapper.getAttribute("data-b
 const stockShareInRevenueData = JSON.parse(graphDiogWrapper.getAttribute("data-stock-share"))
 const reportByWeekData = JSON.parse(graphWrapper.getAttribute('data-report'))
 
-
 let bars_x = 0;
 let bars_x_offset = 0;
 
@@ -40,7 +39,8 @@ function createBar(data_bar) {
 	let bar_profit_min = 0;
 	let bar_profit_max = 0;
 
-	for (let i = 0; i < bar_count; i++) {
+	for (var i = 0; i < bar_count; i++) {
+
 		if (data_bar[i]['revenue'] > bar_revenue_max) {
 			bar_revenue_max = data_bar[i]['revenue'];
 		}
@@ -74,6 +74,7 @@ function createBar(data_bar) {
 		bar_div_profit.style.bottom = 'calc('+value+')';
 
 		bars_y = Number(height) + Number(bar_pb.slice(0, -2));
+
 	}
 
 	bar_div_count.innerHTML = '';
@@ -99,21 +100,34 @@ function createBar(data_bar) {
 		} else {
 			current_profit_percent = data_bar[i]['profit'] * bar_revenue_percent * -1;
 			bar_div_profit.innerHTML += '<div '+addsLeftRight+' '+attrs+' class="graphs-bar__profit-item border-radius-bottom" style="height: ' + current_profit_percent + 'px; transform: translateY('+current_profit_percent+'px)"></div>';
-
 		}
-
+		//bar_info.style.bottom = '' + String(bars_y-(bars_y_offset/2)) + 'px';
 
 
 		bar_div_count.innerHTML += '<span class="graphs-bar__count-item">'+data_bar[i]['week_num']+'</span>';
 	}
 
-	// Обработка события наведения и получение информациb
+
+	// Уменьшить блоки, содержащие данные о текущей неделе
+	current_bar_width = document.querySelector('.graphs-bar__profit-item').getBoundingClientRect().width;
+	current_num_width = document.querySelector('.graphs-bar__count-item').getBoundingClientRect().width;
+
+	if (current_bar_width != current_num_width) {
+		elements = document.getElementsByClassName('graphs-bar__count-item');
+
+		for (var i = 0; i < elements.length; i++) {
+			elements[i].classList.add('graphs-bar__count-item-min');
+
+		}
+
+		document.querySelector('.graphs-bar__legend-item').classList.add('graphs-bar__legend-item-min');
+
+	}
+
 
 	showBarInfo();
 
 }
-
-
 
 // Открытие подсказки
 let bar_tooltip = document.querySelector('.graphs-bar__tooltip-info');
@@ -184,8 +198,6 @@ if (screen_width <= 480) {
 } else if (screen_width <= 768) {
 	bar_info.classList.add('graphs-bar__info-768px');
 }
-
-
 
 function showBarInfo() {
 
@@ -322,8 +334,8 @@ function showBarInfo() {
 			bars_info_title.textContent = result[0] + ' - ' + result[1];
 
 			bars_info_span[0].textContent = result[13];
-			bars_info_span[1].textContent = result[8];
-			bars_info_span[2].textContent = result[14];
+			bars_info_span[1].textContent = result[8] + ' %';
+			bars_info_span[2].textContent = result[14] + ' %';
 			bars_info_span[3].textContent = result[4];
 			bars_info_span[4].textContent = result[5];
 			bars_info_span[5].textContent = result[3];
@@ -444,14 +456,12 @@ function createDiogram(data, position) {
 
 		count_key = count_key + 1;
 	}
-
 	let diog_legend_block = 'graphs-diog__legend-' + position;
 	diog_legend_block = document.getElementById(diog_legend_block).children;
 
 	for(var i = 0; i < diog_labeles.length; i++) {
 		diog_legend_block[i].children[1].textContent = diog_labeles[i];
 	}
-
 	// Удаление лиших цветов
 	let colors = [
 		'#ff562b',
@@ -473,8 +483,6 @@ function createDiogram(data, position) {
 			spans[i].classList.add('hidden');
 		}
 	}
-
-
 	new Chart(diog_content, {
 		type: 'doughnut',
 		data: {
@@ -512,11 +520,7 @@ function createDiogram(data, position) {
 
 			}
 		}
-
-
-
 	});
-
 }
 
 createBar(reportByWeekData);
