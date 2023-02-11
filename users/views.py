@@ -2,6 +2,7 @@ import json
 import time
 import logging
 from datetime import date, timedelta, datetime, timezone
+from dateutil.relativedelta import relativedelta
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -191,7 +192,7 @@ class LogoutView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
-        cache.delete('report_cache')
+        cache.delete(f'{request.user.id}_report')
         logout(request)
         return redirect('users:login')
 
@@ -370,7 +371,7 @@ class CompanyEditView(LoginRequiredMixin, View):
         return render(request, 'users/profile/companies/company_edit.html', context=context)
 
     def post(self, request, api_key_id):
-        cache.delete('report_cache')
+        cache.delete(f'{request.user.id}_report')
         tax_rates = list(filter(None, request.POST.getlist('tax_rate')))
         commencement_dates = list(filter(None, request.POST.getlist('commencement_date')))
 
@@ -442,7 +443,7 @@ class CompaniesListView(LoginRequiredMixin, View):
         return render(request, 'users/profile/companies/companies_list.html', context)
 
     def post(self, request, *args, **kwargs):
-        cache.delete('report_cache')
+        cache.delete(f'{request.user.id}_report')
         tax_rates = list(filter(None, request.POST.getlist('tax_rate')))
         commencement_dates = list(filter(None, request.POST.getlist('commencement_date')))
 
@@ -494,7 +495,7 @@ class CompaniesListView(LoginRequiredMixin, View):
 
 class DeleteCompanyView(LoginRequiredMixin, View):
     def post(self, request, api_key_id):
-        cache.delete('report_cache')
+        cache.delete(f'{request.user.id}_report')
         company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
         company.delete()
 
@@ -507,9 +508,10 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def post(self, request, *args, **kwargs):
-        cache.delete('report_cache')
+        cache.delete(f'{request.user.id}_report')
         current_api_key = request.user.keys.filter(is_current=True).first()
         today = date.today()
+        three_months_ago = today - relativedelta(months=3)
 
         if not current_api_key:
             messages.warning(request, 'Для загрузки отчёта о продажах, пожалуйста, создайте API ключ Wildberries')
@@ -521,7 +523,7 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
                 api_key__user=request.user
             ).first().create_dt.strftime('%Y-%m-%d')
         else:
-            last_report_date = '2022-11-01'
+            last_report_date = three_months_ago.replace(day=1).strftime('%Y-%m-%d')
 
         report_status = generate_reports_and_sales_objs(request, last_report_date, today, current_api_key)
 
@@ -620,7 +622,7 @@ class EditProductView(LoginRequiredMixin, View):
         return render(request, 'users/profile/products/edit_product.html', context)
 
     def post(self, request, article_value, *args, **kwargs):
-        cache.delete('report_cache')
+        cache.delete(f'{request.user.id}_report')
         cost_inputs = list(filter(None, request.POST.getlist('cost_input')))
         product_cost_dates = list(filter(None, request.POST.getlist('product_cost_date')))
 

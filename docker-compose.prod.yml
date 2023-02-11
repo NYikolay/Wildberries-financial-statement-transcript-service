@@ -38,7 +38,10 @@ services:
     image: redis:6.0.17
     container_name: commery_redis
   celery:
-    build: .
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: "prod"
     container_name: commery_celery
     command: celery -A config worker -l info
     volumes:

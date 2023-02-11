@@ -36,7 +36,7 @@
 
 .products_list-block {
     grid-area: products_list-block;
-    margin-top: 55px;
+    margin-top: 20px;
     padding: 20px 20px 40px 20px;
     background-color: white;
     border-radius: 10px;
@@ -278,6 +278,7 @@
 
 /* GRAPHICS BLOCK START*/
 
+
 .graphs {
     font-family: Arial, sans-serif;
 }
@@ -291,7 +292,7 @@
 
     background-color: #fff;
 
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     padding: 20px 20px;
 
     box-sizing: border-box;
@@ -897,4 +898,5 @@
         font-size: 10px;
     }
 }
+
 

@@ -29,12 +29,14 @@ class DashboardView(LoginRequiredMixin, View):
         today = datetime.today()
         last_weeks_nums = [(today - relativedelta(weeks=i)).isocalendar().week for i in range(24)]
 
-        report = cache.get('report_cache')
+        report = cache.get(f'{request.user.id}_report')
 
         if not report:
             report = get_report(request, current_api_key, last_weeks_nums)
-            cache.set('report_cache', report, 600)
+            cache.set(f'{request.user.id}_report', report, 600)
+
         report_by_products_json = json.dumps(report.get('report_by_products'))
+
         context = {
             'report': report,
             'report_by_products_json': report_by_products_json
@@ -81,7 +83,7 @@ class ReportDetailView(LoginRequiredMixin, View):
         return render(request, 'reports/report_detail.html', context)
 
     def post(self, request, create_dt, *args, **kwargs):
-        cache.delete('report_cache')
+        cache.delete(f'{request.user.id}_report')
         storage_costs = request.POST.getlist('storage_cost')
         cost_paid_acceptances = request.POST.getlist('cost_paid_acceptance')
         other_deductions = request.POST.getlist('other_deductions')

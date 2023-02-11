@@ -7,7 +7,7 @@ from django.db.models import (
     F, IntegerField, Subquery,
     OuterRef, Value,
     Case, When, Func,
-    CharField)
+    CharField, Min, Max)
 from django.db.models.functions import Coalesce, TruncYear, ExtractYear, ExtractWeek
 
 from users.models import (
@@ -226,7 +226,7 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
     reports_by_week = []
 
     for inter_data, supplier_cost, wb_cost in zip(report_intermediate_data, supplier_costs_sum_list, wb_costs_sum_list):
-        data = get_calculated_financials(inter_data, supplier_cost, wb_cost)
+        data: dict = get_calculated_financials(inter_data, supplier_cost, wb_cost)
         reports_by_week.append(data)
         revenue_total.append(data.get('revenue'))
         sales_amount_total.append(data.get('sales_amount'))
@@ -240,10 +240,12 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
         tax_total.append(data.get('tax'))
         profit_total.append(data.get('profit'))
         profitability_total.append(data.get('profitability'))
+
     if sum(net_costs_sum_total) > 0:
         marginality = ((sum(revenue_total) - sum(net_costs_sum_total)) / sum(revenue_total) * 100)
     else:
         marginality = 0
+
     return {
         'revenue_total': sum(revenue_total),
         'sales_amount_total': sum(sales_amount_total),
@@ -393,12 +395,12 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
             Value(0),
             output_field=FloatField(),
         ),
-    ).order_by('date_from').values('date_from').annotate(
+    ).order_by('date_from').values('year', 'week_num').annotate(
         **sum_aggregation_objs_dict,
         **tax_rates_sum_aggregation_objs,
         **net_costs_sum_aggregations_objs,
-        date_to=F('date_to'),
-        week_num=F('week_num'),
+        date_to=Max(F('date_to')),
+        date_from=Min(F('date_from')),
         logistic_sum=Coalesce(Sum('delivery_rub'), 0, output_field=FloatField()),
         penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())

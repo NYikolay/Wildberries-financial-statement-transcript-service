@@ -51,7 +51,7 @@ def generate_user_products(user_id: int, unique_articles: list, api_key_id):
     except Exception:
         ...
 
-    cache.delete('report_cache')
+    cache.delete(f'{current_user.id}_report')
 
 
 @shared_task()

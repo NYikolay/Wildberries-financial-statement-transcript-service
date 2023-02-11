@@ -629,7 +629,7 @@
 }
 
 .change_password-btn {
-    background-color: #f65731;
+    background-color: #ff8364;
     color: white;
     text-transform: uppercase;
     padding: 15px 30px;
@@ -637,6 +637,10 @@
     font-size: 11px;
     font-weight: bold;
     text-align: center;
+}
+
+.change_password-btn:hover {
+    background-color: #ff6600;
 }
 
 .change_password-errors {
@@ -687,7 +691,6 @@
 .change_password-input::-webkit-input-placeholder {
     color:#b3b3b3;
     text-align: center;
-    font-weight: bold;
 }
 .change_password-input::-moz-placeholder {
     color:#b3b3b3;

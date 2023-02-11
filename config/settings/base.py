@@ -149,37 +149,33 @@ EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 
 
-# LOGGING
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'console': {
-            'format': '{asctime} - {levelname} - {module} - {filename} - {message}',
-            'style': '{',
-        },
-        'json_formatter': {
-            '()': CustomJsonFormatter,
-            'format': '%(asctime)s|%(levelname)s|%(pathname)s|%(funcName)s|%(lineno)d|[msg:%(message)s]'
-        }
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'console',
-        },
-        # 'file': {
-        #     'class': 'logging.FileHandler',
-        #     'formatter': 'json_formatter',
-        #     'filename': os.path.join(BASE_DIR, 'logs/django_logs.json')
-        # },
-    },
-    'loggers': {
-        'main': {
-            'level': 'DEBUG',
-            'handlers': ['console', ],
-            'propagate': False
-        },
-    },
-}
+# # LOGGING
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'console': {
+#             'format': '{asctime} - {levelname} - {module} - {filename} - {message}',
+#             'style': '{',
+#         },
+#         'json_formatter': {
+#             '()': CustomJsonFormatter,
+#             'format': '%(asctime)s|%(levelname)s|%(pathname)s|%(funcName)s|%(lineno)d|[msg:%(message)s]'
+#         }
+#     },
+#     'handlers': {
+#         'json_file_handler': {
+#             'class': 'logging.FileHandler',
+#             'formatter': 'json_formatter',
+#             'filename': os.path.join(BASE_DIR, 'logs/django_logs.json')
+#         },
+#     },
+#     'loggers': {
+#         'main': {
+#             'level': 'DEBUG',
+#             'handlers': ['json_file_handler'],
+#             'propagate': False
+#         },
+#     },
+# }
 

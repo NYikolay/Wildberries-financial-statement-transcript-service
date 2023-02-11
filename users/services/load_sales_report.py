@@ -122,14 +122,14 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             'message': 'Отчёты принадлежат другому пользователю.'
         }
 
-    reports_id = SaleReport.objects.filter(
+    reports_ids = SaleReport.objects.filter(
         owner=request.user,
         api_key=current_api_key
     ).values_list('realizationreport_id', flat=True)
 
     try:
         for sale_obj in res_dict:
-            if sale_obj.get('realizationreport_id') in reports_id:
+            if sale_obj.get('realizationreport_id') in reports_ids:
                 continue
             sale_obj_list.append(handle_sale_obj(request, sale_obj, current_api_key))
     except Exception as err:
