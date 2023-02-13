@@ -45,7 +45,7 @@ services:
     command: celery -A config worker -l info
     volumes:
       - ./:/commery_project/commery_celery
-      - /var/web_logs:/commery_project/commery_celery/logs
+      - /var/web_logs:/commery_project/logs
     env_file:
       - .env
     depends_on:
