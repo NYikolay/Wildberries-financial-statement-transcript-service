@@ -22,12 +22,11 @@ class DashboardView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         current_api_key = request.user.keys.filter(is_current=True).first()
+        today = datetime.today()
+        last_weeks_nums = [(today - relativedelta(weeks=i)).isocalendar().week for i in range(24)]
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return render(request, 'reports/empty_dashboard.html')
-
-        today = datetime.today()
-        last_weeks_nums = [(today - relativedelta(weeks=i)).isocalendar().week for i in range(24)]
 
         report = cache.get(f'{request.user.id}_report')
 
@@ -110,12 +109,12 @@ class ReportDetailView(LoginRequiredMixin, View):
             for reports_form in reports_forms:
                 reports_form.save()
 
-            messages.success(request, 'Данные успешно сохранены')
+            messages.success(request, 'Данные успешно сохранены.')
             return redirect(request.META.get('HTTP_REFERER', '/'))
 
         messages.error(
             request,
-            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10')
+            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10.')
 
         context = {
             'create_dt_list': SaleReport.objects.filter(

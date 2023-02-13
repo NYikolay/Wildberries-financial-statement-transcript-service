@@ -66,11 +66,16 @@
 }
 
 .video_tour-block {
-    background-color: #ffffff;
+    background: url("/static/images/banner.png") center / 455px no-repeat;
     padding: 50px 30px 50px 30px;
     width: 455px;
-    height: 315px;
+    height: 310px;
     border-radius: 7px;
+}
+
+.video_tour-block a {
+    height: 100%;
+    width: 100%;
 }
 
 .email_text {

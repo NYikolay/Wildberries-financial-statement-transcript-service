@@ -28,6 +28,7 @@ services:
       - static_volume:/commery_project/staticfiles
       - media_volume:/commery_project/media
       - .:/commery_project
+      - /var/web_logs:/commery_project/logs
     expose:
       - 8000
     env_file:
@@ -46,6 +47,7 @@ services:
     command: celery -A config worker -l info
     volumes:
       - ./:/commery_project/commery_celery
+      - /var/web_logs:/commery_project/commery_celery/logs
     env_file:
       - .env
     depends_on:

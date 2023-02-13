@@ -130,16 +130,16 @@ function createBar(data_bar) {
 }
 
 // Открытие подсказки
-let bar_tooltip = document.querySelector('.graphs-bar__tooltip-info');
-let bar_tooltip_btn = document.querySelector('.graphs-bar__tooltip-btn');
-
-bar_tooltip_btn.addEventListener('mouseover', function() {
-	bar_tooltip.classList.add('showed');
-});
-
-bar_tooltip_btn.addEventListener('mouseleave', function() {
-	bar_tooltip.classList.remove('showed');
-});
+// let bar_tooltip = document.querySelector('.graphs-bar__tooltip-info');
+// let bar_tooltip_btn = document.querySelector('.graphs-bar__tooltip-btn');
+//
+// bar_tooltip_btn.addEventListener('mouseover', function() {
+// 	bar_tooltip.classList.add('showed');
+// });
+//
+// bar_tooltip_btn.addEventListener('mouseleave', function() {
+// 	bar_tooltip.classList.remove('showed');
+// });
 
 /*document.addEventListener('click', function(e) {
 	target = e.target.classList;

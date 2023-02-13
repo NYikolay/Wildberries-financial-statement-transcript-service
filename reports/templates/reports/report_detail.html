@@ -12,16 +12,16 @@
                 <button class="reload_reports-button" id="load-btn" type="submit">Обновить список</button>
             </form>
             <div class="reports_warning-text">
-                <!--                <img class="warning_img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">-->
-                <!--                <p>-->
-                <!--                    На Wildberries отсутствуют отчеты на более свежую дату-->
-                <!--                </p>-->
+<!--                <img class="warning_img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">-->
+<!--                <p>-->
+<!--                    Последний доступный отчёт Wildberries - 20.12.2022-->
+<!--                </p>-->
             </div>
         </div>
         <div class="reports_middle-wrapper">
             <div class="reports_left-filters">
                 <p class="reports_filter-title">Дата формирования</p>
-<!--                <img class="rows_img" src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="">-->
+                <!--                <img class="rows_img" src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="">-->
                 {% for date in create_dt_list %}
                 <a class="report_link-wrapper" href="{% url 'reports:report_detail' date.date|date:'Y-m-d' %}"
                    style="{% if date.date|date:'d.m.Y' == reports.0.create_dt|date:'d.m.Y' %}border: 1px solid #ff8364{% endif %}">

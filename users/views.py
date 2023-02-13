@@ -32,7 +32,7 @@ from users.tasks import generate_user_products, send_email_verification
 from users.token import account_activation_token, password_reset_token
 
 
-logger_debug = logging.getLogger('main')
+django_logger = logging.getLogger('django_logger')
 
 
 class RegisterPageView(CreateView):
@@ -188,8 +188,6 @@ class LoginPageView(View):
 
 
 class LogoutView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
 
     def get(self, request):
         cache.delete(f'{request.user.id}_report')
@@ -202,7 +200,6 @@ class ProfilePage(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
-        logger_debug.error('ARARARAR')
         context = {
             'api_keys': request.user.keys.filter(),
             'sales': request.user.sales.all(),
@@ -274,7 +271,7 @@ class PasswordResetView(View):
         if form.is_valid():
             try:
                 user = User.objects.get(email=form.cleaned_data['email'])
-            except:
+            except Exception as err:
                 messages.error(request, 'Аккаунта с такой почтой не существует.')
                 return render(request, 'users/profile/password/password_reset_form.html', context={'form': form})
 
@@ -381,6 +378,7 @@ class CompanyEditView(LoginRequiredMixin, View):
         if all([
             (len(tax_rates) != len(commencement_dates)) and (len(tax_rates) <= 3 or len(commencement_dates) <= 3)
         ]):
+            django_logger.info(f'Removed js validation, an attempt to bypass security. User - {request.user.email}.')
             messages.error(
                 request,
                 'Ошибка валидации значений налогов. Количестно ставок налога не может быть больше 3. '
@@ -410,6 +408,8 @@ class CompanyEditView(LoginRequiredMixin, View):
                         tax_rate_obj.api_key = company
                         tax_rate_obj.save()
             except Exception as err:
+                django_logger.error(f'Error when updating the store for a user {request.user.email}. '
+                                    f'Failed to save values in the database in a transaction', exc_info=err)
                 messages.error(
                     request,
                     'Не удалось обновить магазин. Пожалуйста, повторите попытку или свяжитесь со службой поддержки.'
@@ -450,6 +450,7 @@ class CompaniesListView(LoginRequiredMixin, View):
         if all([
             (len(tax_rates) != len(commencement_dates)) and (len(tax_rates) <= 3 or len(commencement_dates) <= 3)
         ]):
+            django_logger.info(f'Removed js validation, an attempt to bypass security. User - {request.user.email}.')
             messages.error(
                 request,
                 'Ошибка валидации значений налогов. Количестно ставок налога не может быть больше 3. '
@@ -481,6 +482,8 @@ class CompaniesListView(LoginRequiredMixin, View):
                         tax_rate_obj.api_key = api_key_obj
                         tax_rate_obj.save()
             except Exception as err:
+                django_logger.error(f'Error when creating a store for a user {request.user.email}. '
+                                    f'Failed to save values in the database in a transaction', exc_info=err)
                 messages.error(
                     request,
                     'Не удалось создать магазин. Пожалуйста, повторите попытку или свяжитесь со службой поддержки.'
@@ -572,11 +575,11 @@ class ProductDetailView(LoginRequiredMixin, View):
                                     nm_id=article_value
                                     )
 
-        products_list = ClientUniqueProduct.objects.filter(
+        products_objs_list = ClientUniqueProduct.objects.filter(
             api_key__user=request.user, api_key__is_current=True
         ).order_by('brand', 'nm_id')
 
-        product_paginator = Paginator(products_list, 8)
+        product_paginator = Paginator(products_objs_list, 8)
 
         page_number = request.GET.get('page')
 
@@ -604,11 +607,11 @@ class EditProductView(LoginRequiredMixin, View):
             api_key__is_current=True
         )
 
-        products_list = ClientUniqueProduct.objects.filter(
+        products_objs_list = ClientUniqueProduct.objects.filter(
             api_key__user=request.user, api_key__is_current=True
         ).order_by('brand', 'nm_id')
 
-        product_paginator = Paginator(products_list, 8)
+        product_paginator = Paginator(products_objs_list, 8)
         page_number = request.GET.get('page')
         page_obj = product_paginator.get_page(page_number)
 

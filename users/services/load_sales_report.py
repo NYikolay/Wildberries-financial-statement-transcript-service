@@ -1,3 +1,4 @@
+import logging
 import sys
 from datetime import datetime, timedelta, date, timezone
 
@@ -8,6 +9,8 @@ from users.services.decrypt_api_key import get_decrypted_key
 from users.services.generate_user_reports import generate_reports
 
 import requests
+
+django_logger = logging.getLogger('django_logger')
 
 
 def get_api_key(api_key_obj) -> str:
@@ -117,6 +120,10 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
     sale_obj_list = []
 
     if SaleReport.objects.filter(realizationreport_id__in=unique_reports_id_list).exclude(owner=request.user).exists():
+        django_logger.info(
+            f"Attempted piracy, user - {request.user.email} "
+            f"tries to upload someone else's reports or another account's reports"
+        )
         return {
             'status': False,
             'message': 'Отчёты принадлежат другому пользователю.'
@@ -133,6 +140,8 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
                 continue
             sale_obj_list.append(handle_sale_obj(request, sale_obj, current_api_key))
     except Exception as err:
+        django_logger.critical(f'Error when creating sale objects {request.user.email}. '
+                               f'An error on the Wildberries side that blocks the loading of reports', exc_info=err)
         return {
             'status': False,
             'message': 'Нестабильная работа Wildberries. Пожалуйста, попробуйте позже.'
@@ -147,6 +156,10 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             generate_reports(request, current_api_key)
 
     except Exception as err:
+        django_logger.critical(
+            f'Failed to load reports into the database for a user {request.user.email}',
+            exc_info=err
+        )
         return {
             'status': False,
             'message': 'Произошла ошибка во время загрузки отчёта. Не удалось сохранить данные.'

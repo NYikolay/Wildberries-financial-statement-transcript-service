@@ -105,7 +105,7 @@
                     <button type="button" class="add_cost-button" id="add_cost">Добавить себестоимость</button>
             </div>
             <div class="company_edit-buttons">
-                <a href="{{request.META.HTTP_REFERER}}" class="cancel_link">Отменить</a>
+                <a href="{% url 'users:product_detail' product.nm_id %}?page={{ products.number }}" class="cancel_link">Отменить</a>
                 <button class="send_form-button" type="submit">Сохранить</button>
             </div>
             </form>

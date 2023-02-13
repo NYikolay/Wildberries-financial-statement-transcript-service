@@ -7,7 +7,7 @@ import debug_toolbar
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('ai6_lo_orsur@d39!ss_k33_vjr!!l4sk3r0(uqrpo266s/', admin.site.urls),
     path('', include('users.urls', namespace='users')),
     path('', include('reports.urls', namespace='reports')),
     path('__debug__/', include(debug_toolbar.urls)),

@@ -1,16 +1,19 @@
+import logging
+
 from django.core.mail import EmailMessage
 from django.db import transaction
 from django.core.cache import cache
 
 
 from celery import shared_task
-from selenium.common.exceptions import TimeoutException
 
 from config.settings.base import EMAIL_HOST_USER
 from users.models import ClientUniqueProduct, User, WBApiKey
 from users.services.generate_unique_articles_obj import handle_unique_articles
 from users.services.scraping_product_data import get_scraping_data
 from users.token import account_activation_token
+
+celery_logger = logging.getLogger('celery_logger')
 
 
 @shared_task()
@@ -28,7 +31,11 @@ def generate_user_products(user_id: int, unique_articles: list, api_key_id):
 
         try:
             unique_articles_values.append(get_scraping_data(article.get('nm_id'), article.get('brand')))
-        except TimeoutException as ex:
+        except Exception as err:
+            celery_logger.critical(
+                f'Failed to load pictures and product names for the user - {current_user.email}',
+                exc_info=err
+            )
             unique_articles_values.append({
                 'img': None,
                 'nm_id': article.get('nm_id'),
@@ -48,8 +55,11 @@ def generate_user_products(user_id: int, unique_articles: list, api_key_id):
                 current_api_key.is_products_loaded = True
                 current_api_key.save()
 
-    except Exception:
-        ...
+    except Exception as err:
+        celery_logger.critical(
+            f'Failed to create product objects for a user - {current_user.email}',
+            exc_info=err
+        )
 
     cache.delete(f'{current_user.id}_report')
 
