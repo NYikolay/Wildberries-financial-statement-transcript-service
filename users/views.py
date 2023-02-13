@@ -524,7 +524,7 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
             last_report_date = SaleReport.objects.filter(
                 api_key__is_current=True,
                 api_key__user=request.user
-            ).first().create_dt.strftime('%Y-%m-%d')
+            ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d')
         else:
             last_report_date = three_months_ago.replace(day=1).strftime('%Y-%m-%d')
 
@@ -540,7 +540,7 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
             create_dt = SaleReport.objects.filter(
                 api_key__is_current=True,
                 api_key__user=request.user
-            ).first().create_dt.strftime('%Y-%m-%d')
+            ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d')
 
             messages.success(request, 'Данные успешно загружены')
             return redirect('reports:report_detail', create_dt=create_dt)

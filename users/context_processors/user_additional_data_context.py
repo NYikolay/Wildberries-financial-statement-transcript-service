@@ -13,7 +13,7 @@ def user_last_report_date(request):
         context = {
             'last_report_date': SaleReport.objects.filter(
                 api_key__is_current=True, api_key__user=request.user
-            ).values_list('create_dt', flat=True)[:1].first(),
+            ).values_list('create_dt', flat=True).order_by('-create_dt').first(),
         }
         return context
     return {}

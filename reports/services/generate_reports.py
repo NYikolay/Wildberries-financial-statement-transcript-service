@@ -501,8 +501,7 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     stock_revenues_list: list = get_revenues_list_by_filter(request, current_api_key, dates_filter_lst, 'office_name')
     brands_share_in_revenue_dict: dict = handle_revenues_list_by_filter(brand_revenues_list, totals.get('revenue_total'))
     stocks_share_in_revenue_dict: dict = handle_revenues_list_by_filter(stock_revenues_list, totals.get('revenue_total'))
-    print(json.dumps(brands_share_in_revenue_dict, ensure_ascii=False))
-    print(json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False))
+
     return {
         **totals,
         'report_by_products': products_financials,

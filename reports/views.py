@@ -53,7 +53,7 @@ class ReportDetailView(LoginRequiredMixin, View):
             api_key__is_current=True,
             api_key__user=request.user,
             create_dt__date=create_dt
-        )
+        ).order_by('realizationreport_id')
 
         if len(reports) == 0:
             raise Http404
@@ -91,7 +91,7 @@ class ReportDetailView(LoginRequiredMixin, View):
             api_key__is_current=True,
             api_key__user=request.user,
             create_dt__date=create_dt
-        )
+        ).order_by('realizationreport_id')
 
         reports_forms = []
 
@@ -136,5 +136,5 @@ class EmptyReportsView(LoginRequiredMixin, View):
             return redirect('reports:report_detail', create_dt=SaleReport.objects.filter(
                 api_key__is_current=True,
                 api_key__user=request.user
-            ).first().create_dt.strftime('%Y-%m-%d'))
+            ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d'))
         return render(request, 'reports/empty_reports.html')

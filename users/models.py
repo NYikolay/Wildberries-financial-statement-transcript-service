@@ -252,7 +252,6 @@ class SaleReport(models.Model):
     class Meta:
         verbose_name = 'Отчёт'
         verbose_name_plural = 'Отчёты'
-        ordering = ['-realizationreport_id']
 
 
 
