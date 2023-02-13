@@ -125,7 +125,7 @@ def get_aggregate_sum_dicts() -> dict:
     }
 
 
-def get_calculated_financials(
+def get_calculated_financials_by_weeks(
         sales_objects_figures: dict,
         supplier_costs_values: dict,
         sale_report_wb_costs_sum: dict,
@@ -227,7 +227,7 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
     reports_by_week = []
 
     for inter_data, supplier_cost, wb_cost in zip(report_intermediate_data, supplier_costs_sum_list, wb_costs_sum_list):
-        data: dict = get_calculated_financials(inter_data, supplier_cost, wb_cost)
+        data: dict = get_calculated_financials_by_weeks(inter_data, supplier_cost, wb_cost)
         reports_by_week.append(data)
         revenue_total.append(data.get('revenue'))
         sales_amount_total.append(data.get('sales_amount'))
@@ -264,7 +264,7 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
     }
 
 
-def get_calculated_financials_by_products(sales_objects_by_product_figures, revenue_total: float) -> dict:
+def get_calculated_financials_by_weeks_by_products(sales_objects_by_product_figures, revenue_total: float) -> dict:
 
     sales_quantity_value: float = \
         sales_objects_by_product_figures.get('sales_quantity_sum') - \
@@ -493,7 +493,7 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     products_financials = []
 
     for sale in sale_objects_by_products:
-        product_fin: dict = get_calculated_financials_by_products(sale, totals.get('revenue_total'))
+        product_fin: dict = get_calculated_financials_by_weeks_by_products(sale, totals.get('revenue_total'))
         product_fin['image'] = articles_images_dict.get(product_fin.get('nm_id'))
         products_financials.append(product_fin)
 
@@ -501,7 +501,8 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     stock_revenues_list: list = get_revenues_list_by_filter(request, current_api_key, dates_filter_lst, 'office_name')
     brands_share_in_revenue_dict: dict = handle_revenues_list_by_filter(brand_revenues_list, totals.get('revenue_total'))
     stocks_share_in_revenue_dict: dict = handle_revenues_list_by_filter(stock_revenues_list, totals.get('revenue_total'))
-
+    print(json.dumps(brands_share_in_revenue_dict, ensure_ascii=False))
+    print(json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False))
     return {
         **totals,
         'report_by_products': products_financials,
