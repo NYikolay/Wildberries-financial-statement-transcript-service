@@ -134,6 +134,7 @@ def get_calculated_financials(
     Based on the results of sales aggregations, it calculates and returns user-ready figures.
     CALCULATIONS ARE NOT ROUNDED, ROUNDING ONLY WHEN RETURNING TO THE USER
     """
+
     revenue: float = \
         sales_objects_figures.get('sales_sum') - \
         sales_objects_figures.get('returns_sum') - \
@@ -413,7 +414,9 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
                 api_key=current_api_key,
                 week_num__in=dates_filter_lst
             ).distinct('create_dt').values_list('id', flat=True)
-        )).order_by('date_from').values('date_from').annotate(
+        )).order_by('date_from').values('year', 'week_num').annotate(
+        date_to=Max(F('date_to')),
+        date_from=Min(F('date_from')),
         supplier_costs_sum=Coalesce(Sum('supplier_costs'), 0, output_field=FloatField())
     )
 
@@ -421,7 +424,9 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
         owner=request.user,
         api_key=current_api_key,
         week_num__in=dates_filter_lst
-    ).order_by('date_from').values('date_from').annotate(
+    ).order_by('date_from').values('year', 'week_num').annotate(
+        date_to=Max(F('date_to')),
+        date_from=Min(F('date_from')),
         total_wb_costs_sum=
         Sum(
             Coalesce(F('storage_cost'), 0, output_field=FloatField()) +
