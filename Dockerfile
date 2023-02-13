@@ -39,4 +39,4 @@ RUN pip install -r requirements.txt
 
 USER commery_admin
 
-CMD ["gunicorn", "--workers 5", "-b", "0.0.0.0:8000", "config.wsgi:application"]
+CMD ["gunicorn", "--timeout 120", "--workers 5", "-b", "0.0.0.0:8000", "config.wsgi:application"]
