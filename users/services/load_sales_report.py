@@ -153,7 +153,7 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
     try:
         with transaction.atomic():
             sm_time = datetime.now()
-            SaleObject.objects.bulk_create(sale_obj_list)
+            SaleObject.objects.bulk_create(sale_obj_list, ignore_conflicts=True)
 
             generate_reports(request, current_api_key)
             generate_user_products(request, unique_articles, current_api_key)
