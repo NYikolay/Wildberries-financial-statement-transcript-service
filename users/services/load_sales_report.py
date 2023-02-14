@@ -25,7 +25,7 @@ def get_unique_articles(sales: list) -> list:
     articles_data = []
     for sale in sales:
         articles_nm_ids = [i.get('nm_id') for i in articles_data]
-        if sale.get('nm_id') not in articles_nm_ids:
+        if sale.get('nm_id') not in articles_nm_ids and sale.get('nm_id') is not None:
             articles_data.append(
                 {
                     'nm_id': sale.get('nm_id'),
@@ -43,7 +43,69 @@ def get_unique_reports(sales: list) -> list:
     return reports_data
 
 
+def check_sale_objs_validation(sale_obj):
+    delivery_rub = sale_obj.get('delivery_rub', None)
+    if sale_obj.get('office_name', None) is None:
+        office_name = 'Склад WB без названия'
+    else:
+        office_name = sale_obj.get('office_name', None)
+    lst = [
+        sale_obj.get('date_from', None),
+        sale_obj.get('realizationreport_id', None),
+        sale_obj.get('date_to', None),
+        sale_obj.get('create_dt', None),
+        sale_obj.get('gi_id', None),
+        sale_obj.get('subject_name', None),
+        sale_obj.get('nm_id', None),
+        sale_obj.get('brand_name', None),
+        sale_obj.get('barcode', None),
+        sale_obj.get('doc_type_name', None),
+        sale_obj.get('order_dt', None),
+        sale_obj.get('sale_dt', None),
+        sale_obj.get('quantity', None),
+        sale_obj.get('retail_price', None),
+        sale_obj.get('retail_price_withdisc_rub', None),
+        sale_obj.get('ppvz_for_pay', None),
+        sale_obj.get('penalty', None),
+        sale_obj.get('additional_payment', None),
+        sale_obj.get('site_country', None),
+        office_name,
+        sale_obj.get('srid', None),
+        sale_obj.get('delivery_rub', None),
+        sale_obj.get('rid', None),
+        sale_obj.get('supplier_oper_name', None)
+    ]
+
+    for value in lst:
+        if value is None:
+            if delivery_rub is not None \
+                    and delivery_rub > 0 \
+                    and sale_obj.get('supplier_oper_name') == "Логистика" \
+                    and sale_obj.get('realizationreport_id') is not None \
+                    and sale_obj.get('date_from') is not None \
+                    and sale_obj.get('date_to') is not None \
+                    and sale_obj.get('create_dt') is not None \
+                    and sale_obj.get('subject_name') is None \
+                    and sale_obj.get('nm_id') is None \
+                    and sale_obj.get('brand_name') is None \
+                    and sale_obj.get('barcode') is not None \
+                    and sale_obj.get('doc_type_name') == 'Продажа' \
+                    and sale_obj.get('quantity') == 0 and sale_obj.get('retail_price_withdisc_rub') == 0 \
+                    and sale_obj.get('ppvz_for_pay') == 0:
+                return True
+
+            return sale_obj.get('realizationreport_id')
+
+    return True
+
+
 def handle_sale_obj(request, sale_obj: dict, api_key):
+
+    if sale_obj.get('office_name', None) is None:
+        office_name = 'Склад WB без названия'
+    else:
+        office_name = sale_obj.get('office_name', None)
+
     return SaleObject(
         owner=request.user,
         api_key=api_key,
@@ -75,7 +137,7 @@ def handle_sale_obj(request, sale_obj: dict, api_key):
         penalty=sale_obj.get('penalty'),
         additional_payment=sale_obj.get('additional_payment'),
         site_country=sale_obj.get('site_country'),
-        office_name=sale_obj.get('office_name', 'Склад WB без названия'),
+        office_name=office_name,
         srid=sale_obj.get('srid'),
         delivery_rub=sale_obj.get('delivery_rub'),
         rid=sale_obj.get('rid'),
@@ -84,7 +146,6 @@ def handle_sale_obj(request, sale_obj: dict, api_key):
 
 
 def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key) -> dict:
-
     headers = {
         'Authorization': get_api_key(current_api_key)
     }
@@ -93,10 +154,9 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
         "dateFrom": date_from,
         "dateTo": date_to,
     }
-    wb_time = datetime.now()
+
     r = requests.get('https://statistics-api.wildberries.ru/api/v1/supplier/reportDetailByPeriod', headers=headers,
                      params=query)
-    print(f'Вб отдал отчёт за {datetime.now() - wb_time}')
     if r.status_code == 401:
         return {
             'status': False,
@@ -116,7 +176,18 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             'status': False,
             'message': 'На Wildberries отсутствуют новые отчёты за текущую дату.'
         }
-    check_time = datetime.now()
+
+    invalid_reports_ids = []
+
+    for sale_obj in res_dict:
+        sale_obj_validation_result = check_sale_objs_validation(sale_obj)
+
+        if sale_obj_validation_result is True:
+            continue
+        else:
+            if sale_obj_validation_result not in invalid_reports_ids:
+                invalid_reports_ids.append(sale_obj_validation_result)
+
     unique_articles = get_unique_articles(res_dict)
     unique_reports_id_list = get_unique_reports(res_dict)
     sale_obj_list = []
@@ -138,26 +209,24 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
 
     try:
         for sale_obj in res_dict:
-            if sale_obj.get('realizationreport_id') in reports_ids:
+            if sale_obj.get('realizationreport_id') in reports_ids \
+                    or sale_obj.get('realizationreport_id') in invalid_reports_ids:
                 continue
             sale_obj_list.append(handle_sale_obj(request, sale_obj, current_api_key))
     except Exception as err:
-        django_logger.critical(f'Error when creating sale objects {request.user.email}. '
+        django_logger.critical(f'Error when creating sale objects {request.user.email}.'
                                f'An error on the Wildberries side that blocks the loading of reports', exc_info=err)
         return {
             'status': False,
             'message': 'Нестабильная работа Wildberries. Пожалуйста, попробуйте позже.'
         }
-    print(f'Все проверки на пиратство и генерация объектов продаж заняла - {datetime.now() - check_time}')
 
     try:
         with transaction.atomic():
-            sm_time = datetime.now()
-            SaleObject.objects.bulk_create(sale_obj_list, ignore_conflicts=True)
+            SaleObject.objects.bulk_create(sale_obj_list)
 
             generate_reports(request, current_api_key)
             generate_user_products(request, unique_articles, current_api_key)
-            print(f'Конец работы бд {datetime.now() - sm_time}')
     except Exception as err:
         django_logger.critical(
             f'Failed to load reports into the database for a user {request.user.email}',

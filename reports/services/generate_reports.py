@@ -335,7 +335,8 @@ def get_revenues_list_by_filter(request, current_api_key, dates_filter_lst: list
     sales_objs_by_stock = SaleObject.objects.filter(
         owner=request.user,
         api_key=current_api_key,
-        week_num__in=dates_filter_lst
+        week_num__in=dates_filter_lst,
+        brand_name__isnull=False
     ).values(filter_name).annotate(
         sales_sum=sum_aggregation_objs_dict.get('sales_sum'),
         returns_sum=sum_aggregation_objs_dict.get('returns_sum'),
@@ -438,7 +439,8 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     sale_objects_by_products = SaleObject.objects.filter(
         owner=request.user,
         api_key=current_api_key,
-        week_num__in=dates_filter_lst
+        week_num__in=dates_filter_lst,
+        nm_id__isnull=False
     ).annotate(
         net_cost=Coalesce(
             Subquery(
