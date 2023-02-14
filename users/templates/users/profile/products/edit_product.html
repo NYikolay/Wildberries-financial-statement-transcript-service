@@ -13,7 +13,7 @@
                         data-title="{{ p.product_name }}"
                         class="stock_product-item {% if p.nm_id == product.nm_id %}stock_product-active{% endif %}">
                     <div class="product_item-left">
-                        <img class="product_image" src="{{ p.image }}" alt="">
+                        <img class="product_image" src="{% if p.image %}{{ p.image }}{% else %}{% static 'images/empty_photo2.png' %}{% endif %}" alt="">
                     </div>
                     <div class="product_item-right">
                         <div class="prodict_brand">

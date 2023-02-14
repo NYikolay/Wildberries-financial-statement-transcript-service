@@ -3,12 +3,14 @@ import sys
 from datetime import datetime, timedelta, date, timezone
 
 from django.db import transaction
-
+from django.db import connection
 from users.models import WBApiKey, SaleObject, SaleReport
 from users.services.decrypt_api_key import get_decrypted_key
 from users.services.generate_user_reports import generate_reports
 
 import requests
+
+from users.services.generating_user_products_objs import generate_user_products
 
 django_logger = logging.getLogger('django_logger')
 
@@ -81,7 +83,7 @@ def handle_sale_obj(request, sale_obj: dict, api_key):
         )
 
 
-def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key):
+def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key) -> dict:
 
     headers = {
         'Authorization': get_api_key(current_api_key)
@@ -91,10 +93,10 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
         "dateFrom": date_from,
         "dateTo": date_to,
     }
-
+    wb_time = datetime.now()
     r = requests.get('https://statistics-api.wildberries.ru/api/v1/supplier/reportDetailByPeriod', headers=headers,
                      params=query)
-
+    print(f'Вб отдал отчёт за {datetime.now() - wb_time}')
     if r.status_code == 401:
         return {
             'status': False,
@@ -114,7 +116,7 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             'status': False,
             'message': 'На Wildberries отсутствуют новые отчёты за текущую дату.'
         }
-
+    check_time = datetime.now()
     unique_articles = get_unique_articles(res_dict)
     unique_reports_id_list = get_unique_reports(res_dict)
     sale_obj_list = []
@@ -146,15 +148,16 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             'status': False,
             'message': 'Нестабильная работа Wildberries. Пожалуйста, попробуйте позже.'
         }
+    print(f'Все проверки на пиратство и генерация объектов продаж заняла - {datetime.now() - check_time}')
 
     try:
-
         with transaction.atomic():
-
+            sm_time = datetime.now()
             SaleObject.objects.bulk_create(sale_obj_list)
 
             generate_reports(request, current_api_key)
-
+            generate_user_products(request, unique_articles, current_api_key)
+            print(f'Конец работы бд {datetime.now() - sm_time}')
     except Exception as err:
         django_logger.critical(
             f'Failed to load reports into the database for a user {request.user.email}',
@@ -166,6 +169,5 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
         }
 
     return {
-        'status': True,
-        'unique_articles': unique_articles
+        'status': True
     }

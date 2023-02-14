@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const loadReportsInfo = document.getElementById('reports_load-info')
 
     loadBtn.addEventListener('click', () => {
-        loadReportsInfo.innerHTML = 'Идёт загрузка отчётов. Пожалуйста, подождите.'
+        loadReportsInfo ? loadReportsInfo.innerHTML = 'Идёт загрузка отчётов. Пожалуйста, подождите.' : null
         loadBtn.classList.add("loading");
     });
 })

@@ -52,18 +52,8 @@ services:
       - redis
       - db
       - web
-  selenium:
-    image: selenium/standalone-chrome
-    ports:
-      - "4444:4444"
-    environment:
-      - SE_NODE_MAX_INSTANCES=4
-      - SE_NODE_MAX_SESSIONS=4
-    depends_on:
-      - celery
 
 volumes:
   static_volume:
   media_volume:
   postgres_data:
-  logs_volume:

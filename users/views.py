@@ -28,7 +28,7 @@ from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
 from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost
 from users.services.encrypt_api_key import get_encrypted_key
 from users.services.load_sales_report import generate_reports_and_sales_objs
-from users.tasks import generate_user_products, send_email_verification
+from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
 
 
@@ -534,8 +534,6 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
             current_api_key.is_wb_data_loaded = True
             current_api_key.last_reports_update = datetime.now().replace(tzinfo=timezone.utc)
             current_api_key.save()
-
-            generate_user_products.delay(request.user.id, report_status.get('unique_articles'), current_api_key.id)
 
             create_dt = SaleReport.objects.filter(
                 api_key__is_current=True,
