@@ -7,7 +7,7 @@ from django.db.models import (
     F, IntegerField, Subquery,
     OuterRef, Value,
     Case, When, Func,
-    CharField, Min, Max)
+    CharField, Min, Max, Count)
 from django.db.models.functions import Coalesce, TruncYear, ExtractYear, ExtractWeek
 
 from users.models import (

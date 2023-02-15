@@ -25,8 +25,9 @@ from users.decorators import redirect_authenticated_user
 from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          ChangeUserDataForm, ChangeUserPasswordForm, TaxRateForm,
                          UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm)
-from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost
+from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport
 from users.services.encrypt_api_key import get_encrypted_key
+from users.services.generate_last_report_date import get_last_report_date
 from users.services.load_sales_report import generate_reports_and_sales_objs
 from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
@@ -200,6 +201,7 @@ class ProfilePage(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
+
         context = {
             'api_keys': request.user.keys.filter(),
             'sales': request.user.sales.all(),
@@ -514,19 +516,24 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
         cache.delete(f'{request.user.id}_report')
         current_api_key = request.user.keys.filter(is_current=True).first()
         today = date.today()
-        three_months_ago = today - relativedelta(months=3)
 
         if not current_api_key:
             messages.warning(request, 'Для загрузки отчёта о продажах, пожалуйста, создайте API ключ Wildberries')
             return redirect(request.META.get('HTTP_REFERER', '/'))
 
         if current_api_key.is_wb_data_loaded:
-            last_report_date = SaleReport.objects.filter(
-                api_key__is_current=True,
-                api_key__user=request.user
-            ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d')
+            if IncorrectReport.objects.filter(owner=request.user, api_key=current_api_key).exists():
+                last_report_date = IncorrectReport.objects.filter(
+                    owner=request.user,
+                    api_key=current_api_key,
+                ).earliest('date_from').date_from.strftime('%Y-%m-%d')
+            else:
+                last_report_date = SaleReport.objects.filter(
+                    api_key__is_current=True,
+                    api_key__user=request.user
+                ).latest('create_dt').create_dt.strftime('%Y-%m-%d')
         else:
-            last_report_date = three_months_ago.replace(day=1).strftime('%Y-%m-%d')
+            last_report_date = get_last_report_date()
 
         report_status = generate_reports_and_sales_objs(request, last_report_date, today, current_api_key)
 

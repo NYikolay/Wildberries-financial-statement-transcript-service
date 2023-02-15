@@ -13,7 +13,7 @@ from django.core.cache import cache
 from reports.forms import SaleReportForm
 from reports.services.generate_reports import get_report
 
-from users.models import SaleReport
+from users.models import SaleReport, IncorrectReport
 
 
 class DashboardView(LoginRequiredMixin, View):
@@ -22,6 +22,9 @@ class DashboardView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         current_api_key = request.user.keys.filter(is_current=True).first()
+        incorrect_reports_ids = IncorrectReport.objects.filter(
+            owner=request.user, api_key=current_api_key
+        ).values_list('realizationreport_id', flat=True)
         today = datetime.today()
         last_weeks_nums = [(today - relativedelta(weeks=i)).isocalendar().week for i in range(24)]
 
@@ -38,7 +41,8 @@ class DashboardView(LoginRequiredMixin, View):
 
         context = {
             'report': report,
-            'report_by_products_json': report_by_products_json
+            'report_by_products_json': report_by_products_json,
+            'incorrect_reports_ids': incorrect_reports_ids
         }
         return render(request, 'reports/dashboard.html', context)
 

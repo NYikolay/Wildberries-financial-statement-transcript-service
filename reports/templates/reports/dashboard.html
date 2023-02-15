@@ -14,12 +14,12 @@
                             </div>
                             <div class="graphs-bar__profit">
                             </div>
-<!--                            <div class="graphs-bar__tooltip">-->
-<!--                                <button class="graphs-bar__tooltip-btn">?</button>-->
-<!--                                <p class="graphs-bar__tooltip-info">-->
-<!--                                    Короткий текст-->
-<!--                                </p>-->
-<!--                            </div>-->
+                            <!--                            <div class="graphs-bar__tooltip">-->
+                            <!--                                <button class="graphs-bar__tooltip-btn">?</button>-->
+                            <!--                                <p class="graphs-bar__tooltip-info">-->
+                            <!--                                    Короткий текст-->
+                            <!--                                </p>-->
+                            <!--                            </div>-->
                             <div class="graphs-bar__info">
                                 <p class="graphs-bar__info-title">01.01.2023 - 07.01.2023</p>
                                 <div class="graphs-bar__info-text">
@@ -49,7 +49,6 @@
                             <span class="graphs-bar__legend-item">Выручка</span>
                             <span class="graphs-bar__legend-item">Прибыль</span>
                         </div>
-
                     </div>
                 </div>
 
@@ -57,9 +56,19 @@
                     <p class="graphs-bar-update__title">Дата обновления отчета <span>{{ current_api_key.last_reports_update|date:'d.m.Y' }}</span></p>
                     <p class="graphs-bar-update__text">Обновить отчет можно на странице <a href="{% url 'reports:report_detail' last_report_date.date|date:'Y-m-d' %}" class="graphs-bar-update__link">"Список отчетов"</a></p>
                 </div>
-
             </div>
-
+            {% if incorrect_reports_ids %}
+            <div class="invalid_reports-info">
+                <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;">
+                <p class="invalid_reports-text">«В расчетах не учтены отчеты:
+                    {% if incorrect_reports_ids|length > 1 %}
+                    {% for incorrect_report_id in incorrect_reports_ids %}{{ incorrect_report_id }}, {% endfor %},
+                    {% else %}
+                    {% for incorrect_report_id in incorrect_reports_ids %}{{ incorrect_report_id }} {% endfor %},
+                    {% endif %}
+                    данные, получаемые от Wildberries не читаемы <a href="https://commery.ru/link-to-creators" target="_blank" style="text-decoration: underline">Свяжитесь с нами</a> для решения вопроса»</p>
+            </div>
+            {% endif %}
             <div class="graphs-diog-wrap" id="graphs-diog-wrap" data-brands-share="{{ report.brands_share_in_revenue_dict }}" data-stock-share="{{ report.stocks_share_in_revenue_dict }}">
                 <div class="graphs-diog">
                     <p class="graphs-diog__title">ДОЛЯ БРЕНДА В ВЫРУЧКЕ</p>
@@ -245,10 +254,10 @@
                 </div>
             </div>
             <div class="errors_list">
-<!--                <div class="error_list_item">-->
-<!--                    <img src="{% static 'images/q_black.svg' %}" alt="" style="width: 14px; height: 14px;"><span-->
-<!--                        style="color: black;">Чтобы считалась чистая прибыль от продаж необходимо отразить расходы по продажам, себестоимость товаров и действующую на момент продаж ставку налога.</span>-->
-<!--                </div>-->
+                <!--                <div class="error_list_item">-->
+                <!--                    <img src="{% static 'images/q_black.svg' %}" alt="" style="width: 14px; height: 14px;"><span-->
+                <!--                        style="color: black;">Чтобы считалась чистая прибыль от продаж необходимо отразить расходы по продажам, себестоимость товаров и действующую на момент продаж ставку налога.</span>-->
+                <!--                </div>-->
                 {% if report.is_empty_reports_values %}
                 <div class="error_list_item">
                     <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Прибыль считается некорректно - на странице "Список отчетов" не заполнены обязательные поля: Стоимость хранения, Стоимость платной приемки и Прочие удержания.</span>

@@ -324,8 +324,20 @@
     box-sizing: border-box;
 }
 
-.graphs-bar {
+.invalid_reports-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: white;
+    border-radius: 7px;
+    padding: 20px;
+}
 
+.invalid_reports-text {
+    color: #ff8364;
+    font-size: 11px;
 }
 
 .graphs-bar__bars {

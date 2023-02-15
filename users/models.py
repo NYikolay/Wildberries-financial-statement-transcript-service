@@ -254,7 +254,30 @@ class SaleReport(models.Model):
         verbose_name_plural = 'Отчёты'
 
 
+class IncorrectReport(models.Model):
+    api_key = models.ForeignKey(
+        WBApiKey,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name='unavailable_api_key_reports',
+        verbose_name='Апи ключ'
+    )
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='unavailable_reports',
+        verbose_name='Владелец отчёта'
+    )
+    realizationreport_id = models.BigIntegerField('Номер отчёта')
+    date_from = models.DateTimeField('Дата начала отчетного периода')
+    date_to = models.DateTimeField('Дата конца отчетного периода')
 
+    def __str__(self):
+        return f'Некорректный отчёт пользователя {self.owner.email}'
 
+    class Meta:
+        verbose_name = 'Некорректный отчёт'
+        verbose_name_plural = 'Некорректные отчёты'
 
 

@@ -57,7 +57,7 @@ const handleImg = (myImg, observer) => {
             loadImage(myImgSingle.target);
         }
     })
-}; 
+};
 
 const loadImage = image => {
     image.src = image.dataset.src
@@ -104,6 +104,7 @@ function sortLower(dataAttr) {
         productWrapper.appendChild(child);
     });
 }
+
 
 function salesSort() {
     if (salesSorted) {
