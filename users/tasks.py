@@ -1,17 +1,10 @@
 import logging
-from datetime import datetime
 
 from django.core.mail import EmailMessage
-from django.db import transaction
-from django.core.cache import cache
-
 
 from celery import shared_task
 
 from config.settings.base import EMAIL_HOST_USER
-from users.models import ClientUniqueProduct, User, WBApiKey
-from users.services.generate_unique_articles_obj import handle_unique_articles
-from users.services.generating_user_products_data import get_article_additional_data
 
 celery_logger = logging.getLogger('celery_logger')
 

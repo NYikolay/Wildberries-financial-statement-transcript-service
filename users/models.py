@@ -77,10 +77,6 @@ class WBApiKey(models.Model):
                              name='unique_is_current'),
         ]
 
-    # def clean(self):
-    #     if WBApiKey.objects.filter(user=self.user).count() == 1:
-    #         raise ValidationError('Для пользователя доступен только 1 api ключ')
-
 
 class TaxRate(models.Model):
     api_key = models.ForeignKey(

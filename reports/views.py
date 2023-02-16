@@ -1,5 +1,5 @@
 import logging
-
+from typing import List
 from dateutil.relativedelta import relativedelta
 import json
 
@@ -30,14 +30,13 @@ class DashboardView(LoginRequiredMixin, View):
         incorrect_reports_ids = IncorrectReport.objects.filter(
             owner=request.user, api_key=current_api_key
         ).values_list('realizationreport_id', flat=True)
-        today = datetime.today()
-        last_weeks_nums = [(today - relativedelta(weeks=i)).isocalendar().week for i in range(24)]
+
+        last_weeks_nums: List[int] = [(datetime.today() - relativedelta(weeks=i)).isocalendar().week for i in range(24)]
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return render(request, 'reports/empty_dashboard.html')
 
         report = cache.get(f'{request.user.id}_report')
-
         if not report:
             try:
                 report = get_report(request, current_api_key, last_weeks_nums)
@@ -52,7 +51,6 @@ class DashboardView(LoginRequiredMixin, View):
             cache.set(f'{request.user.id}_report', report, 600)
 
         report_by_products_json = json.dumps(report.get('report_by_products'))
-
         context = {
             'report': report,
             'report_by_products_json': report_by_products_json,
@@ -95,12 +93,13 @@ class ReportDetailView(LoginRequiredMixin, View):
             'create_dt_list': create_dt_list,
             'reports': reports,
             'blank_reports_list': blank_reports_list,
-            'forms': [self.form_class(instance=i) for i in reports]
+            'forms': [self.form_class(instance=report) for report in reports]
         }
         return render(request, 'reports/report_detail.html', context)
 
     def post(self, request, create_dt, *args, **kwargs):
         cache.delete(f'{request.user.id}_report')
+
         storage_costs = request.POST.getlist('storage_cost')
         cost_paid_acceptances = request.POST.getlist('cost_paid_acceptance')
         other_deductions = request.POST.getlist('other_deductions')

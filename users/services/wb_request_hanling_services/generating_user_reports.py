@@ -1,6 +1,9 @@
+import logging
 import uuid
-
+from django.db import transaction
 from users.models import SaleObject, SaleReport
+
+django_logger = logging.getLogger('django_logger')
 
 
 def create_report_object(request, api_key, sale, unique_week_uuid):
@@ -19,14 +22,21 @@ def create_report_object(request, api_key, sale, unique_week_uuid):
 
 
 def generate_reports(request, api_key):
+    """
+    The function creates new user reports,
+    assigns them unique identifiers of the week UUID4 and checks for reports duplicates for current user
+    :param request:
+    :param api_key: current WBApiKey of request user
+    :return: returns None if success or transaction rollback if there are any errors
+    """
     sale_objects = SaleObject.objects.filter(
         owner=request.user,
         api_key=api_key
     ).distinct('realizationreport_id').order_by('realizationreport_id')
 
-    report_objects = []
+    report_objects: list = []
 
-    unique_weeks_uuid = {}
+    unique_weeks_uuid: dict = {}
 
     for sale in sale_objects:
         if SaleReport.objects.filter(api_key__is_current=True,
@@ -41,5 +51,11 @@ def generate_reports(request, api_key):
             unique_weeks_uuid[sale.week_num] = new_uuid
             report_objects.append(create_report_object(request, api_key, sale, new_uuid))
 
-    SaleReport.objects.bulk_create(report_objects)
-
+    try:
+        SaleReport.objects.bulk_create(report_objects)
+    except Exception as err:
+        django_logger.critical(
+            f'Failed to create SaleReport objects for a user - {request.user.email}',
+            exc_info=err
+        )
+        transaction.rollback()

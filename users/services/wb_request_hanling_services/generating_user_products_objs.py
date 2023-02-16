@@ -3,23 +3,40 @@ from threading import Thread
 from time import sleep
 
 from django.db import transaction
-from django.core.cache import cache
 from django.core.exceptions import RequestAborted
 
 from users.models import ClientUniqueProduct
-from users.services.generate_unique_articles_obj import handle_unique_articles
-from users.services.generating_user_products_data import get_article_additional_data
+from users.services.wb_request_hanling_services.generating_user_products_data import get_article_additional_data
 
 
 django_logger = logging.getLogger('django_logger')
 
 
-def generate_user_products(request, unique_articles, current_api_key) -> None:
+def handle_unique_articles(article_values: dict, api_key):
+    return ClientUniqueProduct(
+        api_key=api_key,
+        nm_id=article_values.get('nm_id', 0),
+        brand=article_values.get('brand'),
+        image=article_values.get('img', 'https://None.ru'),
+        product_name=article_values.get('title', 'None')
+    )
+
+
+def generate_user_products(request, unique_articles: list, current_api_key) -> None:
+    """
+    A function that generates and creates instances of the table ClientUniqueProduct in the database.
+    Product processing is performed in multi-threaded mode
+    :param request:
+    :param unique_articles: unique request user product identifiers received
+    when loading the report and passed the validation
+    :param current_api_key: current WBApiKey of request user
+    :return:
+    """
     current_user = request.user
     unique_articles_len_counter: int = len(unique_articles)
 
-    unique_articles_values = []
-    article_obj_list = []
+    unique_articles_values: list = []
+    article_obj_list: list = []
 
     for article in unique_articles:
         if ClientUniqueProduct.objects.filter(api_key__user=current_user,
@@ -35,9 +52,9 @@ def generate_user_products(request, unique_articles, current_api_key) -> None:
         )
         thread.start()
 
-    cnt = 0
+    cnt: int = 0
     while len(unique_articles_values) != unique_articles_len_counter:
-        sleep(0.5)
+        sleep(0.2)
         cnt += 1
         if cnt > len(unique_articles):
             django_logger.critical(
@@ -57,9 +74,9 @@ def generate_user_products(request, unique_articles, current_api_key) -> None:
             if not current_api_key.is_products_loaded:
                 current_api_key.is_products_loaded = True
                 current_api_key.save()
-
     except Exception as err:
         django_logger.critical(
             f'Failed to create product objects for a user - {current_user.email}',
             exc_info=err
         )
+        transaction.rollback()

@@ -1,8 +1,6 @@
-import json
 import time
 import logging
-from datetime import date, timedelta, datetime, timezone
-from dateutil.relativedelta import relativedelta
+from datetime import date, datetime, timezone
 from urllib.parse import urlencode
 
 from django.contrib import messages
@@ -28,7 +26,7 @@ from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
 from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport
 from users.services.encrypt_api_key import get_encrypted_key
 from users.services.generate_last_report_date import get_last_report_date
-from users.services.load_sales_report import generate_reports_and_sales_objs
+from users.services.wb_request_hanling_services.request_data_handling import generate_reports_and_sales_objs
 from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
 

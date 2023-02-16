@@ -403,7 +403,10 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
         **net_costs_sum_aggregations_objs,
         date_to=Max(F('date_to')),
         date_from=Min(F('date_from')),
-        logistic_sum=Coalesce(Sum('delivery_rub'), 0, output_field=FloatField()),
+        logistic_sum=Coalesce(Sum(
+            'delivery_rub',
+            filter=~Q(supplier_oper_name__icontains='Логистика сторно')
+        ), 0, output_field=FloatField()),
         penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
     )
@@ -457,7 +460,10 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     ).order_by('brand_name', 'nm_id').values('nm_id').annotate(
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
-        logistic_sum=Coalesce(Sum('delivery_rub'), 0, output_field=FloatField()),
+        logistic_sum=Coalesce(Sum(
+            'delivery_rub',
+            filter=~Q(supplier_oper_name__icontains='Логистика сторно')
+        ), 0, output_field=FloatField()),
         penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
     )
@@ -487,12 +493,12 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
 
     totals: dict = get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_costs_sum_list)
 
-    articles_images_dict = {}
+    articles_images_dict: dict = {}
 
     for nm_id, img in unique_articles:
         articles_images_dict[nm_id] = img
 
-    products_financials = []
+    products_financials: list = []
 
     for sale in sale_objects_by_products:
         product_fin: dict = get_calculated_financials_by_weeks_by_products(sale, totals.get('revenue_total'))

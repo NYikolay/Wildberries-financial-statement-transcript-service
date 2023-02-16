@@ -8,8 +8,10 @@ from bs4 import BeautifulSoup
 
 def get_product_data_dict(html, article: int, brand: str) -> dict:
     """
+    THE FUNCTION IS NOT RELEVANT
     Scrapy the html page it receives from the get_scraping_data function and returns a dictionary
-    of key-value pairs of values such as image, nm_id, title. They all relate to the product
+    of key-value pairs of values such as image, nm_id, title. They all relate to the product.
+    THE FUNCTION IS NOT RELEVANT
     """
 
     values_data = {}
@@ -32,9 +34,11 @@ def get_product_data_dict(html, article: int, brand: str) -> dict:
 
 def get_scraping_data(article: int, brand: str) -> dict:
     """
+    THE FUNCTION IS NOT RELEVANT
     The func takes a unique product identifier (article) as a parameter,
     then uses selenium to go to the page of this product.
     The func waits until the page is fully loaded and returns the html code of the page for get_product_data_dict func
+    THE FUNCTION IS NOT RELEVANT
     """
 
     options = webdriver.ChromeOptions()
