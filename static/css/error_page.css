@@ -4,15 +4,11 @@
 }
 
 .error_page-header {
-    display: flex;
-    gap: 15px;
     padding-top: 22px;
-    align-items: center;
 }
 
 .error_page-header img {
-    width: 60px;
-    height: 60px;
+    height: 40px;
 }
 
 .error_page-header h1 {

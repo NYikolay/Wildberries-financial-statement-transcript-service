@@ -60,13 +60,13 @@
             {% if incorrect_reports_ids %}
             <div class="invalid_reports-info">
                 <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;">
-                <p class="invalid_reports-text">«В расчетах не учтены отчеты:
+                <p class="invalid_reports-text">В расчетах не учтены отчеты:
                     {% if incorrect_reports_ids|length > 1 %}
-                    {% for incorrect_report_id in incorrect_reports_ids %}{{ incorrect_report_id }}, {% endfor %},
+                    {% for incorrect_report_id in incorrect_reports_ids %}{{ incorrect_report_id }}, {% endfor %}
                     {% else %}
-                    {% for incorrect_report_id in incorrect_reports_ids %}{{ incorrect_report_id }} {% endfor %},
+                    {% for incorrect_report_id in incorrect_reports_ids %}{{ incorrect_report_id }}{% endfor %},
                     {% endif %}
-                    данные, получаемые от Wildberries не читаемы <a href="https://commery.ru/link-to-creators" target="_blank" style="text-decoration: underline">Свяжитесь с нами</a> для решения вопроса»</p>
+                    данные, получаемые от Wildberries не читаемы. <a href="https://commery.ru/link-to-creators" target="_blank" style="text-decoration: underline">Свяжитесь с нами</a> для решения вопроса</p>
             </div>
             {% endif %}
             <div class="graphs-diog-wrap" id="graphs-diog-wrap" data-brands-share="{{ report.brands_share_in_revenue_dict }}" data-stock-share="{{ report.stocks_share_in_revenue_dict }}">
