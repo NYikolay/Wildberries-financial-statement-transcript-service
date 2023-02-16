@@ -21,6 +21,7 @@ services:
       context: .
       target: "prod"
     image: commery_docker:prod
+    restart: always
     container_name: commery_django
     command: >
       bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && gunicorn --timeout 120 --workers 5 -b 0.0.0.0:8000 config.wsgi:application"
@@ -38,12 +39,14 @@ services:
   redis:
     image: redis:6.0.17
     container_name: commery_redis
+    restart: always
   celery:
     build:
       dockerfile: Dockerfile
       context: .
       target: "prod"
     container_name: commery_celery
+    restart: always
     command: celery -A config worker -l info
     volumes:
       - ./:/commery_project/commery_celery
