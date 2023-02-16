@@ -1,3 +1,5 @@
+import logging
+
 from dateutil.relativedelta import relativedelta
 import json
 
@@ -14,6 +16,9 @@ from reports.forms import SaleReportForm
 from reports.services.generate_reports import get_report
 
 from users.models import SaleReport, IncorrectReport
+
+
+django_logger = logging.getLogger('django_logger')
 
 
 class DashboardView(LoginRequiredMixin, View):
@@ -34,7 +39,16 @@ class DashboardView(LoginRequiredMixin, View):
         report = cache.get(f'{request.user.id}_report')
 
         if not report:
-            report = get_report(request, current_api_key, last_weeks_nums)
+            try:
+                report = get_report(request, current_api_key, last_weeks_nums)
+            except Exception as err:
+                django_logger.critical(
+                    f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
+                    exc_info=err
+                )
+                messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
+                                        'Пожалуйста, свяжитесь со службой поддержки.')
+                return redirect('users:profile')
             cache.set(f'{request.user.id}_report', report, 600)
 
         report_by_products_json = json.dumps(report.get('report_by_products'))

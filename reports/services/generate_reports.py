@@ -155,10 +155,10 @@ def get_calculated_financials_by_weeks(
 
     commission: float = \
         (sales_objects_figures.get('sales_sum') - sales_objects_figures.get('сommission_sales_sum')) - \
-        (sales_objects_figures.get('storno_sales_sum') - sales_objects_figures.get('сommission_storno_sales_sum')) + \
-        (sales_objects_figures.get('correct_sales_sum') - sales_objects_figures.get('сommission_correct_sales_sum')) - \
         (sales_objects_figures.get('returns_sum') - sales_objects_figures.get('сommission_returns_sum')) - \
+        (sales_objects_figures.get('storno_sales_sum') - sales_objects_figures.get('сommission_storno_sales_sum')) + \
         (sales_objects_figures.get('storno_returns_sum') - sales_objects_figures.get('сommission_storno_returns_sum')) + \
+        (sales_objects_figures.get('correct_sales_sum') - sales_objects_figures.get('сommission_correct_sales_sum')) - \
         (sales_objects_figures.get('correct_returns_sum') - sales_objects_figures.get('сommission_correct_returns_sum'))
 
     logistics: float = sales_objects_figures.get('logistic_sum')

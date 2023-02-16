@@ -170,7 +170,6 @@ def handle_sale_obj(request, sale_obj: dict, api_key):
 
 
 def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key) -> dict:
-    all_time = datetime.now()
     headers = {
         'Authorization': get_decrypted_key(current_api_key.api_key)
     }
@@ -179,15 +178,12 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
         "dateTo": date_to,
     }
 
-    res_time = datetime.now()
-
-    print('Отправил запрос WB')
     response = requests.get(
         'https://statistics-api.wildberries.ru/api/v1/supplier/reportDetailByPeriod',
         headers=headers,
         params=query
     )
-    print(f'Время на получение данных от WB - {datetime.now() - res_time}')
+
     if response.status_code == 401:
         return {
             'status': False,
@@ -195,25 +191,23 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
                        'Пожалуйста, введите верный ключ или повторите попытку.'
         }
     elif response.status_code != 200:
-        print(response.text)
         return {
             'status': False,
             'message': 'Ошибка при попытке получения данных от Wildberries. Пожалуйста, попробуйте позже.'
         }
-    dec_time = datetime.now()
+
     res_dict = response.json()
-    print(f'Время декодирования - {datetime.now() - dec_time}')
+
     if res_dict is None:
         return {
             'status': False,
-            'message': 'На Wildberries отсутствуют новые отчёты за текущую дату.'
+            'message': 'На Wildberries отсутствуют новые корректные отчёты за текущую дату.'
         }
-    val_time = datetime.now()
+
     incorrect_reports: dict = get_incorrect_reports_lst(res_dict)
     unique_articles: list = get_unique_articles(res_dict)
     unique_reports_ids: set = get_unique_reports(res_dict)
-    print(f'Время проверки валидации продаж, создания уникальных артикулов и уникальных айдишников репортов. Всё делается питоном - {datetime.now() - val_time}')
-    pir_time = datetime.now()
+
     if SaleReport.objects.filter(realizationreport_id__in=unique_reports_ids).exclude(owner=request.user).exists():
         django_logger.info(
             f"Attempted piracy, user - {request.user.email} "
@@ -223,9 +217,7 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             'status': False,
             'message': 'Отчёты принадлежат другому пользователю.'
         }
-    print(
-        f'Время проверки на пиратство посредством базы данных - {datetime.now() - pir_time}')
-    gen_time = datetime.now()
+
     sale_obj_list = []
     generated_reports_ids = SaleReport.objects.filter(
         owner=request.user,
@@ -245,13 +237,17 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             'status': False,
             'message': 'Нестабильная работа Wildberries. Пожалуйста, попробуйте позже.'
         }
-    print(
-        f'Время обработки каждого объекта который прислал вб и запись его в список. Создание экземпляров SaleObject - {datetime.now() - gen_time}')
 
-    db_name = datetime.now()
+    if len(sale_obj_list) == 0:
+        return {
+            'status': False,
+            'message': 'На Wildberries отсутствуют новые корректные отчёты за текущую дату.'
+        }
+
     try:
         with transaction.atomic():
             SaleObject.objects.bulk_create(sale_obj_list, batch_size=5000)
+
             generate_incorrect_reports(request, incorrect_reports.get('incorrect_reports_data_list'), current_api_key)
             generate_reports(request, current_api_key)
             generate_user_products(request, unique_articles, current_api_key)
@@ -264,9 +260,7 @@ def generate_reports_and_sales_objs(request, date_from, date_to, current_api_key
             'status': False,
             'message': 'Произошла ошибка во время загрузки отчёта. Не удалось сохранить данные.'
         }
-    print(
-        f'Время создания всех данных в базе данных. SaleObject, ClientUniqueProduct, SaleReport - {datetime.now() - db_name}')
-    print(f'Время выполнения всего скрипта - {datetime.now() - all_time}')
+
     return {
         'status': True
     }
