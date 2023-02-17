@@ -66,7 +66,7 @@ class ReportDetailView(LoginRequiredMixin, View):
     form_class = SaleReportForm
 
     def get(self, request, create_dt, *args, **kwargs):
-        report_message = GeneralInformationObj.objects.get(info_type=InfoTypes.reports, is_active=True)
+        report_message = GeneralInformationObj.objects.filter(info_type=InfoTypes.reports, is_active=True).first()
         reports = SaleReport.objects.filter(
             api_key__is_current=True,
             api_key__user=request.user,

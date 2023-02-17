@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setInterval(function(){sendFetchForStatus(requestUrl)}, 1000);
     } else {
         loadBtn.addEventListener('click', () => {
-            loadReportsInfo ? loadReportsInfo.innerHTML = 'Идёт загрузка отчётов. Пожалуйста, оставайтесь на странице до ее завершения' : null
+            loadReportsInfo ? loadReportsInfo.innerHTML = 'Идёт загрузка отчётов. Пожалуйста, оставайтесь на странице до ее завершения.' : null
             loadBtn.classList.add("loading");
         });
     }
