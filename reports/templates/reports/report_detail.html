@@ -7,15 +7,21 @@
     <div class="reports_main-wrapper">
         <div class="reports_info-top">
             <p class="reports_bold-text">Дата обновления списка отчётов {{ current_api_key.last_reports_update|date:'d.m.Y' }}</p>
+            {% if not current_api_key.is_active_import %}
             <form action="{% url 'users:send_request_for_report'%}" method="post" class="reload_reports-form">
                 {% csrf_token %}
-                <button class="reload_reports-button" id="load-btn" type="submit">Обновить список</button>
+                <button class="reload_reports-button" id="load-btn" type="submit" data-check="false">Обновить список</button>
             </form>
+            {% else %}
+            <button class="reload_reports-button loading" id="load-btn" type="submit" data-check="true" data-url="{% url 'users:check_reports_loading_status' %}" disabled>Обновить список</button>
+            {% endif %}
             <div class="reports_warning-text">
-<!--                <img class="warning_img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">-->
-<!--                <p>-->
-<!--                    Последний доступный отчёт Wildberries - 20.12.2022-->
-<!--                </p>-->
+                {% if report_message %}
+                <img class="warning_img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">
+                <p>
+                    {{ report_message.info_message }}
+                </p>
+                {% endif %}
             </div>
         </div>
         <div class="reports_middle-wrapper">
@@ -48,7 +54,7 @@
                         <div class="reports_data-item">
                             <div class="report_number-data">
                                 <p class="reports_bold-text">
-                                    {{ report.realizationreport_id }}
+                                    {{ report.realizationreport_id }} <a target="_blank" class="wb_report_link" style="color: #ff8364;" href="https://seller.wildberries.ru/suppliers-mutual-settlements/reports-implementations/reports-weekly/report/{{ report.realizationreport_id }}">открыть отчет в wildberries</a>
                                 </p>
                                 <p class="reports_small-text">№ ОТЧЕТА</p>
                             </div>

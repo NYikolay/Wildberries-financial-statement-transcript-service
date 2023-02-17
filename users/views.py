@@ -16,7 +16,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.core.cache import cache
 
 from users.decorators import redirect_authenticated_user
@@ -516,8 +516,15 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
         today = date.today()
 
         if not current_api_key:
-            messages.warning(request, 'Для загрузки отчёта о продажах, пожалуйста, создайте API ключ Wildberries')
+            messages.error(request, 'Для загрузки отчёта о продажах, пожалуйста, создайте API ключ Wildberries')
             return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        if current_api_key.is_active_import:
+            messages.error(request, 'Происходит загрузка отчётов. Пожалуйста, дождитесь завершения')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        current_api_key.is_active_import = True
+        current_api_key.save()
 
         if current_api_key.is_wb_data_loaded:
             if IncorrectReport.objects.filter(owner=request.user, api_key=current_api_key).exists():
@@ -537,6 +544,7 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
 
         if report_status.get('status') is True:
             current_api_key.is_wb_data_loaded = True
+            current_api_key.is_active_import = False
             current_api_key.last_reports_update = datetime.now().replace(tzinfo=timezone.utc)
             current_api_key.save()
 
@@ -548,8 +556,22 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
             messages.success(request, 'Данные успешно загружены')
             return redirect('reports:report_detail', create_dt=create_dt)
 
+        current_api_key.is_active_import = False
+        current_api_key.save()
+
         messages.error(request, f'{report_status.get("message")}')
         return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+class CheckReportsLoadingStatus(LoginRequiredMixin, View):
+    def get(self, request):
+        api_key_reports_loading_status = request.user.keys.filter(is_current=True).values('is_active_import').first()
+        return JsonResponse(
+            {
+                "status": api_key_reports_loading_status
+            },
+            status=200
+        )
 
 
 class EmptyProductsListView(LoginRequiredMixin, View):

@@ -6,7 +6,7 @@ from users.views import (
     ChangePasswordView, CompaniesListView, CompanyEditView,
     EditProductView, ProductDetailView, EmptyProductsListView,
     DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
-    PasswordResetDoneView
+    PasswordResetDoneView, CheckReportsLoadingStatus
 )
 
 app_name = 'users'
@@ -37,6 +37,7 @@ urlpatterns = [
     path('products/', EmptyProductsListView.as_view(), name='empty_products'),
 
     path('send-request-for-report/', LoadDataFromWBView.as_view(), name='send_request_for_report'),
+    path('sheck-reports-loading-status/', CheckReportsLoadingStatus.as_view(), name='check_reports_loading_status'),
 
     path('change-user-profile/', ChangeProfileData.as_view(), name='change_user_profile'),
     path('change-user-password/', ChangePasswordView.as_view(), name='change_user_password'),

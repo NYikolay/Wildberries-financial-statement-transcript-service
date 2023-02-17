@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.core.cache import cache
 
 from reports.forms import SaleReportForm
+from reports.models import GeneralInformationObj, InfoTypes
 from reports.services.generate_reports import get_report
 
 from users.models import SaleReport, IncorrectReport
@@ -65,6 +66,7 @@ class ReportDetailView(LoginRequiredMixin, View):
     form_class = SaleReportForm
 
     def get(self, request, create_dt, *args, **kwargs):
+        report_message = GeneralInformationObj.objects.get(info_type=InfoTypes.reports, is_active=True)
         reports = SaleReport.objects.filter(
             api_key__is_current=True,
             api_key__user=request.user,
@@ -93,7 +95,8 @@ class ReportDetailView(LoginRequiredMixin, View):
             'create_dt_list': create_dt_list,
             'reports': reports,
             'blank_reports_list': blank_reports_list,
-            'forms': [self.form_class(instance=report) for report in reports]
+            'forms': [self.form_class(instance=report) for report in reports],
+            'report_message': report_message
         }
         return render(request, 'reports/report_detail.html', context)
 
@@ -103,7 +106,6 @@ class ReportDetailView(LoginRequiredMixin, View):
         storage_costs = request.POST.getlist('storage_cost')
         cost_paid_acceptances = request.POST.getlist('cost_paid_acceptance')
         other_deductions = request.POST.getlist('other_deductions')
-
         reports = SaleReport.objects.filter(
             api_key__is_current=True,
             api_key__user=request.user,
@@ -138,7 +140,7 @@ class ReportDetailView(LoginRequiredMixin, View):
                 api_key__is_current=True, api_key__user=request.user).distinct('create_dt').order_by(
                 '-create_dt').values_list('create_dt', flat=True),
             'reports': reports,
-            'forms': reports_forms
+            'forms': reports_forms,
         }
         return render(request, 'reports/report_detail.html', context)
 

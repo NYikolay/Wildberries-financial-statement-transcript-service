@@ -61,6 +61,7 @@ class WBApiKey(models.Model):
     is_current = models.BooleanField(default=True, verbose_name='Является ли веб ключ текущим')
     is_wb_data_loaded = models.BooleanField(default=False, verbose_name='Загружен ли самый первый отчёт')
     is_products_loaded = models.BooleanField(default=False, verbose_name='Загружен ли первоначальный список товаров')
+    is_active_import = models.BooleanField(default=False, verbose_name='Происходит ли загрузка отчёта')
     last_reports_update = models.DateTimeField(blank=True, null=True, verbose_name='Дата обновления списка отчётов')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

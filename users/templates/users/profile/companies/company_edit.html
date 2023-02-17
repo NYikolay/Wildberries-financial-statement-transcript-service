@@ -51,7 +51,7 @@
                                         id="{{api_key_form.api_key.id_for_label}}"
                                 >{{ api_key_form.api_key.value }}</textarea>
                                 <div class="middle_info-items">
-                                    <label for="{{api_key_form.api_key.id_for_label}}">Api ключ</label>
+                                    <label for="{{api_key_form.api_key.id_for_label}}">Api ключ. <a href="https://seller.wildberries.ru/supplier-settings/access-to-new-api" target="_blank" style="color: #ff8364">создать ключ статистики</a></label>
                                     {{ api_key_form.api_key.errors }}
                                     <a href="https://commery.ru/where-key" target="_blank">где взять ключ?</a>
                                 </div>
@@ -74,7 +74,7 @@
                                 </div>
                                 <div class="input-item">
                                     <input type="date" value="{{ tax.commencement_date|date:'Y-m-d' }}" id="commencement_date" name="commencement_date">
-                                    <label for="commencement_date">Дата начала действия</label>
+                                    <label for="commencement_date">Дата начала действия ставки</label>
                                 </div>
                             </div>
                             {% endfor %}
@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="input-item">
                                     <input type="date" value="" id="commencement_date" name="commencement_date">
-                                    <label for="commencement_date">Дата начала действия</label>
+                                    <label for="commencement_date">Дата начала действия ставки</label>
                                 </div>
                             </div>
                             {% endif %}
