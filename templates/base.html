@@ -31,6 +31,7 @@
     <!-- Styles -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contact.css' %}">
     <link rel="stylesheet" href="{% static 'reports/css/dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'reports/css/reports_list.css' %}">
     <link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
@@ -54,25 +55,17 @@
     </footer>
 </div>
 
-<!--<div class="preloader">-->
-<!--    <div class="preloader__row">-->
-<!--        <div class="preloader__item"></div>-->
-<!--        <div class="preloader__item"></div>-->
-<!--    </div>-->
-<!--</div>-->
-
 <div class="messages-wrapper">
     {% include 'includes/messages.html' %}
 </div>
+
+<div class="contact-background_wrapper">
+    <div class="contact-wrapper">
+        {% include 'includes/contact.html' %}
+    </div>
+</div>
+
+<script src="{% static 'js/contact_form.js' %}"></script>
 <script src="{% static 'js/messages.js' %}"></script>
 </body>
-<script>
-    // window.onload = function () {
-    //     document.body.classList.add('loaded_hiding');
-    //     window.setTimeout(function () {
-    //         document.body.classList.add('loaded');
-    //         document.body.classList.remove('loaded_hiding');
-    //     }, 500);
-    // }
-</script>
 </html>

@@ -187,6 +187,8 @@ class LoginPageView(View):
 
 
 class LogoutView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
 
     def get(self, request):
         cache.delete(f'{request.user.id}_report')
@@ -497,6 +499,9 @@ class CompaniesListView(LoginRequiredMixin, View):
 
 
 class DeleteCompanyView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+
     def post(self, request, api_key_id):
         cache.delete(f'{request.user.id}_report')
         company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
@@ -564,6 +569,9 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
 
 
 class CheckReportsLoadingStatus(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+
     def get(self, request):
         api_key_reports_loading_status = request.user.keys.filter(is_current=True).values('is_active_import').first()
         return JsonResponse(

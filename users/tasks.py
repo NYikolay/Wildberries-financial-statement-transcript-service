@@ -13,9 +13,11 @@ celery_logger = logging.getLogger('celery_logger')
 def send_email_verification(mail_message, to_email, mail_subject):
 
     to_email = to_email
-
-    email = EmailMessage(
-        mail_subject, mail_message, to=[to_email], from_email=EMAIL_HOST_USER
-    )
-    email.send()
+    try:
+        email = EmailMessage(
+            mail_subject, mail_message, to=[to_email], from_email=EMAIL_HOST_USER
+        )
+        email.send()
+    except Exception as err:
+        celery_logger.critical('Background sending of messages to email does not work', exc_info=err)
 

@@ -70,10 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     changePasswordErrorsText.innerHTML = data.message
                 }
-
             })
             .catch(error => {
-                console.log(error)
                 changePasswordErrorsText.innerHTML = 'Произошла ошибка во время отправки формы.'
             });
     })

@@ -6,7 +6,7 @@ ALLOWED_HOSTS = ['127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = []
 
-INTERNAL_IPS = ['127.0.0.1', '0.0.0.0']
+INTERNAL_IPS = ['127.0.0.1', '0.0.0.0', '94e9-80-249-90-214']
 
 INSTALLED_APPS = INSTALLED_APPS + ['debug_toolbar']
 MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE

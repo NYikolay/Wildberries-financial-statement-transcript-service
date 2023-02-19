@@ -31,7 +31,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'reports',
-    'payments'
+    'payments',
+    'support'
 ]
 
 MIDDLEWARE = [
@@ -133,6 +134,9 @@ CACHES = {
 # REDIS SETTINGS
 REDIS_HOST = env("REDIS_HOST")
 REDIS_PORT = env("REDIS_PORT")
+
+# REPORTS BOT SETTINGS
+BOT_TOKEN = env("BOT_TOKEN")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
