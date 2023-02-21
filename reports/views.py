@@ -14,6 +14,7 @@ from django.core.cache import cache
 
 from reports.forms import SaleReportForm
 from reports.models import GeneralInformationObj, InfoTypes
+from reports.services.generate_last_weeks_nums import get_last_weeks_nums
 from reports.services.generate_reports import get_report
 
 from users.models import SaleReport, IncorrectReport
@@ -28,16 +29,26 @@ class DashboardView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         current_api_key = request.user.keys.filter(is_current=True).first()
-        incorrect_reports_ids = IncorrectReport.objects.filter(
-            owner=request.user, api_key=current_api_key
-        ).values_list('realizationreport_id', flat=True)
-
-        last_weeks_nums: List[int] = [(datetime.today() - relativedelta(weeks=i)).isocalendar().week for i in range(24)]
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return render(request, 'reports/empty_dashboard.html')
 
+        if request.GET.get('filter'):
+            cache.delete(f'{request.user.id}_report')
+
+        incorrect_reports_ids = IncorrectReport.objects.filter(
+            owner=request.user, api_key=current_api_key
+        ).values_list('realizationreport_id', flat=True)
+
+        last_weeks_nums: List[int] = [(datetime.today() - relativedelta(weeks=i)).isocalendar().week for i in
+                                      range(24)]
+
+        filters_dates_data = SaleReport.objects.filter(
+            api_key__is_current=True, api_key__user=request.user).distinct('month_num').order_by(
+            '-month_num').values('month_num', 'year')
+
         report = cache.get(f'{request.user.id}_report')
+
         if not report:
             try:
                 report = get_report(request, current_api_key, last_weeks_nums)
@@ -55,7 +66,13 @@ class DashboardView(LoginRequiredMixin, View):
         context = {
             'report': report,
             'report_by_products_json': report_by_products_json,
-            'incorrect_reports_ids': incorrect_reports_ids
+            'incorrect_reports_ids': incorrect_reports_ids,
+            'filters_dates_data': filters_dates_data,
+            'current_filter_date':
+                {
+                    'month': request.GET.get('month'),
+                    'year': request.GET.get('year')
+                }
         }
         return render(request, 'reports/dashboard.html', context)
 
@@ -87,9 +104,8 @@ class ReportDetailView(LoginRequiredMixin, View):
             ).values_list('create_dt', flat=True)
 
         create_dt_list = SaleReport.objects.filter(
-            api_key__is_current=True,
-            api_key__user=request.user
-        ).distinct('create_dt').order_by('-create_dt').values_list('create_dt', flat=True)
+            api_key__is_current=True, api_key__user=request.user).distinct('create_dt').order_by(
+            '-create_dt').values('create_dt', 'week_num')
 
         context = {
             'create_dt_list': create_dt_list,
@@ -138,7 +154,7 @@ class ReportDetailView(LoginRequiredMixin, View):
         context = {
             'create_dt_list': SaleReport.objects.filter(
                 api_key__is_current=True, api_key__user=request.user).distinct('create_dt').order_by(
-                '-create_dt').values_list('create_dt', flat=True),
+                '-create_dt').values('create_dt', 'week_num'),
             'reports': reports,
             'forms': reports_forms,
         }

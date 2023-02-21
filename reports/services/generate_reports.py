@@ -181,7 +181,7 @@ def get_calculated_financials_by_weeks(
          sales_objects_figures.get('net_cost_correct_return_sum'))
 
     if net_costs_sum > 0:
-        marginality: float = ((revenue - net_costs_sum) / revenue) * 100
+        marginality: float = ((revenue - net_costs_sum) / revenue) * 100 if revenue > 0 else 0
     else:
         marginality = 0
 
@@ -190,7 +190,7 @@ def get_calculated_financials_by_weeks(
         sales_objects_figures.get('penalty_sum') - sales_objects_figures.get('additional_payment_sum') - \
         sale_report_wb_costs_sum.get('total_wb_costs_sum') - tax_value - supplier_costs_sum
 
-    profitability: float = (profit / revenue) * 100
+    profitability: float = (profit / revenue) * 100 if revenue > 0 else 0
 
     return {
         'date_from': sales_objects_figures.get('date_from').strftime("%d.%m.%Y"),
@@ -243,9 +243,12 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
         profitability_total.append(data.get('profitability'))
 
     if sum(net_costs_sum_total) > 0:
-        marginality = ((sum(revenue_total) - sum(net_costs_sum_total)) / sum(revenue_total) * 100)
+        marginality = ((sum(revenue_total) - sum(net_costs_sum_total)) / sum(revenue_total) * 100) \
+            if sum(revenue_total) > 0 else 0
     else:
         marginality = 0
+
+    profitability_total = round((sum(profit_total) / sum(revenue_total) * 100)) if sum(revenue_total) > 0 else 0
 
     return {
         'revenue_total': sum(revenue_total),
@@ -259,7 +262,7 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
         'wb_costs_total': round(sum(wb_costs_total)),
         'tax_total': round(sum(tax_total)),
         'profit_total': round(sum(profit_total)),
-        'profitability_total': round((sum(profit_total) / sum(revenue_total) * 100)),
+        'profitability_total': profitability_total,
         'reports_by_week': json.dumps(reports_by_week, ensure_ascii=False)
     }
 
@@ -284,7 +287,7 @@ def get_calculated_financials_by_weeks_by_products(sales_objects_by_product_figu
         sales_objects_by_product_figures.get('storno_returns_sum') + \
         sales_objects_by_product_figures.get('correct_returns_sum')
 
-    share_in_profits: float = (revenue_by_article / revenue_total) * 100
+    share_in_profits: float = (revenue_by_article / revenue_total) * 100 if revenue_total > 0 else 0
 
     net_costs_sum: float = \
         (sales_objects_by_product_figures.get('netcost_sale_sum') -
@@ -295,7 +298,8 @@ def get_calculated_financials_by_weeks_by_products(sales_objects_by_product_figu
          sales_objects_by_product_figures.get('net_cost_correct_return_sum'))
 
     if net_costs_sum > 0:
-        product_marginality: float = ((revenue_by_article - net_costs_sum) / revenue_by_article) * 100
+        product_marginality: float = ((revenue_by_article - net_costs_sum) / revenue_by_article) * 100 \
+            if revenue_by_article > 0 else 0
     else:
         product_marginality: float = 0
 

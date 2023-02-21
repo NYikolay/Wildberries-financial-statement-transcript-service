@@ -80,7 +80,7 @@ input, textarea, select {
 }
 
 .form-header_img {
-    width: 40px;
+    width: 200px;
     height: 40px;
 }
 
@@ -192,10 +192,18 @@ input, textarea, select {
     text-align: center;
 }
 
+.send_conact-form:hover {
+    background-color: #ff6600;
+}
+
 .close_contact-form {
     border: none;
     background-color: transparent;
     text-decoration: underline;
     cursor: pointer;
     font-size: 13px;
+}
+
+.close_contact-form:hover {
+    text-decoration: none;
 }

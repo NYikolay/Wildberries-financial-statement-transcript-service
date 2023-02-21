@@ -105,6 +105,10 @@
     margin-top: 14px;
 }
 
+.change_password-link:hover {
+    text-decoration: none;
+}
+
 .logout {
     margin-top: 51px;
     text-transform: uppercase;
@@ -581,6 +585,10 @@
     text-decoration: underline;
     padding-bottom: 5px;
     text-transform: uppercase;
+}
+
+.delete_company-form button:hover {
+    text-decoration: none;
 }
 
 .company_info-links a {

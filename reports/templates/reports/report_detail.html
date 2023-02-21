@@ -29,10 +29,13 @@
                 <p class="reports_filter-title">Дата формирования</p>
                 <!--                <img class="rows_img" src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="">-->
                 {% for date in create_dt_list %}
-                <a class="report_link-wrapper" href="{% url 'reports:report_detail' date.date|date:'Y-m-d' %}"
-                   style="{% if date.date|date:'d.m.Y' == reports.0.create_dt|date:'d.m.Y' %}border: 1px solid #ff8364{% endif %}">
-                    <div class="report_link-div">{% if date in blank_reports_list %}<img class="report_link-img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">{% endif %}</div>
-                    <p class="report_date-link warning_message">{{ date.date|date:'d.m.Y' }}</p>
+                <a class="report_link-wrapper" href="{% url 'reports:report_detail' date.create_dt.date|date:'Y-m-d' %}"
+                   style="{% if date.create_dt.date|date:'d.m.Y' == reports.0.create_dt|date:'d.m.Y' %}border: 1px solid #ff8364{% endif %}">
+                    <div class="report_link-div">{% if date.create_dt in blank_reports_list %}<img class="report_link-img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">{% endif %}</div>
+                    <div class="reports_data-wrapper">
+                        <p class="report_week_text">Неделя {{ date.week_num }}</p>
+                        <p class="report_date-link warning_message">{{ date.create_dt.date|date:'d.m.Y' }}</p>
+                    </div>
                 </a>
                 {% endfor %}
             </div>

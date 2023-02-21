@@ -17,6 +17,67 @@
     align-self: start;
 }
 
+.graphs_filter-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+
+/*GRAPHS FILTERING START */
+
+.filter_text {
+    font-size: 11px;
+}
+
+/* Кнопка выпадающего списка */
+.dropbtn {
+    border: 1px solid #dbdbdb;
+    color: black;
+    padding: 5px 10px;
+    min-width: 121px;
+    border-radius: 8px;
+    font-size: 11px;
+}
+
+/* Контейнер <div> - необходим для размещения выпадающего содержимого */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Выпадающее содержимое (скрыто по умолчанию) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    min-width: 121px;
+    background-color: #f1f1f1;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 8px;
+}
+
+/* Ссылки внутри выпадающего списка */
+.dropdown-content a {
+    color: black;
+    padding: 5px 10px;
+    text-decoration: none;
+    display: block;
+    font-size: 11px;
+}
+
+/* Изменение цвета выпадающих ссылок при наведении курсора */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Показать выпадающее меню при наведении курсора */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Изменение цвета фона кнопки раскрывающегося списка при отображении содержимого раскрывающегося списка */
+.dropdown:hover .dropbtn {}
+
+/*GRAPHS FILTERING END */
+
 .doughnut_diagrams-wrapper {
     margin-top: 55px;
     grid-area: doughnut_diagrams-wrapper;
