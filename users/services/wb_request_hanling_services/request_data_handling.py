@@ -91,15 +91,18 @@ def generate_reports_and_sales_objs(request, date_from: str, date_to: str, curre
 
     res_dict = send_request_for_sales(date_from, date_to, current_api_key)
 
-    if res_dict is None:
+    if res_dict.get('status') is False:
+        return res_dict
+
+    if res_dict.get('data') is None:
         return {
             'status': False,
             'message': 'На Wildberries отсутствуют новые корректные отчёты за текущую дату.'
         }
 
-    incorrect_reports: dict = get_incorrect_reports_lst(res_dict)
-    unique_articles: list = get_unique_articles(res_dict)
-    unique_reports_ids: set = get_unique_reports(res_dict)
+    incorrect_reports: dict = get_incorrect_reports_lst(res_dict.get('data'))
+    unique_articles: list = get_unique_articles(res_dict.get('data'))
+    unique_reports_ids: set = get_unique_reports(res_dict.get('data'))
 
     if SaleReport.objects.filter(realizationreport_id__in=unique_reports_ids).exclude(owner=request.user).exists():
         django_logger.info(
@@ -119,7 +122,7 @@ def generate_reports_and_sales_objs(request, date_from: str, date_to: str, curre
     ).values_list('realizationreport_id', flat=True)
 
     try:
-        for sale_obj in res_dict:
+        for sale_obj in res_dict.get('data'):
             if sale_obj.get('realizationreport_id') in generated_reports_ids \
                     or sale_obj.get('realizationreport_id') in incorrect_reports.get('realizationreport_ids'):
                 continue

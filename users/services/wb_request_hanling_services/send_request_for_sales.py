@@ -22,7 +22,7 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> lis
         return {
             'status': False,
             'message': 'Wildberries не может распознать текущий API ключ. '
-                       'Пожалуйста, введите верный ключ или повторите попытку.'
+                       'Пожалуйста, введите ключ статистики.'
         }
     elif response.status_code != 200:
         return {
@@ -30,4 +30,7 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> lis
             'message': 'Ошибка при попытке получения данных от Wildberries. Пожалуйста, попробуйте позже.'
         }
 
-    return response.json()
+    return {
+        'status': True,
+        'data': response.json()
+    }
