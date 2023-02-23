@@ -553,13 +553,13 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
             current_api_key.last_reports_update = datetime.now().replace(tzinfo=timezone.utc)
             current_api_key.save()
 
-            create_dt = SaleReport.objects.filter(
-                api_key__is_current=True,
-                api_key__user=request.user
-            ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d')
+            # create_dt = SaleReport.objects.filter(
+            #     api_key__is_current=True,
+            #     api_key__user=request.user
+            # ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d')
 
             messages.success(request, 'Данные успешно загружены')
-            return redirect('reports:report_detail', create_dt=create_dt)
+            return redirect('reports:dashboard')
 
         current_api_key.is_active_import = False
         current_api_key.save()
@@ -577,8 +577,7 @@ class CheckReportsLoadingStatus(LoginRequiredMixin, View):
         return JsonResponse(
             {
                 "status": api_key_reports_loading_status
-            },
-            status=200
+            }
         )
 
 

@@ -407,10 +407,14 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
         **net_costs_sum_aggregations_objs,
         date_to=Max(F('date_to')),
         date_from=Min(F('date_from')),
-        logistic_sum=Coalesce(Sum(
-            'delivery_rub',
-            filter=~Q(supplier_oper_name__icontains='Логистика сторно')
-        ), 0, output_field=FloatField()),
+        logistic_sum=(
+          Coalesce(Sum(
+              'delivery_rub',
+              filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
+          Coalesce(Sum(
+              'delivery_rub',
+              filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
+        ),
         penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
     )
@@ -464,10 +468,14 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     ).order_by('brand_name', 'nm_id').values('nm_id').annotate(
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
-        logistic_sum=Coalesce(Sum(
-            'delivery_rub',
-            filter=~Q(supplier_oper_name__icontains='Логистика сторно')
-        ), 0, output_field=FloatField()),
+        logistic_sum=(
+          Coalesce(Sum(
+              'delivery_rub',
+              filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
+          Coalesce(Sum(
+              'delivery_rub',
+              filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
+        ),
         penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
     )
