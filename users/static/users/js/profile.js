@@ -22,13 +22,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function setMaxAndMinValuesToDateInput() {
         for (let i = 0; i < commencementDates.length; i++) {
             if (i === 0 && commencementDates.length === 1) {
-                commencementDates[i].max = new Date().toLocaleDateString('en-ca')
+                commencementDates[i].max = new Date().toLocaleDateString('fr-ca')
             }
             if (i !== 0) {
-                commencementDates[i].max = new Date().toLocaleDateString('en-ca')
+                commencementDates[i].max = new Date().toLocaleDateString('fr-ca')
                 const pastDateValue = commencementDates[i - 1].valueAsDate
                 pastDateValue.setDate(pastDateValue.getDate() + 1)
-                commencementDates[i].min = pastDateValue.toLocaleDateString('en-ca')
+                commencementDates[i].min = pastDateValue.toLocaleDateString('fr-ca')
 
             }
         }
@@ -68,19 +68,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (i < commencementDates.length - 1) {
                         const currentDate = this.valueAsDate
                         currentDate.setDate(currentDate.getDate() + 1)
-                        commencementDates[i + 1].min = currentDate.toLocaleDateString('en-ca')
+                        commencementDates[i + 1].min = currentDate.toLocaleDateString('fr-ca')
                     }
                     if (i !== 0) {
                         const currentMinDate = this.valueAsDate
                         currentMinDate.setDate(currentMinDate.getDate() - 1)
-                        commencementDates[i - 1].max = currentMinDate.toLocaleDateString('en-ca')
+                        commencementDates[i - 1].max = currentMinDate.toLocaleDateString('fr-ca')
                     }
 
                 } else if (this.value === '') {
                     if (inputsValidationMap.has(`dateInput${i}`) === true) {
                         inputsValidationMap.delete(`dateInput${i}`)
                     }
-                    commencementDates[i].max = new Date().toLocaleDateString('en-ca')
+                    commencementDates[i].max = new Date().toLocaleDateString('fr-ca')
                 }
             }, false)
         }

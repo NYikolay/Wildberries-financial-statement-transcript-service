@@ -22,13 +22,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function setMaxAndMinValuesToDateInput() {
         for (let i = 0; i < productCostDates.length; i++) {
             if (i === 0 && productCostDates.length === 1) {
-                productCostDates[i].max = new Date().toLocaleDateString('en-ca')
+                productCostDates[i].max = new Date().toLocaleDateString('fr-ca')
             }
             if (i !== 0) {
-                productCostDates[i].max = new Date().toLocaleDateString('en-ca')
+                productCostDates[i].max = new Date().toLocaleDateString('fr-ca')
                 const pastDateValue = productCostDates[i - 1].valueAsDate
                 pastDateValue.setDate(pastDateValue.getDate() + 1)
-                productCostDates[i].min = pastDateValue.toLocaleDateString('en-ca')
+                productCostDates[i].min = pastDateValue.toLocaleDateString('fr-ca')
 
             }
         }
@@ -65,19 +65,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (i < productCostDates.length - 1) {
                         const currentDate = this.valueAsDate
                         currentDate.setDate(currentDate.getDate() + 1)
-                        productCostDates[i + 1].min = currentDate.toLocaleDateString('en-ca')
+                        productCostDates[i + 1].min = currentDate.toLocaleDateString('fr-ca')
                     }
                     if (i !== 0) {
                         const currentMinDate = this.valueAsDate
                         currentMinDate.setDate(currentMinDate.getDate() - 1)
-                        productCostDates[i - 1].max = currentMinDate.toLocaleDateString('en-ca')
+                        productCostDates[i - 1].max = currentMinDate.toLocaleDateString('fr-ca')
                     }
 
                 } else if (this.value === '') {
                     if (inputsValidationMap.has(`dateInput${i}`) === true) {
                         inputsValidationMap.delete(`dateInput${i}`)
                     }
-                    productCostDates[i].max = new Date().toLocaleDateString('en-ca')
+                    productCostDates[i].max = new Date().toLocaleDateString('fr-ca')
                 }
             }, false)
         }
