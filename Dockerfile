@@ -26,23 +26,6 @@ USER commery_admin
 CMD ["python3 manage.py runserver 0.0.0.0:8000"]
 
 
-FROM base as test
-
-RUN useradd -rms /bin/bash commery_admin && chmod 777 /opt /run
-
-WORKDIR /commery_project
-
-RUN mkdir /commery_project/staticfiles && mkdir /commery_project/media && chown -R commery_admin:commery_admin /commery_project && chmod 755 /commery_project
-
-COPY --chown=commery_admin:commery_admin . .
-
-RUN pip install -r requirements.txt
-
-USER commery_admin
-
-CMD ["gunicorn", "--timeout 120", "--workers 5", "-b", "0.0.0.0:8000", "config.wsgi:application"]
-
-
 FROM base as prod
 
 RUN useradd -rms /bin/bash commery_admin && chmod 777 /opt /run

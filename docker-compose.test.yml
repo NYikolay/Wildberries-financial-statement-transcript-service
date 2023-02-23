@@ -19,8 +19,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-      target: "test"
-    image: commery_docker:test
+      target: "prod"
+    image: commery_docker:prod
     restart: always
     container_name: commery_django
     command: >
@@ -44,7 +44,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-      target: "test"
+      target: "prod"
     container_name: commery_celery
     restart: always
     command: celery -A config worker -l info
