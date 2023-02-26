@@ -6,7 +6,7 @@ from django.db import transaction
 from django.core.exceptions import RequestAborted
 
 from users.models import ClientUniqueProduct
-from users.services.wb_request_hanling_services.generating_user_products_data import get_article_additional_data
+from users.services.wb_request_hanling_services.generating_user_products_data import handle_article_additional_data
 
 
 django_logger = logging.getLogger('django_logger')
@@ -22,17 +22,17 @@ def handle_unique_articles(article_values: dict, api_key):
     )
 
 
-def generate_user_products(request, unique_articles: list, current_api_key) -> None:
+def generate_user_products(current_user, unique_articles: list, current_api_key) -> None:
     """
     A function that generates and creates instances of the table ClientUniqueProduct in the database.
     Product processing is performed in multi-threaded mode
-    :param request:
+    :param current_user:
     :param unique_articles: unique request user product identifiers received
     when loading the report and passed the validation
     :param current_api_key: current WBApiKey of request user
     :return:
     """
-    current_user = request.user
+
     unique_articles_len_counter: int = len(unique_articles)
 
     unique_articles_values: list = []
@@ -46,7 +46,7 @@ def generate_user_products(request, unique_articles: list, current_api_key) -> N
             continue
 
         thread = Thread(
-            target=get_article_additional_data,
+            target=handle_article_additional_data,
             args=(article.get('nm_id'), article.get('brand'), unique_articles_values),
             daemon=True
         )

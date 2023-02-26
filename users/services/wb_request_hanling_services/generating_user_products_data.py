@@ -29,7 +29,7 @@ def send_request_for_card_json(url: str, article: int) -> str:
     return json.loads(response.text).get('imt_name')
 
 
-def get_article_additional_data(article: int, brand: str, article_obj_list: list) -> None:
+def handle_article_additional_data(article: int, brand: str, article_obj_list: list) -> None:
     """
     The function defines the algorithm for generating links to the image and the json file with the product data.
     :param article: unique product identifier (nm_id in our database)

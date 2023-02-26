@@ -545,7 +545,7 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
         else:
             last_report_date = get_last_report_date()
 
-        report_status = generate_reports_and_sales_objs(request, last_report_date, today, current_api_key)
+        report_status = generate_reports_and_sales_objs(request.user, last_report_date, today, current_api_key)
 
         if report_status.get('status') is True:
             current_api_key.is_wb_data_loaded = True

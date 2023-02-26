@@ -35,12 +35,12 @@ def get_unique_reports(sales: list) -> set:
     return reports_data
 
 
-def handle_sale_obj(request, sale_obj: dict, api_key):
+def handle_sale_obj(current_user, sale_obj: dict, api_key):
     wb_office_name = sale_obj.get('office_name', None)
     office_name = 'Склад WB без названия' if wb_office_name is None else wb_office_name
 
     return SaleObject(
-        owner=request.user,
+        owner=current_user,
         api_key=api_key,
         week_num=
         datetime.strptime(sale_obj.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').
@@ -78,11 +78,11 @@ def handle_sale_obj(request, sale_obj: dict, api_key):
         )
 
 
-def generate_reports_and_sales_objs(request, date_from: str, date_to: str, current_api_key) -> dict:
+def generate_reports_and_sales_objs(current_user, date_from: str, date_to: str, current_api_key) -> dict:
     """
     The main function of requesting data from Wildberries. Combines all services related to data uploading.
     Checks for piracy, generates a list of SaleObject model instances.
-    :param request:
+    :param current_user:
     :param date_from:
     :param date_to:
     :param current_api_key:
@@ -104,9 +104,9 @@ def generate_reports_and_sales_objs(request, date_from: str, date_to: str, curre
     unique_articles: list = get_unique_articles(res_dict.get('data'))
     unique_reports_ids: set = get_unique_reports(res_dict.get('data'))
 
-    if SaleReport.objects.filter(realizationreport_id__in=unique_reports_ids).exclude(owner=request.user).exists():
+    if SaleReport.objects.filter(realizationreport_id__in=unique_reports_ids).exclude(owner=current_user).exists():
         django_logger.info(
-            f"Attempted piracy, user - {request.user.email} "
+            f"Attempted piracy, user - {current_user.email} "
             f"tries to upload someone else's reports or another account's reports"
         )
         return {
@@ -117,7 +117,7 @@ def generate_reports_and_sales_objs(request, date_from: str, date_to: str, curre
     sale_obj_list: list = []
 
     generated_reports_ids = SaleReport.objects.filter(
-        owner=request.user,
+        owner=current_user,
         api_key=current_api_key
     ).values_list('realizationreport_id', flat=True)
 
@@ -126,9 +126,9 @@ def generate_reports_and_sales_objs(request, date_from: str, date_to: str, curre
             if sale_obj.get('realizationreport_id') in generated_reports_ids \
                     or sale_obj.get('realizationreport_id') in incorrect_reports.get('realizationreport_ids'):
                 continue
-            sale_obj_list.append(handle_sale_obj(request, sale_obj, current_api_key))
+            sale_obj_list.append(handle_sale_obj(current_user, sale_obj, current_api_key))
     except Exception as err:
-        django_logger.critical(f'Error when creating sale objects {request.user.email}.'
+        django_logger.critical(f'Error when creating sale objects {current_user.user.email}.'
                                f'An error on the Wildberries side that blocks the loading of reports', exc_info=err)
         return {
             'status': False,
@@ -145,12 +145,12 @@ def generate_reports_and_sales_objs(request, date_from: str, date_to: str, curre
         with transaction.atomic():
             SaleObject.objects.bulk_create(sale_obj_list, batch_size=5000)
 
-            generate_incorrect_reports(request, incorrect_reports.get('incorrect_reports_data_list'), current_api_key)
-            generate_reports(request, current_api_key)
-            generate_user_products(request, unique_articles, current_api_key)
+            generate_incorrect_reports(current_user, incorrect_reports.get('incorrect_reports_data_list'), current_api_key)
+            generate_reports(current_user, current_api_key)
+            generate_user_products(current_user, unique_articles, current_api_key)
     except Exception as err:
         django_logger.critical(
-            f'Failed to load reports into the database for a user {request.user.email}',
+            f'Failed to load reports into the database for a user {current_user.user.email}',
             exc_info=err
         )
         return {
