@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const inputs = document.querySelectorAll('.report_input-item')
-    const clear_button = document.getElementById('clear_data_id')
+    const clearButton = document.getElementById('clear_data_id')
 
     inputs.forEach(input => {
         if (input.value === '') {
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
     });
 
-    clear_button.addEventListener('click', function(event) {
+    clearButton.addEventListener('click', function(event) {
         inputs.forEach(input => {
             input.value = ""
             input.style.border = '1px solid #ff8364'

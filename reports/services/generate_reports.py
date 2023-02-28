@@ -332,14 +332,14 @@ def handle_revenues_list_by_filter(revenues_list: list, revenue_total: float) ->
     return revenues
 
 
-def get_revenues_list_by_filter(request, current_api_key, dates_filter_lst: list, filter_name: str) -> list:
+def get_revenues_list_by_filter(request, current_api_key, period_filter_data, filter_name: str) -> list:
     general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
     sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict', None)
 
     sales_objs_by_stock = SaleObject.objects.filter(
+        period_filter_data,
         owner=request.user,
         api_key=current_api_key,
-        week_num__in=dates_filter_lst,
         brand_name__isnull=False
     ).values(filter_name).annotate(
         sales_sum=sum_aggregation_objs_dict.get('sales_sum'),
@@ -364,11 +364,21 @@ def get_revenues_list_by_filter(request, current_api_key, dates_filter_lst: list
     return stock_revenues_list
 
 
-def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
+def generate_period_filter_conditions(period_filter_data: list):
+    empty_q_obj = Q()
+
+    for filter_data in period_filter_data:
+        empty_q_obj |= Q(year=filter_data.get('year'), week_num__in=filter_data.get('week_nums'))
+
+    return empty_q_obj
+
+
+def get_report(request, current_api_key, period_filter_data: list) -> dict:
     general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
     sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict', None)
     net_costs_sum_aggregations_objs: dict = general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs', None)
     tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs', None)
+    filter_data = generate_period_filter_conditions(period_filter_data)
 
     tax_rates_objects = TaxRate.objects.filter(
         api_key=current_api_key
@@ -381,9 +391,9 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     ]
 
     report_intermediate_data = SaleObject.objects.filter(
+        filter_data,
         owner=request.user,
         api_key=current_api_key,
-        week_num__in=dates_filter_lst
     ).annotate(
         price_including_tax=(
                 (F('retail_price_withdisc_rub') *
@@ -408,12 +418,12 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
         date_to=Max(F('date_to')),
         date_from=Min(F('date_from')),
         logistic_sum=(
-          Coalesce(Sum(
-              'delivery_rub',
-              filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
-          Coalesce(Sum(
-              'delivery_rub',
-              filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
         ),
         penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
@@ -422,9 +432,9 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     supplier_costs_sum_list = SaleReport.objects.filter(
         id__in=Subquery(
             SaleReport.objects.filter(
+                filter_data,
                 owner=request.user,
                 api_key=current_api_key,
-                week_num__in=dates_filter_lst
             ).distinct('create_dt').values_list('id', flat=True)
         )).order_by('date_from').values('year', 'week_num').annotate(
         date_to=Max(F('date_to')),
@@ -433,9 +443,9 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     )
 
     wb_costs_sum_list = SaleReport.objects.filter(
+        filter_data,
         owner=request.user,
         api_key=current_api_key,
-        week_num__in=dates_filter_lst
     ).order_by('date_from').values('year', 'week_num').annotate(
         date_to=Max(F('date_to')),
         date_from=Min(F('date_from')),
@@ -448,9 +458,9 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     )
 
     sale_objects_by_products = SaleObject.objects.filter(
+        filter_data,
         owner=request.user,
         api_key=current_api_key,
-        week_num__in=dates_filter_lst,
         nm_id__isnull=False
     ).annotate(
         net_cost=Coalesce(
@@ -469,12 +479,12 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
         logistic_sum=(
-          Coalesce(Sum(
-              'delivery_rub',
-              filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
-          Coalesce(Sum(
-              'delivery_rub',
-              filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
         ),
         penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
@@ -485,13 +495,13 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
     ).values_list('nm_id', 'image')
 
     is_empty_reports_values = SaleReport.objects.filter(
+        filter_data,
         Q(storage_cost__isnull=True) |
         Q(cost_paid_acceptance__isnull=True) |
         Q(other_deductions__isnull=True) |
         Q(supplier_costs__isnull=True),
         owner=request.user,
         api_key=current_api_key,
-        week_num__in=dates_filter_lst,
         ).exists()
 
     is_empty_netcosts_values = ClientUniqueProduct.objects.filter(
@@ -517,8 +527,8 @@ def get_report(request, current_api_key, dates_filter_lst: list) -> dict:
         product_fin['image'] = articles_images_dict.get(product_fin.get('nm_id'))
         products_financials.append(product_fin)
 
-    brand_revenues_list: list = get_revenues_list_by_filter(request, current_api_key, dates_filter_lst, 'brand_name')
-    stock_revenues_list: list = get_revenues_list_by_filter(request, current_api_key, dates_filter_lst, 'office_name')
+    brand_revenues_list: list = get_revenues_list_by_filter(request, current_api_key, filter_data, 'brand_name')
+    stock_revenues_list: list = get_revenues_list_by_filter(request, current_api_key, filter_data, 'office_name')
     brands_share_in_revenue_dict: dict = handle_revenues_list_by_filter(brand_revenues_list, totals.get('revenue_total'))
     stocks_share_in_revenue_dict: dict = handle_revenues_list_by_filter(stock_revenues_list, totals.get('revenue_total'))
 

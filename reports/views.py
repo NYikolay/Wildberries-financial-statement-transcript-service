@@ -7,15 +7,17 @@ from django.shortcuts import render, redirect
 from datetime import datetime, timedelta, date, timezone
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Q, Subquery
 from django.http import Http404
 from django.contrib import messages
 from django.core.cache import cache
+
 
 from reports.forms import SaleReportForm
 from reports.models import GeneralInformationObj, InfoTypes
 from reports.services.generate_last_weeks_nums import get_last_weeks_nums
 from reports.services.generate_reports import get_report
+from reports.services.handle_graphs_filter_data import get_period_filter_data
 
 from users.models import SaleReport, IncorrectReport
 
@@ -32,26 +34,30 @@ class DashboardView(LoginRequiredMixin, View):
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return render(request, 'reports/empty_dashboard.html')
-
-        if request.GET.get('filter'):
-            cache.delete(f'{request.user.id}_report')
+        cache.delete(f'{request.user.id}_report')
+        try:
+            period_filter_data: List[dict] = get_period_filter_data(dict(request.GET))
+        except Exception as err:
+            messages.error(request, 'Ошибка фильтрации периода.')
+            return redirect('reports:dashboard')
 
         incorrect_reports_ids = IncorrectReport.objects.filter(
             owner=request.user, api_key=current_api_key
         ).values_list('realizationreport_id', flat=True)
 
-        last_weeks_nums: List[int] = [(datetime.today() - relativedelta(weeks=i)).isocalendar().week for i in
-                                      range(24)]
-
-        filters_dates_data = SaleReport.objects.filter(
-            api_key__is_current=True, api_key__user=request.user).distinct('month_num').order_by(
-            '-month_num').values('month_num', 'year')
+        filter_dates_queryset = SaleReport.objects.filter(
+            id__in=Subquery(
+                SaleReport.objects.filter(
+                    owner=request.user,
+                    api_key=current_api_key,
+                ).distinct('week_num').values_list('id', flat=True))).order_by(
+            '-date_from').values('week_num', 'date_from', 'date_to', 'year')
 
         report = cache.get(f'{request.user.id}_report')
 
         if not report:
             try:
-                report = get_report(request, current_api_key, last_weeks_nums)
+                report = get_report(request, current_api_key, period_filter_data)
             except Exception as err:
                 django_logger.critical(
                     f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
@@ -67,12 +73,8 @@ class DashboardView(LoginRequiredMixin, View):
             'report': report,
             'report_by_products_json': report_by_products_json,
             'incorrect_reports_ids': incorrect_reports_ids,
-            'filters_dates_data': filters_dates_data,
-            'current_filter_date':
-                {
-                    'month': request.GET.get('month'),
-                    'year': request.GET.get('year')
-                }
+            'filter_dates_data': filter_dates_queryset,
+            'current_filter_data': period_filter_data
         }
         return render(request, 'reports/dashboard.html', context)
 

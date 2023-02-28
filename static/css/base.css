@@ -9,7 +9,7 @@
     padding-bottom: 15px;
     border-bottom: 1px solid #dbdbdb;
     width: 100%;
-    z-index: 1;
+    z-index: 20;
     background-color: white;
     position: fixed;
     top: 0;
