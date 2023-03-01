@@ -191,7 +191,6 @@ class LogoutView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def get(self, request):
-        cache.delete(f'{request.user.id}_report')
         logout(request)
         return redirect('users:login')
 
@@ -370,7 +369,6 @@ class CompanyEditView(LoginRequiredMixin, View):
         return render(request, 'users/profile/companies/company_edit.html', context=context)
 
     def post(self, request, api_key_id):
-        cache.delete(f'{request.user.id}_report')
         tax_rates = list(filter(None, request.POST.getlist('tax_rate')))
         commencement_dates = list(filter(None, request.POST.getlist('commencement_date')))
 
@@ -445,7 +443,6 @@ class CompaniesListView(LoginRequiredMixin, View):
         return render(request, 'users/profile/companies/companies_list.html', context)
 
     def post(self, request, *args, **kwargs):
-        cache.delete(f'{request.user.id}_report')
         tax_rates = list(filter(None, request.POST.getlist('tax_rate')))
         commencement_dates = list(filter(None, request.POST.getlist('commencement_date')))
 
@@ -503,7 +500,6 @@ class DeleteCompanyView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def post(self, request, api_key_id):
-        cache.delete(f'{request.user.id}_report')
         company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
         company.delete()
 
@@ -516,7 +512,6 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
 
     def post(self, request, *args, **kwargs):
-        cache.delete(f'{request.user.id}_report')
         current_api_key = request.user.keys.filter(is_current=True).first()
         today = date.today()
 
@@ -657,7 +652,6 @@ class EditProductView(LoginRequiredMixin, View):
         return render(request, 'users/profile/products/edit_product.html', context)
 
     def post(self, request, article_value, *args, **kwargs):
-        cache.delete(f'{request.user.id}_report')
         cost_inputs = list(filter(None, request.POST.getlist('cost_input')))
         product_cost_dates = list(filter(None, request.POST.getlist('product_cost_date')))
 

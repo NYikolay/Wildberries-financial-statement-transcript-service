@@ -21,7 +21,7 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 
@@ -45,7 +45,6 @@
     text-transform: uppercase;
     border-radius: 10px;
     font-size: 8px;
-    margin-bottom: 5px;
 }
 
 /* Контейнер <div> - необходим для размещения выпадающего содержимого */
@@ -403,7 +402,7 @@
 }
 
 .graphs-bar-prewrap {
-    height: 400px;
+    height: 390px;
 
     border-radius: 10px;
 

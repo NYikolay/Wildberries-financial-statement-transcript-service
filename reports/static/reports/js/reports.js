@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", function() {
+    window.onload = function() {
+        let scrollPos = localStorage.getItem('scrollPos');
+
+        document.getElementById('reports-left-filters').scrollTop = scrollPos || 0 ;
+        document.getElementById('reports-left-filters').onscroll = function () {
+            localStorage.setItem('scrollPos', this.scrollTop);
+        };
+    }
     const inputs = document.querySelectorAll('.report_input-item')
     const clearButton = document.getElementById('clear_data_id')
 

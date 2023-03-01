@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} Дашборд - Commery{% endblock %}
+{% block title %} Сводный отчёт - Commery{% endblock %}
 {% block content %}
 <div class="container">
     <div class="main_content-wrapper">
@@ -11,9 +11,9 @@
                         <button class="graphs-dropbtn" id="graphs-dropbtn">
                             <img src="{% static 'images/2278049_2.svg' %}" alt="" style="height: 15px; width: 15px;">
                             {% if not current_filter_data %}
-                            Перод: все время
+                            Период: все время
                             {% else %}
-                            Перод: пользовательский
+                            Период: пользовательский
                             {% endif %}
                             <img src="{% static 'images/iconizer-32195.svg' %}" alt="" style="height: 8px; width: 8px;">
                         </button>
@@ -271,6 +271,12 @@
                         <h1 class="footer_block-title">{{ report.wb_costs_total|floatformat:"-3g" }}</h1>
                         <p class="footer_block-subtitle">Расходы вб</p>
                     </div>
+                    <div class="footer_block-inner">
+                        <div class="left" style="width: 96px;">
+                            <h1 class="footer_block-title">{{ report.penalty_total|floatformat:"-3g" }}</h1>
+                        </div>
+                        <p class="footer_block-subtitle">Штрафы</p>
+                    </div>
                 </div>
                 <div class="footer_block-item">
                     <div class="footer_block-inner">
@@ -296,6 +302,14 @@
                             </div>
                         </div>
                         <p class="footer_block-subtitle">НАЛОГ</p>
+                    </div>
+                    <div class="footer_block-inner">
+                        <div class="footer_hint">
+                            <div class="left" style="width: 96px;">
+                                <h1 class="footer_block-title">{{ report.additional_payment_sum_total|floatformat:"-3g" }}</h1>
+                            </div>
+                        </div>
+                        <p class="footer_block-subtitle">Доплаты</p>
                     </div>
                 </div>
             </div>

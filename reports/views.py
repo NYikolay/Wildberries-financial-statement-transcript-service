@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from datetime import datetime, timedelta, date, timezone
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, Subquery
+from django.db.models import Q, Subquery, Min, Max, F
 from django.http import Http404
 from django.contrib import messages
 from django.core.cache import cache
@@ -34,7 +34,7 @@ class DashboardView(LoginRequiredMixin, View):
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return render(request, 'reports/empty_dashboard.html')
-        cache.delete(f'{request.user.id}_report')
+
         try:
             period_filter_data: List[dict] = get_period_filter_data(dict(request.GET))
         except Exception as err:
@@ -42,31 +42,29 @@ class DashboardView(LoginRequiredMixin, View):
             return redirect('reports:dashboard')
 
         incorrect_reports_ids = IncorrectReport.objects.filter(
-            owner=request.user, api_key=current_api_key
+            api_key=current_api_key
         ).values_list('realizationreport_id', flat=True)
 
         filter_dates_queryset = SaleReport.objects.filter(
             id__in=Subquery(
                 SaleReport.objects.filter(
-                    owner=request.user,
                     api_key=current_api_key,
-                ).distinct('week_num').values_list('id', flat=True))).order_by(
-            '-date_from').values('week_num', 'date_from', 'date_to', 'year')
+                ).distinct('create_dt').values_list('id', flat=True))).order_by(
+            '-date_from').values('week_num', 'year').annotate(
+            date_to=Max(F('date_to')),
+            date_from=Min(F('date_from')),
+        )
 
-        report = cache.get(f'{request.user.id}_report')
-
-        if not report:
-            try:
-                report = get_report(request, current_api_key, period_filter_data)
-            except Exception as err:
-                django_logger.critical(
-                    f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
-                    exc_info=err
-                )
-                messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
-                                        'Пожалуйста, свяжитесь со службой поддержки.')
-                return redirect('users:profile')
-            cache.set(f'{request.user.id}_report', report, 600)
+        try:
+            report = get_report(request, current_api_key, period_filter_data)
+        except Exception as err:
+            django_logger.critical(
+                f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
+                                    'Пожалуйста, свяжитесь со службой поддержки.')
+            return redirect('users:profile')
 
         report_by_products_json = json.dumps(report.get('report_by_products'))
         context = {
@@ -119,7 +117,6 @@ class ReportDetailView(LoginRequiredMixin, View):
         return render(request, 'reports/report_detail.html', context)
 
     def post(self, request, create_dt, *args, **kwargs):
-        cache.delete(f'{request.user.id}_report')
 
         storage_costs = request.POST.getlist('storage_cost')
         cost_paid_acceptances = request.POST.getlist('cost_paid_acceptance')

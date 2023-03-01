@@ -208,6 +208,8 @@ def get_calculated_financials_by_weeks(
         'tax': tax_value,
         'profit': profit,
         'profitability': profitability,
+        'penalty': sales_objects_figures.get('penalty_sum'),
+        'additional_payment_sum': sales_objects_figures.get('additional_payment_sum')
     }
 
 
@@ -225,6 +227,8 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
     profit_total = []
     profitability_total = []
     reports_by_week = []
+    penalty_total = []
+    additional_payment_sum_total = []
 
     for inter_data, supplier_cost, wb_cost in zip(report_intermediate_data, supplier_costs_sum_list, wb_costs_sum_list):
         data: dict = get_calculated_financials_by_weeks(inter_data, supplier_cost, wb_cost)
@@ -241,6 +245,8 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
         tax_total.append(data.get('tax'))
         profit_total.append(data.get('profit'))
         profitability_total.append(data.get('profitability'))
+        penalty_total.append(data.get('penalty'))
+        additional_payment_sum_total.append(data.get('additional_payment_sum'))
 
     if sum(net_costs_sum_total) > 0:
         marginality = ((sum(revenue_total) - sum(net_costs_sum_total)) / sum(revenue_total) * 100) \
@@ -263,7 +269,9 @@ def get_total_financials(report_intermediate_data, supplier_costs_sum_list, wb_c
         'tax_total': round(sum(tax_total)),
         'profit_total': round(sum(profit_total)),
         'profitability_total': profitability_total,
-        'reports_by_week': json.dumps(reports_by_week, ensure_ascii=False)
+        'reports_by_week': json.dumps(reports_by_week, ensure_ascii=False),
+        'penalty_total': round(sum(penalty_total)),
+        'additional_payment_sum_total': round(sum(additional_payment_sum_total))
     }
 
 

@@ -24,6 +24,7 @@ class SupportRequestView(LoginRequiredMixin, View):
                            f'на тему: {form.cleaned_data["message_type"]}'
             message = f'Данные заявки: {request.user.email} ' \
                       f'\nДополнительные данные: ' \
+                      f'\nИмя - {form.cleaned_data["user_name"]} ' \
                       f'\nТема обращения - {form.cleaned_data["message_type"]} ' \
                       f'\nСообщение - {form.cleaned_data["message"]}'
 

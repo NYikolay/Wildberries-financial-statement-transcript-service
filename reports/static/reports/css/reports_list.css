@@ -280,6 +280,8 @@ input::-webkit-inner-spin-button {
 
 .reports_left-filters {
     overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
     overflow-x: hidden;
     max-height: 650px;
     background-color: white;
