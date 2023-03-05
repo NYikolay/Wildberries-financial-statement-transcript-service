@@ -17,7 +17,8 @@ from users.services.wb_request_hanling_services.generating_user_products_objs im
 from users.services.wb_request_hanling_services.generating_user_reports import generate_reports
 from users.services.wb_request_hanling_services.reports_validation import check_sale_obj_validation, \
     get_incorrect_reports_lst
-from users.services.wb_request_hanling_services.request_data_handling import get_unique_articles, get_unique_reports
+from users.services.wb_request_hanling_services.generating_unique_reports import get_unique_reports
+from users.services.wb_request_hanling_services.request_data_handling import get_unique_articles
 from users.tests.users_app_testing_data import test_sale_objs_data, test_articles_data, test_user_data, \
     test_incorrect_reports_data, test_invalid_objs_data
 

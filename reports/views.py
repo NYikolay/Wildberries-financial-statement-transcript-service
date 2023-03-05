@@ -19,8 +19,7 @@ from reports.services.generate_last_weeks_nums import get_last_weeks_nums
 from reports.services.generate_reports import get_report
 from reports.services.handle_graphs_filter_data import get_period_filter_data
 
-from users.models import SaleReport, IncorrectReport
-
+from users.models import SaleReport, IncorrectReport, UnloadedReports
 
 django_logger = logging.getLogger('django_logger')
 
@@ -72,7 +71,8 @@ class DashboardView(LoginRequiredMixin, View):
             'report_by_products_json': report_by_products_json,
             'incorrect_reports_ids': incorrect_reports_ids,
             'filter_dates_data': filter_dates_queryset,
-            'current_filter_data': period_filter_data
+            'current_filter_data': period_filter_data,
+            'is_unloaded_reports': UnloadedReports.objects.filter(api_key=current_api_key).exists()
         }
         return render(request, 'reports/dashboard.html', context)
 

@@ -3,13 +3,15 @@ from datetime import datetime, timezone
 from typing import List, Set
 
 from django.db import transaction
-from users.models import SaleObject, SaleReport
+from users.models import SaleObject, SaleReport, UnloadedReports
+from users.services.wb_request_hanling_services.generating_unique_reports import get_unique_reports
 
 from users.services.wb_request_hanling_services.generating_user_reports import generate_reports
 from users.services.wb_request_hanling_services.generating_incorrect_reports import generate_incorrect_reports
 from users.services.wb_request_hanling_services.generating_user_products_objs import generate_user_products
 from users.services.wb_request_hanling_services.reports_validation import get_incorrect_reports_lst
-from users.services.wb_request_hanling_services.send_request_for_sales import send_request_for_sales
+from users.services.wb_request_hanling_services.send_request_for_sales import send_request_for_sales, \
+    get_wb_request_response
 
 django_logger = logging.getLogger('django_logger')
 
@@ -26,13 +28,6 @@ def get_unique_articles(sales: list) -> list:
                 }
             )
     return articles_data
-
-
-def get_unique_reports(sales: list) -> set:
-    reports_data: Set[int] = set()
-    for sale in sales:
-        reports_data.add(sale.get('realizationreport_id'))
-    return reports_data
 
 
 def handle_sale_obj(current_user, sale_obj: dict, api_key):
@@ -81,15 +76,15 @@ def handle_sale_obj(current_user, sale_obj: dict, api_key):
 def generate_reports_and_sales_objs(current_user, date_from: str, date_to: str, current_api_key) -> dict:
     """
     The main function of requesting data from Wildberries. Combines all services related to data uploading.
-    Checks for piracy, generates a list of SaleObject model instances.
+    Checks for piracy, generates a list of SaleObject models instances.
     :param current_user:
-    :param date_from:
-    :param date_to:
-    :param current_api_key:
-    :return: Return the results of all functions that work with data from Wildberries in the view.
+    :param date_from: date for sending a request to WIldberries in query params
+    :param date_to: date for sending a request to WIldberries in query params
+    :param current_api_key: Api user key to add it to query params in a query
+    :return: Return the status of all functions that work with data from Wildberries in the view.
     """
 
-    res_dict = send_request_for_sales(date_from, date_to, current_api_key)
+    res_dict = get_wb_request_response(date_from, date_to, current_api_key)
 
     if res_dict.get('status') is False:
         return res_dict
@@ -148,6 +143,10 @@ def generate_reports_and_sales_objs(current_user, date_from: str, date_to: str, 
             generate_incorrect_reports(current_user, incorrect_reports.get('incorrect_reports_data_list'), current_api_key)
             generate_reports(current_user, current_api_key)
             generate_user_products(current_user, unique_articles, current_api_key)
+            UnloadedReports.objects.filter(
+                api_key=current_api_key,
+                realizationreport_id__in=generated_reports_ids
+            ).delete()
     except Exception as err:
         django_logger.critical(
             f'Failed to load reports into the database for a user {current_user.user.email}',

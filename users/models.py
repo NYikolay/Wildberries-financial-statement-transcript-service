@@ -258,7 +258,7 @@ class IncorrectReport(models.Model):
         null=True,
         blank=False,
         related_name='unavailable_api_key_reports',
-        verbose_name='Апи ключ'
+        verbose_name='Api ключ'
     )
     owner = models.ForeignKey(
         User,
@@ -276,5 +276,24 @@ class IncorrectReport(models.Model):
     class Meta:
         verbose_name = 'Некорректный отчёт'
         verbose_name_plural = 'Некорректные отчёты'
+
+
+class UnloadedReports(models.Model):
+    api_key = models.ForeignKey(
+        WBApiKey,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=False,
+        related_name='unloaded_reports',
+        verbose_name='Api ключ'
+    )
+    realizationreport_id = models.BigIntegerField('Номер отчёта')
+
+    def __str__(self):
+        return f'Недозагруженный отчёт пользователя - {self.api_key.user.email}'
+
+    class Meta:
+        verbose_name = 'Недозагруженный отчёт'
+        verbose_name_plural = 'Недозагруженные отчёты'
 
 

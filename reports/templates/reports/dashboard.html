@@ -103,6 +103,12 @@
                     <p class="graphs-bar-update__text">Обновить отчет можно на странице <a href="{% url 'reports:report_detail' last_report_date.date|date:'Y-m-d' %}" class="graphs-bar-update__link">"Список отчетов"</a></p>
                 </div>
             </div>
+            {% if is_unloaded_reports %}
+            <div class="invalid_reports-info">
+                <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;">
+                <p class="invalid_reports-text">Часть отчетов не была загружена - Wildberries передает данные частями. Вы сможете загрузить недостающие отчеты на странице <a href="{% url 'reports:report_detail' last_report_date.date|date:'Y-m-d' %}" style="text-decoration: underline">"Список отчётов"</a> через 1 минуту</p>
+            </div>
+            {% endif %}
             {% if incorrect_reports_ids %}
             <div class="invalid_reports-info">
                 <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;">
