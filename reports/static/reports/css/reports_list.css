@@ -6,160 +6,131 @@ input::-webkit-inner-spin-button {
     /* <-- Apparently some margin are still there even though it's hidden */
 }
 
-/*EMPTY REPORTS*/
+/* EMPTY REPORTS STYLING */
 
 .empty_reports-wrapper {
-    background-color: #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-color: white;
+    margin: 0 auto;
+    gap: 40px;
     border-radius: 10px;
-    padding-top: 100px;
-    text-align:center;
+    padding: 90px 232px;
 }
 
-.empty_reports-item p {
-    font-size: 17px;
+.empty_reports-title {
     font-weight: bold;
+    font-size: 25px;
 }
 
-.empty_reports-item a {
+.empty_reports-description {
+    font-size: 17px;
+    max-width: 523px;
+}
+
+.empty_reports_status-wrapper {
+    display: flex;
+    width: 735px;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    border-radius: 7px;
+    background-color: #f4f4f4;
+    padding: 31px 0 31px 118px;
+}
+
+.empty_reports_status-item {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    align-self: flex-start;
+}
+
+.empty_reports_status-item p {
+    font-weight: bold;
+    font-size: 17px;
+    margin-left: 0;
+}
+
+.empty_reports_status-item a {
     color: white;
-    margin-top: 37px;
+    font-weight: bold;
     text-transform: uppercase;
     background-color: #ff8364;
-    padding: 8px 20px;
-    font-size: 8px;
-    font-weight: bold;
     border-radius: 30px;
+    padding: 8px 35px;
+    font-size: 8px;
 }
 
-.filter {
-    position: absolute;
-    visibility: hidden;
+.empty_reports_status-item a:hover {
+    background-color: #ff6600;
 }
 
-.dots {
-    filter: url(#gooeyness);
-    padding: 30px;
-}
-
-.dot {
-    background: #ff8364;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 20px;
+.empty_reports_success-img {
     width: 25px;
     height: 25px;
 }
 
-.dot:first-child {
-    animation: FirstDot 3s infinite;
+.empty_reports_possibilities-wrapper {
+    display: flex;
+    gap: 25px;
+    align-items: center;
 }
 
-.dot:nth-child(2) {
-    animation: SecondDot 3s infinite;
+.empty_reports_possibilities-item {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    max-width: 165px;
+    gap: 15px;
 }
 
-.dot:nth-child(3) {
-    animation: ThirdDot 3s infinite;
+.possibilities_img {
+    width: 165px;
+    height: 165px;
 }
 
-.dot:nth-child(4) {
-    animation: FourthDot 3s infinite;
+.possibilities_title {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 8px;
 }
 
-.dot:nth-child(5) {
-    animation: FifthDot 3s infinite;
+.possibilities_description {
+    text-transform: uppercase;
+    font-size: 8px;
+    text-align: left;
+    line-height: 12px;
 }
 
-@keyframes FirstDot {
-    0% {
-        transform: scale(1) translateX(0);
-    }
-    25% {
-        transform: scale(1.8) translateX(0);
-    }
-    50% {
-        transform: scale(1) translateX(0);
-    }
-    83% {
-        transform: scale(1) translateX(240px);
-    }
-    100% {
-        transform: scale(1) translateX(0);
-    }
+.possibilities_list {
+    list-style: circle;
 }
 
-@keyframes SecondDot {
-    0% {
-        transform: translateX(0px);
-    }
-    27% {
-        transform: translateX(-40px);
-    }
-    50% {
-        transform: translateX(0px);
-    }
-    81% {
-        transform: translateX(180px);
-    }
-    100% {
-        transform: translateX(0);
-    }
+.possibilities_list li {
+    text-transform: uppercase;
+    font-size: 8px;
+    line-height: 14px;
+    text-align: left;
 }
 
-@keyframes ThirdDot {
-    0% {
-        transform: translateX(0px);
-    }
-    29% {
-        transform: translateX(-100px);
-    }
-    50% {
-        transform: translateX(0px);
-    }
-    79% {
-        transform: translateX(120px);
-    }
-    100% {
-        transform: translateX(0);
-    }
+.load_reports-button {
+    color: white;
+    text-transform: uppercase;
+    background-color: #ff8364;
+    font-size: 8px;
+    font-weight: bold;
+    border-radius: 30px;
+    position: relative;
+    transition: 0.3s;
+    cursor: pointer;
+    padding: 8px 40px;
 }
 
-@keyframes FourthDot {
-    0% {
-        transform: translateX(0px);
-    }
-    31% {
-        transform: translateX(-160px);
-    }
-    50% {
-        transform: translateX(0px);
-    }
-    77% {
-        transform: translateX(60px);
-    }
-    100% {
-        transform: translateX(0);
-    }
-}
-
-@keyframes FifthDot {
-    0% {
-        transform: scale(1) translateX(0);
-    }
-    33% {
-        transform: scale(1) translateX(-220px);
-    }
-    50% {
-        transform: scale(1) translateX(0);
-    }
-    75% {
-        transform: scale(1.8) translateX(0);
-    }
-    100% {
-        transform: scale(1) translateX(0);
-    }
-}
-
+/* EMPTY REPORTS STYLING END */
 
 .reports_info-top {
     background-color: white;
@@ -190,21 +161,6 @@ input::-webkit-inner-spin-button {
     position: relative;
     transition: 0.3s;
     cursor: pointer;
-}
-
-.load_reports-button {
-    color: white;
-    margin-top: 37px;
-    text-transform: uppercase;
-    background-color: #ff8364;
-    padding: 8px 20px;
-    font-size: 8px;
-    font-weight: bold;
-    border-radius: 30px;
-    position: relative;
-    transition: 0.3s;
-    cursor: pointer;
-
 }
 
 /*BUTTON LOADER START */

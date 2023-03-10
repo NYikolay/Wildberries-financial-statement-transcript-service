@@ -107,7 +107,7 @@ class ClientUniqueProduct(models.Model):
         related_name='api_key_products',
         verbose_name='Апи ключ'
     )
-    nm_id = models.BigIntegerField('Артикул')
+    nm_id = models.BigIntegerField('Артикул', unique=True)
     brand = models.CharField(max_length=65, verbose_name='Бренд')
     image = models.URLField(null=True, verbose_name='Картинка товара')
     product_name = models.CharField(max_length=125, null=True, verbose_name='Наименование товара')

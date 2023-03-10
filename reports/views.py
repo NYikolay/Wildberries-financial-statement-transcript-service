@@ -28,7 +28,7 @@ class DashboardView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
@@ -82,7 +82,7 @@ class ReportDetailView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
     form_class = SaleReportForm
 
-    def get(self, request, create_dt, *args, **kwargs):
+    def get(self, request, create_dt):
         report_message = GeneralInformationObj.objects.filter(info_type=InfoTypes.reports, is_active=True).first()
         reports = SaleReport.objects.filter(
             api_key__is_current=True,
@@ -116,7 +116,7 @@ class ReportDetailView(LoginRequiredMixin, View):
         }
         return render(request, 'reports/report_detail.html', context)
 
-    def post(self, request, create_dt, *args, **kwargs):
+    def post(self, request, create_dt):
 
         storage_costs = request.POST.getlist('storage_cost')
         cost_paid_acceptances = request.POST.getlist('cost_paid_acceptance')
@@ -164,11 +164,13 @@ class EmptyReportsView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
+
         if current_api_key and current_api_key.is_wb_data_loaded:
             return redirect('reports:report_detail', create_dt=SaleReport.objects.filter(
                 api_key__is_current=True,
                 api_key__user=request.user
             ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d'))
+
         return render(request, 'reports/empty_reports.html')

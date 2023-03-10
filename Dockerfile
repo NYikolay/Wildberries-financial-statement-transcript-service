@@ -15,7 +15,7 @@ RUN useradd -rms /bin/bash commery_admin && chmod 777 /opt /run
 
 WORKDIR /commery_project
 
-RUN mkdir /commery_project/static && mkdir /commery_project/media && chown -R commery_admin:commery_admin /commery_project && chmod 755 /commery_project
+RUN mkdir /commery_project/static && mkdir /commery_project/media && chown -R commery_admin:commery_admin /commery_project && chmod 770 /commery_project
 
 COPY --chown=commery_admin:commery_admin . .
 
@@ -32,7 +32,7 @@ RUN useradd -rms /bin/bash commery_admin && chmod 777 /opt /run
 
 WORKDIR /commery_project
 
-RUN mkdir /commery_project/staticfiles && mkdir /commery_project/media && chown -R commery_admin:commery_admin /commery_project && chmod 755 /commery_project
+RUN mkdir /commery_project/staticfiles && mkdir /commery_project/media && chown -R commery_admin:commery_admin /commery_project && chmod 770 /commery_project
 
 COPY --chown=commery_admin:commery_admin . .
 

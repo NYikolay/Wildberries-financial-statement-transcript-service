@@ -4,44 +4,49 @@
 {% block content %}
 <div class="container">
     <div class="stock_main-wrapper">
-        <div class="product_list-wrapper">
-            <div class="products_list" id="products_list">
-                {% for p in products %}
-                <a
-                        href="{% url 'users:product_detail' p.nm_id %}?page={{ products.number }}"
-                        data-title="{{ p.product_name }}"
-                        class="stock_product-item {% if p.nm_id == product.nm_id %}stock_product-active{% endif %}">
-                    <div class="product_item-left">
-                        <img class="product_image" src="{% if p.image %}{{ p.image }}{% else %}{% static 'images/empty_photo2.png' %}{% endif %}" alt="">
-                    </div>
-                    <div class="product_item-right">
-                        <div class="prodict_brand">
-                            <h1>{{ p.brand }}</h1>
-                            <p>Бренд</p>
-                        </div>
-                        <div class="product_article">
-                            <h1>{{ p.nm_id }}</h1>
-                            <p>Артикул</p>
-                        </div>
-                    </div>
-                </a>
-                {% endfor %}
+        <div class="products_list-container">
+            <div class="products-file-popup_wrapper">
+                <button class="file-info-popup_btn" type="button">Установить себестоимость через файл</button>
             </div>
-            <div class="pagination_wrapper">
-                <p>Страница</p>
-                <input class="paginator_input" type="number" data-place="{{ products.paginator.num_pages }}" value="{{ products.number }}" onclick="generateInputValidationForPaginator()">
-                <p>из {{ products.paginator.num_pages }}</p>
-                <div class="paginator_arrows-wrapper">
-                    {% if products.has_previous %}
-                    <a href="?page={{ products.previous_page_number }}" class="arrow_item"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
-                    {% else %}
-                    <a href="" class="arrow_item disabled_arrow"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
-                    {% endif %}
-                    {% if products.has_next %}
-                    <a href="?page={{ products.next_page_number }}" class="arrow_item"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
-                    {% else %}
-                    <a href="" class="arrow_item disabled_arrow"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
-                    {% endif %}
+            <div class="products_list-wrapper">
+                <div class="products_list" id="products_list">
+                    {% for p in products %}
+                    <a
+                            href="{% url 'users:product_detail' p.nm_id %}?page={{ products.number }}"
+                            data-title="{{ p.product_name }}"
+                            class="stock_product-item {% if p.nm_id == product.nm_id %}stock_product-active{% endif %}">
+                        <div class="product_item-left">
+                            <img class="product_image" src="{% if p.image %}{{ p.image }}{% else %}{% static 'images/empty_photo2.png' %}{% endif %}" alt="">
+                        </div>
+                        <div class="product_item-right">
+                            <div class="prodict_brand">
+                                <h1>{{ p.brand }}</h1>
+                                <p>Бренд</p>
+                            </div>
+                            <div class="product_article">
+                                <h1>{{ p.nm_id }}</h1>
+                                <p>Артикул</p>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                <div class="pagination_wrapper">
+                    <p>Страница</p>
+                    <input class="paginator_input" type="number" data-place="{{ products.paginator.num_pages }}" value="{{ products.number }}" onclick="generateInputValidationForPaginator()">
+                    <p>из {{ products.paginator.num_pages }}</p>
+                    <div class="paginator_arrows-wrapper">
+                        {% if products.has_previous %}
+                        <a href="?page={{ products.previous_page_number }}" class="arrow_item"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                        {% else %}
+                        <a href="" class="arrow_item disabled_arrow"><img class="arrow_left" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                        {% endif %}
+                        {% if products.has_next %}
+                        <a href="?page={{ products.next_page_number }}" class="arrow_item"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                        {% else %}
+                        <a href="" class="arrow_item disabled_arrow"><img class="arrow_right" src="{% static 'images/271228 (1).svg' %}" alt=""></a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -90,5 +95,34 @@
         </div>
     </div>
 </div>
+<div class="file_load_form-wrapper">
+    <div class="file_load_form-container">
+        <h1>Установка себестоимости</h1>
+        <div class="file_load_form_wrapper-inner">
+            <div class="file_load-left">
+                <h1>Шаг 1</h1>
+                <p>СКАЧАТЬ EXCEL-ФАЙЛ И ЗАПОЛНИТЬ В СООТВЕТСТВИИ С ШАБЛОНОМ ВНУТРИ</p>
+                <a href="{% url 'users:export_net_costs_example' %}" class="download_example-link" style="color: white">скачать excel</a>
+            </div>
+            <div class="file_load-right">
+                <h1>Шаг 2</h1>
+                <p>ЗАГРУЗИТЬ ЗАПОЛНЕННЫЙ EXCEL-ФАЙЛ</p>
+                <form action="{% url 'users:set_net_costs' %}" method="post" enctype="multipart/form-data" class="file_load-form">
+                    {% csrf_token %}
+                    <div class="file_input-wrapper">
+                        {{ net_costs_load_form.as_p }}
+                        <label for="id_net_costs_file" class="input-file_button">
+                            <span class="input-file-button_text">Выбрать файл</span>
+                        </label>
+                        <p class="file_status-text">Файл не выбран</p>
+                    </div>
+                    <button type="submit" class="file_load_send-btn">Загрузить excel</button>
+                </form>
+            </div>
+        </div>
+        <button type="button" class="file_load_cancel-btn">Отменить</button>
+    </div>
+</div>
 <script src="{% static 'users/js/products_pagination.js' %}"></script>
+<script src="{% static 'users/js/products_file_form.js' %}"></script>
 {% endblock %}

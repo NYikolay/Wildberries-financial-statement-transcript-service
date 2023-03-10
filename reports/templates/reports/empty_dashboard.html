@@ -3,19 +3,79 @@
 {% block title %} Сводный отчёт - Commery{% endblock %}
 {% block content%}
 <div class="container">
-    <div class="empty_reports-wrapper">
-        {% if not current_api_key %}
-        <div class="empty_reports-item">
-            <p>Для формирования финансового отчёта <br> подключите Ваш магазин</p>
-            <a href="{% url 'users:companies_list' %}">Подключить</a>
+    <div class="empty_dashboard-wrapper">
+        <h1 class="empty_dashboard-title">Вы на главной странице сервиса</h1>
+        <h3 class="empty_dashboard-description">После расшифровки финансовых отчетов Wildberries здесь будут отображаться основные показатели Вашего бизнеса в удобном для анализа виде</h3>
+        <div class="empty_dashboard_status-wrapper">
+            <div class="empty_dashboard_status-item">
+                <p>Шаг 1: Подключить магазин</p>
+                {% if not current_api_key %}
+                <a href="{% url 'users:companies_list' %}">Подключить</a>
+                {% else %}
+                <img src="{% static 'images/check (2).svg' %}" alt="" class="empty_dashboard_success-img">
+                {% endif %}
+            </div>
+            <div class="empty_dashboard_status-item">
+                <p>Шаг 2: Автоматически загрузить отчеты</p>
+                {% if current_api_key and not current_api_key.is_wb_data_loaded %}
+                <form class="load_report-form" action="{% url 'users:send_request_for_report' %}" method="post">
+                    {% csrf_token %}
+                    {% if current_api_key.is_active_import %}
+                    <button
+                            class="load_reports-button loading"
+                            id="load-btn"
+                            data-process-type="Загрузить"
+                            data-check="true"
+                            disabled
+                            data-url="{% url 'users:check_reports_loading_status' %}"
+                            data-redirect-url="{% url 'reports:dashboard' %}"
+                            type="submit">Загрузить</button>
+                    {% else %}
+                    <button
+                            class="load_reports-button"
+                            id="load-btn"
+                            data-process-type="Загрузить"
+                            data-check="false"
+                            type="submit">Загрузить</button>
+                    {% endif %}
+                </form>
+                {% endif %}
+            </div>
         </div>
-        {% endif %}
-        {% if current_api_key and not current_api_key.is_wb_data_loaded %}
-        <div class="empty_reports-item">
-            <p>Для формирования финансового отчёта<br> загрузите отчеты из Wildberries автоматически</p>
-            <a href="{% url 'reports:empty_reports' %}">Загрузить отчёты</a>
+        <div class="empty_dashboard_possibilities-wrapper">
+            <div class="empty_dashboard_possibilities-item">
+                <img src="{% static 'images/possibilities_img1.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">ПОНЕДЕЛЬНАЯ ДИНАМИКА ПРОДАЖ</h3>
+                <p class="possibilities_description">ПОКАЖЕМ ИЗМЕНЕНИЕ ВЫРУЧКИ И ПРИБЫЛИ ОТ НЕДЕЛИ К НЕДЕЛЕ С ДЕТАЛИЗАЦИЕЙ НЕДЕЛЬ ПО КЛЮЧЕВЫМ ПОКАЗАТЕЛЯМ</p>
+            </div>
+            <div class="empty_dashboard_possibilities-item">
+                <img src="{% static 'images/possibilities_img2.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">БОЛЕЕ 15 КЛЮЧЕВЫХ ПОКАЗАТЕЛЕЙ ВАШЕГО БИЗНЕСА</h3>
+                <ul class="possibilities_list">
+                    <li>Выручка</li>
+                    <li>Прибыль</li>
+                    <li>Маржинальность</li>
+                    <li>Рентабельность</li>
+                    <li>Продажи</li>
+                    <li>Возвраты</li>
+                    <li>Себестоимость продаж</li>
+                    <li>Комиссия Wildberries</li>
+                    <li>Логистика</li>
+                    <li>Налоги</li>
+                    <p class="possibilities_description">и прочие</p>
+                </ul>
+            </div>
+            <div class="empty_dashboard_possibilities-item">
+                <img src="{% static 'images/possibilities_img3.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">РАЗБИВКА ПО ДОЛЯМ В ОБЩЕЙ ВЫРУЧКЕ МАГАЗИНА</h3>
+                <p class="possibilities_description">РАЗБИВАЕМ ПРОДАЖИ НА ДОЛИ В ВЫРУЧКЕ ПО БРЕНДУ, КАТЕГОРИЯМ, СКЛАДУ И ТОВАРАМ</p>
+            </div>
+            <div class="empty_dashboard_possibilities-item">
+                <img src="{% static 'images/possibilities_img4.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">РАСЧЕТ ПОКАЗАТЕЛЕЙ В РАЗРЕЗЕ ТОВАРОВ</h3>
+                <p class="possibilities_description">УВИДИТЕ ПРОДАЖИ КАКИХ ТОВАРОВ НУЖНО НАРАЩИВАТЬ, КАКИХ РАЗВИВАТЬ, А ОТ КАКИХ ТОВАРОВ НЕ ПЛОХО БЫ ИЗБАВИТЬСЯ</p>
+            </div>
         </div>
-        {% endif %}
     </div>
 </div>
 <script src="{% static 'reports/js/reports_loader.js' %}"></script>

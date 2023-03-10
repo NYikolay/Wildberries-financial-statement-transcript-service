@@ -3,6 +3,8 @@ import logging
 from datetime import date, datetime, timezone
 from urllib.parse import urlencode
 
+from openpyxl import Workbook, styles
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -16,16 +18,18 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponseRedirect
-from django.core.cache import cache
+from django.http import JsonResponse, HttpResponse
 
 from users.decorators import redirect_authenticated_user
 from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          ChangeUserDataForm, ChangeUserPasswordForm, TaxRateForm,
-                         UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm)
+                         UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
+                         LoadNetCostsFileForm)
 from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport
 from users.services.encrypt_api_key import get_encrypted_key
+from users.services.generate_excel_net_costs_example import generate_excel_net_costs_example
 from users.services.generate_last_report_date import get_last_report_date
+from users.services.handle_uploaded_netcosts_excel import handle_uploaded_net_costs
 from users.services.wb_request_hanling_services.request_data_handling import generate_reports_and_sales_objs
 from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
@@ -174,7 +178,7 @@ class LoginPageView(View):
 
             if user is not None:
                 login(request, user)
-                return redirect('users:profile')
+                return redirect('reports:dashboard')
 
             context = {
                 'form': form,
@@ -215,7 +219,7 @@ class ChangeProfileData(LoginRequiredMixin, View):
     redirect_field_name = 'login'
     form_class = ChangeUserDataForm
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = self.form_class(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
@@ -228,7 +232,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
     form_class = ChangeUserPasswordForm
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
             if not request.user.check_password(form.cleaned_data['old_password']):
@@ -442,7 +446,7 @@ class CompaniesListView(LoginRequiredMixin, View):
         }
         return render(request, 'users/profile/companies/companies_list.html', context)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         tax_rates = list(filter(None, request.POST.getlist('tax_rate')))
         commencement_dates = list(filter(None, request.POST.getlist('commencement_date')))
 
@@ -511,9 +515,9 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
-        today = date.today()
+        today_date = date.today()
 
         if not current_api_key:
             messages.error(request, 'Для загрузки отчёта о продажах, пожалуйста, создайте API ключ Wildberries')
@@ -540,18 +544,13 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
         else:
             last_report_date = get_last_report_date()
 
-        report_status = generate_reports_and_sales_objs(request.user, last_report_date, today, current_api_key)
+        report_status = generate_reports_and_sales_objs(request.user, last_report_date, today_date, current_api_key)
 
         if report_status.get('status') is True:
             current_api_key.is_wb_data_loaded = True
             current_api_key.is_active_import = False
             current_api_key.last_reports_update = datetime.now().replace(tzinfo=timezone.utc)
             current_api_key.save()
-
-            # create_dt = SaleReport.objects.filter(
-            #     api_key__is_current=True,
-            #     api_key__user=request.user
-            # ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d')
 
             messages.success(request, 'Данные успешно загружены')
             return redirect('reports:dashboard')
@@ -607,16 +606,15 @@ class ProductDetailView(LoginRequiredMixin, View):
         ).order_by('brand', 'nm_id')
 
         product_paginator = Paginator(products_objs_list, 8)
-
         page_number = request.GET.get('page')
-
         page_obj = product_paginator.get_page(page_number)
+        net_costs = product.cost_prices.all().order_by('cost_date')
 
-        net_costs = product.cost_prices.all()
         context = {
             'products': page_obj,
             'product': product,
-            'net_costs': net_costs
+            'net_costs': net_costs,
+            'net_costs_load_form': LoadNetCostsFileForm()
         }
         return render(request, 'users/profile/products/product_detail.html', context)
 
@@ -626,7 +624,7 @@ class EditProductView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
     form_class = NetCostForm
 
-    def get(self, request, article_value, *args, **kwargs):
+    def get(self, request, article_value):
         product = get_object_or_404(
             ClientUniqueProduct,
             nm_id=article_value,
@@ -642,16 +640,17 @@ class EditProductView(LoginRequiredMixin, View):
         page_number = request.GET.get('page')
         page_obj = product_paginator.get_page(page_number)
 
-        net_costs = product.cost_prices.all()
+        net_costs = product.cost_prices.all().order_by('cost_date')
         context = {
             'products': page_obj,
             'product': product,
             'net_costs': net_costs,
-            'form': self.form_class()
+            'form': self.form_class(),
+            'net_costs_load_form': LoadNetCostsFileForm()
         }
         return render(request, 'users/profile/products/edit_product.html', context)
 
-    def post(self, request, article_value, *args, **kwargs):
+    def post(self, request, article_value):
         cost_inputs = list(filter(None, request.POST.getlist('cost_input')))
         product_cost_dates = list(filter(None, request.POST.getlist('product_cost_date')))
 
@@ -694,6 +693,60 @@ class EditProductView(LoginRequiredMixin, View):
         messages.error(
             request,
             'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+class ExportNetCostsExampleView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+        net_costs_set = NetCost.objects.filter(
+            product__api_key=current_api_key
+        ).values_list('product__nm_id', 'amount', 'cost_date')
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="net_costs_temp.xlsx"'
+
+        work_book = generate_excel_net_costs_example(net_costs_set)
+        work_book.save(response)
+        return response
+
+
+class SetNetCostsFromFileView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    form_class = LoadNetCostsFileForm
+
+    def post(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+        form = self.form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            try:
+                handled_file_result = handle_uploaded_net_costs(request.FILES['net_costs_file'], current_api_key)
+            except Exception as err:
+                django_logger.error(
+                    f'Unsuccessful attempt to load costs through a file by a user {request.user.email}',
+                    exc_info=err
+                )
+                messages.error(
+                    request,
+                    'Ошиба обработки файла. Пожалуйста, обратитесь в службу поддержки.'
+                )
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+            if handled_file_result.get('status') is False:
+                messages.error(request, handled_file_result.get('message'))
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+
+            messages.success(request, handled_file_result.get('message'))
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        messages.error(
+            request,
+            'Не удалось загрузить файл. Пожалуйста, убедитесь, что расширение загружаемого файла - .xlsx'
+        )
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 

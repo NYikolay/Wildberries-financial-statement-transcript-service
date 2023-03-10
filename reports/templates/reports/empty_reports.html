@@ -4,44 +4,68 @@
 {% block content%}
 <div class="container">
     <div class="empty_reports-wrapper">
-        {% if not current_api_key %}
-        <div class="empty_reports-item">
-            <p>Для формирования списка отчётов <br> подключите Ваш магазин</p>
-            <a href="{% url 'users:companies_list' %}">Подключить</a>
-        </div>
-        {% else %}
-        {% if current_api_key.is_active_import %}
-        <div class="empty_reports-item">
-            <svg class="filter" version="1.1">
-                <defs>
-                    <filter id="gooeyness">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-                        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="gooeyness" />
-                        <feComposite in="SourceGraphic" in2="gooeyness" operator="atop" />
-                    </filter>
-                </defs>
-            </svg>
-            <div class="dots">
-                <div class="dot mainDot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+        <h1 class="empty_reports-title">Страница работы с отчетами Wildberries</h1>
+        <h3 class="empty_reports-description">Здесь будут храниться все загруженные из Wildberries еженедельные отчеты</h3>
+        <div class="empty_reports_status-wrapper">
+            <div class="empty_reports_status-item">
+                <p>Шаг 1: Подключить магазин</p>
+                {% if not current_api_key %}
+                <a href="{% url 'users:companies_list' %}">Подключить</a>
+                {% else %}
+                <img src="{% static 'images/check (2).svg' %}" alt="" class="empty_reports_success-img">
+                {% endif %}
             </div>
-            <button id="load-btn" data-check="true" data-url="{% url 'users:check_reports_loading_status' %}" disabled style="display: none"></button>
-            <p id="reports_load-info">Идёт загрузка отчётов. Пожалуйста, оставайтесь на странице до ее завершения.</p>
+            <div class="empty_reports_status-item">
+                <p>Шаг 2: Автоматически загрузить отчеты</p>
+                {% if current_api_key and not current_api_key.is_wb_data_loaded %}
+                <form class="load_report-form" action="{% url 'users:send_request_for_report' %}" method="post">
+                    {% csrf_token %}
+                    {% if current_api_key.is_active_import %}
+                    <button
+                            class="load_reports-button loading"
+                            id="load-btn"
+                            data-process-type="Загрузить"
+                            data-check="true"
+                            disabled
+                            data-url="{% url 'users:check_reports_loading_status' %}"
+                            data-redirect-url="{% url 'reports:dashboard' %}"
+                            type="submit">Загрузить</button>
+                    {% else %}
+                    <button
+                            class="load_reports-button"
+                            id="load-btn"
+                            data-process-type="Загрузить"
+                            data-check="false"
+                            type="submit">Загрузить</button>
+                    {% endif %}
+                </form>
+                {% endif %}
+            </div>
         </div>
-        {% else %}
-        <div class="empty_reports-item">
-            <p id="reports_load-info">Загрузить список отчётов автоматически.</p>
-            <form class="load_report-form" action="{% url 'users:send_request_for_report' %}" method="post">
-                {% csrf_token %}
-                <button class="load_reports-button" id="load-btn" data-check="false" type="submit">Загрузить</button>
-            </form>
+        <div class="empty_reports_possibilities-wrapper">
+            <div class="empty_reports_possibilities-item">
+                <img src="{% static 'images/possibilities_img5.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ОТЧЕТОВ WILDBERRIES</h3>
+                <p class="possibilities_description">ОТЧЕТЫ ЗАГРУЖАЮТСЯ НАЖАТИЕМ ОДНОЙ КНОПКИ И ЧЕРЕЗ 5 СЕКУНД ГОТОВЫ К РАБОТЕ</p>
+            </div>
+            <div class="empty_reports_possibilities-item">
+                <img src="{% static 'images/possibilities_img6.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">СПИСОК ОТЧЕТОВ</h3>
+                <p class="possibilities_description">УДОБНЫЙ ДЛЯ РАБОТЫ РАЗБИТЫЙ ПО НЕДЕЛЯМ СПИСОК ВСЕХ ЗАГРУЖЕННЫХ ИЗ WIDBERRIES ОТЧЕТОВ</p>
+            </div>
+            <div class="empty_dashboard_possibilities-item">
+                <img src="{% static 'images/possibilities_img7.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">ИНФОРМАЦИЯ ПО РАСХОДАМ НА СТОРОНЕ WILDBERRIES</h3>
+                <p class="possibilities_description">ПО КАЖДОЙ НЕДЕЛЕ ОТОБРАЖАЮТСЯ РАСХОДЫ НА ХРАНЕНИЕ, ПЛАТНУЮ ПРИЕМКУ И ВНУТРЕННЮЮ РЕКЛАМУ В WILDBERRIES</p>
+            </div>
+            <div class="empty_dashboard_possibilities-item">
+                <img src="{% static 'images/possibilities_img8.png' %}" alt="" class="possibilities_img">
+                <h3 class="possibilities_title">ИНФОРМАЦИЯ О ВАШИХ РАСХОДАХ</h3>
+                <p class="possibilities_description">УКАЖИТЕ РАСХОДЫ МАГАЗИНА И ОНИ БУДУТ УЧТЕНЫ В РАСЧЕТЕ ЧИСТОЙ ПРИБЫЛИ МАГАЗИНА</p>
+            </div>
         </div>
-        {% endif %}
-        {% endif %}
     </div>
 </div>
+
 <script src="{% static 'reports/js/reports_loader.js' %}"></script>
 {% endblock %}

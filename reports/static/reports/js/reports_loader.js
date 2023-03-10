@@ -1,25 +1,28 @@
 document.addEventListener("DOMContentLoaded", function () {
     const loadBtn = document.getElementById("load-btn");
-    const loadReportsInfo = document.getElementById('reports_load-info')
 
     function setIntervalForLoadBtn(lastClickTime) {
         const clickLoadBtnInterval = setInterval(function () {
             if (new Date() <= lastClickTime) {
-                loadBtn.innerHTML = `Обновить список (${(Math.floor((lastClickTime.getTime() - new Date().getTime()) / 1000))})`
+                loadBtn.innerHTML = `${loadBtn.getAttribute('data-process-type')} (${(Math.floor((lastClickTime.getTime() - new Date().getTime()) / 1000))})`
             } else {
                 localStorage.removeItem("lastClickTime");
                 clearInterval(clickLoadBtnInterval)
                 loadBtn.disabled = false;
-                loadBtn.innerHTML = "Обновить список"
+                loadBtn.innerHTML = `${loadBtn.getAttribute('data-process-type')}`
             }
         }, 1000)
     }
 
     if (localStorage.getItem("lastClickTime")) {
         const lastClickTime = new Date(Number(localStorage.getItem("lastClickTime")))
-        loadBtn.innerHTML = `Обновить список (${Math.floor((lastClickTime.getTime() - new Date().getTime()) / 1000)})`
-        loadBtn.disabled = true;
-        setIntervalForLoadBtn(lastClickTime)
+        if (new Date() <= lastClickTime) {
+            loadBtn.innerHTML = `${loadBtn.getAttribute('data-process-type')} (${Math.floor((lastClickTime.getTime() - new Date().getTime()) / 1000)})`
+            loadBtn.disabled = true;
+            setIntervalForLoadBtn(lastClickTime)
+        } else {
+            localStorage.removeItem("lastClickTime");
+        }
     }
 
     const sendFetchForStatus = (url) => {
@@ -29,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 if (data.status.is_active_import === false) {
-                    location. reload()
+                    window.location.replace(`${loadBtn.getAttribute('data-redirect-url')}`);
                 }
             })
             .catch(error => {
@@ -41,7 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
         setInterval(function(){sendFetchForStatus(requestUrl)}, 1000);
     } else {
         loadBtn.addEventListener('click', () => {
-            loadReportsInfo ? loadReportsInfo.innerHTML = 'Идёт загрузка отчётов. Пожалуйста, оставайтесь на странице до ее завершения.' : null
             loadBtn.classList.add("loading");
 
             const currentTimePlusTwoMin = new Date()

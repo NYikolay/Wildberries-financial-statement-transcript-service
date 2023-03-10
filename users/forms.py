@@ -115,5 +115,27 @@ class ChangeUserPasswordForm(forms.Form):
         return self.cleaned_data
 
 
+class LoadNetCostsFileForm(forms.Form):
+    net_costs_file = forms.FileField(label='')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'file-load_input'
+
+    def clean_net_costs_file(self):
+        if self.cleaned_data['net_costs_file'].name.lower().split('.')[-1] != 'xlsx':
+            raise ValidationError('Расширение загружаемого файла должно быть xlsx!')
+        return self.cleaned_data
+
+
+class ExcelNetCostsForm(forms.Form):
+    nm_id = forms.IntegerField()
+    amount = forms.DecimalField(max_digits=10, decimal_places=2)
+    cost_date = forms.DateField()
+
+
+
+
 
 

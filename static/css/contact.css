@@ -29,12 +29,6 @@ input, textarea, select {
     height: 50px;
     background-color: transparent;
     cursor: pointer;
-    animation-name: contact;
-    animation-duration: 2s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-    animation-delay: 2s;
 }
 
 .contact-btn:hover {

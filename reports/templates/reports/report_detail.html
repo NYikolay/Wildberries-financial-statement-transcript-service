@@ -10,10 +10,22 @@
             {% if not current_api_key.is_active_import %}
             <form action="{% url 'users:send_request_for_report'%}" method="post" class="reload_reports-form">
                 {% csrf_token %}
-                <button class="reload_reports-button" id="load-btn" type="submit" data-check="false">Обновить список</button>
+                <button
+                        class="reload_reports-button"
+                        id="load-btn" type="submit"
+                        data-check="false"
+                        data-process-type="Обновить список">Обновить список</button>
             </form>
             {% else %}
-            <button class="reload_reports-button loading" id="load-btn" type="submit" data-check="true" data-url="{% url 'users:check_reports_loading_status' %}" disabled>Обновить список</button>
+            <button
+                    class="reload_reports-button loading"
+                    id="load-btn"
+                    type="submit"
+                    data-check="true"
+                    data-url="{% url 'users:check_reports_loading_status' %}"
+                    data-redirect-url="{% url 'reports:dashboard' %}"
+                    data-process-type="Обновить список"
+                    disabled>Обновить список</button>
             {% endif %}
             <div class="reports_warning-text">
                 {% if report_message %}

@@ -73,7 +73,7 @@ def handle_sale_obj(current_user, sale_obj: dict, api_key):
         )
 
 
-def generate_reports_and_sales_objs(current_user, date_from: str, date_to: str, current_api_key) -> dict:
+def generate_reports_and_sales_objs(current_user, date_from: str, date_to, current_api_key) -> dict:
     """
     The main function of requesting data from Wildberries. Combines all services related to data uploading.
     Checks for piracy, generates a list of SaleObject models instances.
@@ -140,7 +140,11 @@ def generate_reports_and_sales_objs(current_user, date_from: str, date_to: str, 
         with transaction.atomic():
             SaleObject.objects.bulk_create(sale_obj_list, batch_size=5000)
 
-            generate_incorrect_reports(current_user, incorrect_reports.get('incorrect_reports_data_list'), current_api_key)
+            generate_incorrect_reports(
+                current_user,
+                incorrect_reports.get('incorrect_reports_data_list'),
+                current_api_key
+            )
             generate_reports(current_user, current_api_key)
             generate_user_products(current_user, unique_articles, current_api_key)
             UnloadedReports.objects.filter(

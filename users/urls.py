@@ -6,7 +6,7 @@ from users.views import (
     ChangePasswordView, CompaniesListView, CompanyEditView,
     EditProductView, ProductDetailView, EmptyProductsListView,
     DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
-    PasswordResetDoneView, CheckReportsLoadingStatus
+    PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView
 )
 
 app_name = 'users'
@@ -35,6 +35,8 @@ urlpatterns = [
     path('profile/product/<int:article_value>/', ProductDetailView.as_view(), name='product_detail'),
     path('profile/product/edit/<int:article_value>/', EditProductView.as_view(), name='edit_product'),
     path('products/', EmptyProductsListView.as_view(), name='empty_products'),
+    path('set-net-costs/', SetNetCostsFromFileView.as_view(), name='set_net_costs'),
+    path('export-net-costs-example/', ExportNetCostsExampleView.as_view(), name='export_net_costs_example'),
 
     path('send-request-for-report/', LoadDataFromWBView.as_view(), name='send_request_for_report'),
     path('sheck-reports-loading-status/', CheckReportsLoadingStatus.as_view(), name='check_reports_loading_status'),

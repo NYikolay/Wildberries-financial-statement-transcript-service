@@ -20,6 +20,7 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> dic
     headers = {
         'Authorization': get_decrypted_key(current_api_key.api_key)
     }
+
     query = {
         "dateFrom": date_from,
         "dateTo": date_to,
