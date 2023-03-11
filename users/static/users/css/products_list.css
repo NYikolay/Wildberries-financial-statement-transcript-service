@@ -1,9 +1,116 @@
+
+/* EMPTY PRODUCTS STYLING */
+
 .empty_products-wrapper {
-    background-color: #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-color: white;
+    margin: 0 auto;
+    gap: 40px;
     border-radius: 10px;
-    padding-top: 100px;
-    text-align:center;
+    padding: 90px 232px;
 }
+
+.empty_products-title {
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.empty_products-description {
+    font-size: 17px;
+    max-width: 523px;
+}
+
+.empty_products_status-wrapper {
+    display: flex;
+    width: 735px;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    border-radius: 7px;
+    background-color: #f4f4f4;
+    padding: 31px 0 31px 118px;
+}
+
+.empty_products_status-item {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    align-self: flex-start;
+}
+
+.empty_products_status-item p {
+    font-weight: bold;
+    font-size: 17px;
+    margin-left: 0;
+}
+
+.empty_products_status-item a {
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    background-color: #ff8364;
+    border-radius: 30px;
+    padding: 8px 35px;
+    font-size: 8px;
+}
+
+.empty_products_status-item a:hover {
+    background-color: #ff6600;
+}
+
+.empty_reports_success-img {
+    width: 25px;
+    height: 25px;
+}
+
+.empty_products_possibilities-wrapper {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.empty_products_possibilities-item {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    max-width: 165px;
+    gap: 15px;
+}
+
+.possibilities_img {
+    width: 165px;
+    height: 165px;
+}
+
+.possibilities_title {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 8px;
+}
+
+.possibilities_description {
+    text-transform: uppercase;
+    font-size: 8px;
+    text-align: left;
+    line-height: 12px;
+}
+
+.possibilities_list {
+    list-style: circle;
+}
+
+.possibilities_list li {
+    text-transform: uppercase;
+    font-size: 8px;
+    line-height: 14px;
+    text-align: left;
+}
+
+/* EMPTY PRODUCTS STYLING END */
 
 .errorlist {
     text-transform: uppercase;

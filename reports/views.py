@@ -1,21 +1,17 @@
 import logging
 from typing import List
-from dateutil.relativedelta import relativedelta
 import json
 
 from django.shortcuts import render, redirect
-from datetime import datetime, timedelta, date, timezone
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Subquery, Min, Max, F
 from django.http import Http404
 from django.contrib import messages
-from django.core.cache import cache
 
 
 from reports.forms import SaleReportForm
 from reports.models import GeneralInformationObj, InfoTypes
-from reports.services.generate_last_weeks_nums import get_last_weeks_nums
 from reports.services.generate_reports import get_report
 from reports.services.handle_graphs_filter_data import get_period_filter_data
 

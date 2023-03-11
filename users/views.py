@@ -3,8 +3,6 @@ import logging
 from datetime import date, datetime, timezone
 from urllib.parse import urlencode
 
-from openpyxl import Workbook, styles
-
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin

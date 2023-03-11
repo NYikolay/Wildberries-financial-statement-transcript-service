@@ -3,10 +3,7 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime, timezone
 
 from django.test import TestCase
-from django.test.client import RequestFactory, Client
-from django.urls import reverse
 
-from reports.views import DashboardView
 from users.models import SaleObject, SaleReport, WBApiKey, User, IncorrectReport, ClientUniqueProduct
 from users.services.decrypt_api_key import get_decrypted_key
 from users.services.encrypt_api_key import get_encrypted_key
@@ -132,7 +129,7 @@ class TestUserAppFunctions(TestCase):
 
         self.assertEqual(len(article_obj_list), 5)
         self.assertEqual(article_obj_list[0].get('nm_id'), 94212294)
-        self.assertEqual(article_obj_list[0].get('title'), 'Щетки стеклоочистителя')
+        self.assertEqual(article_obj_list[0].get('title'), 'Щетки стеклоочистителя для автомобилей дворники ')
         self.assertEqual(
             article_obj_list[0].get('img'),
             'https://basket-05.wb.ru//vol942/part94212/94212294/images/tm/1.jpg'
