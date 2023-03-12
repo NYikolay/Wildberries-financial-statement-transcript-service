@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 
 def handler400(request, *args, **kwargs):
@@ -7,6 +8,11 @@ def handler400(request, *args, **kwargs):
 
 def handler403(request, *args, **kwargs):
     return render(request, 'custom_error_pages/403_page.html', status=403)
+
+
+def handler413(request, *args, **kwargs):
+    messages.error(request, 'Загружаемый файл имеет размер выше допустимого.')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 def handler404(request, *args, **kwargs):
