@@ -17,7 +17,6 @@ urlpatterns = [
 handler400 = "config.views.handler400"
 handler403 = "config.views.handler403"
 handler404 = "config.views.handler404"
-handler413 = "config.views.handler413"
 handler500 = "config.views.handler500"
 handler502 = "config.views.handler502"
 handler503 = "config.views.handler503"
