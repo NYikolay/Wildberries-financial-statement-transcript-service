@@ -429,7 +429,23 @@ input::-webkit-inner-spin-button {
     padding-bottom: 6px;
 }
 
+.report_input-item::placeholder {
+    font-size: 8px;
+    color: #ff8364;
+    text-transform: uppercase;
+}
 
+.report_input-item:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    font-size: 8px;
+    color: #9c9a9a;
+    text-transform: uppercase;
+}
+
+.report_input-item::-ms-input-placeholder { /* Microsoft Edge */
+    font-size: 8px;
+    color: #9c9a9a;
+    text-transform: uppercase;
+}
 
 .supplier_costs-wrapper {
     display: flex;

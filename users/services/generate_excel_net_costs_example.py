@@ -10,7 +10,7 @@ def generate_excel_net_costs_example(net_costs_set):
     work_sheet.column_dimensions['A'].width = 20
     work_sheet.column_dimensions['B'].width = 20
     work_sheet.column_dimensions['C'].width = 50
-    work_sheet.row_dimensions[1].height = 100
+    work_sheet.row_dimensions[1].height = 130
     work_sheet.column_dimensions['C'].number_format = 'DD.MM.YYYY'
     work_sheet.column_dimensions['B'].number_format = '#,##0.00'
     work_sheet.column_dimensions['A'].font = styles.Font(name='Arial', bold=False, italic=False, size=10)
@@ -23,13 +23,12 @@ def generate_excel_net_costs_example(net_costs_set):
     Необходимо заполнять информацию строго в соответствии с шаблоном, в противном случае Себестоимость не будет установлена.
     Запрещено менять столбцы местами или менять формат ячеек.
     Значение Себестоимости не может иметь более 10 чисел до запятой и не более 2 чисел после.
-    Дата начала действия Себестоимости не может быть больше, чем сегодня, также несколько значений Себестоимости для одного Кода номенклатуры 
-    не могут иметь две одинаковых даты.
+    Дата начала действия Себестоимости не может быть больше, чем сегодня, также несколько значений Себестоимости для одного Кода номенклатуры не могут иметь две одинаковых даты.
     Количество значений Себестоимости для одного Кода номенклатуры неограниченно.
     Соблюдать очередность Дат начала действия себестоимости не требуется.
     """
     cell1.font = styles.Font(name='Arial', color='ff0000', bold=False, italic=False, size=8)
-    cell1.alignment = styles.alignment.Alignment(horizontal='left', vertical='center')
+    cell1.alignment = styles.alignment.Alignment(horizontal='left', vertical='center', wrap_text=True)
 
     for index, value in enumerate(columns, 1):
         cell = work_sheet.cell(row=2, column=index)

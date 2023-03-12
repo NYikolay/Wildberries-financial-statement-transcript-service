@@ -33,7 +33,7 @@
                 {% if product_article and current_api_key.is_products_loaded %}
                 {% url 'users:product_detail' product_article as url %}
                 <li>
-                    <a href="{{ url }}" class="nav_link {% if '/profile/product/' in request.path %} nav_link-active {% endif %}">Склад</a>
+                    <a href="{{ url }}" class="nav_link {% if '/product/' in request.path %} nav_link-active {% endif %}">Склад</a>
                 </li>
                 {% else %}
                 {% url 'users:empty_products' as url %}
@@ -42,8 +42,8 @@
                 </li>
                 {% endif %}
 
-                {% url 'users:profile' as url %}
-                <li><a href="{{ url }}" class="nav_link {% if request.path == url or '/profile/compan' in request.path %} nav_link-active {% endif %}">Настройки</a></li>
+                {% url 'users:companies_list' as url %}
+                <li><a href="{{ url }}" class="nav_link {% if request.path == url or '/profile/' in request.path %} nav_link-active {% endif %}">Настройки</a></li>
                 {% else %}
                 {% url 'users:login' as url %}
                 <li>
