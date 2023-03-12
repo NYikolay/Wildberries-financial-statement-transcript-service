@@ -11,8 +11,7 @@ def handler403(request, *args, **kwargs):
 
 
 def handler413(request, *args, **kwargs):
-    messages.error(request, 'Загружаемый файл имеет размер выше допустимого.')
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+    return render(request, 'custom_error_pages/413_page.html', status=413)
 
 
 def handler404(request, *args, **kwargs):
