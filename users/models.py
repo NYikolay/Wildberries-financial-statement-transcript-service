@@ -1,14 +1,15 @@
 from __future__ import unicode_literals
 
 from django.db.models import Q, UniqueConstraint
-from django.utils import timezone
 from django.db import models
 from django.core import validators
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.dispatch import receiver
 
+from payments.models import SubscriptionType
+from payments.signals import result_received, fail_payment_signal
 from users.managers import UserManager
 
 
@@ -28,6 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField('Дата регистрации', auto_now_add=True)
     phone = models.CharField(max_length=18, blank=True, verbose_name='Контактный номер телефона')
     is_accepted_terms_of_offer = models.BooleanField('Согласен ли с условиями Оферты')
+    is_subscribed = models.BooleanField('Оплачена ли подписка', default=False)
     role = models.CharField(
         max_length=9,
         choices=UserRoles.choices,
@@ -48,6 +50,97 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class Order(models.Model):
+    paid_sum = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    status = models.CharField(max_length=255, blank=True, null=True)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name='Клиент'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата заказа')
+
+    def __str__(self):
+        return f'Покупка подписки пользователем {self.user.email}. Статус оплаты - {self.status}'
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
+
+
+@receiver(result_received)
+def payment_received(sender, **kwargs):
+    order = Order.objects.get(pk=kwargs['InvId'])
+    order.status = 'paid'
+    order.paid_sum = kwargs['OutSum']
+    order.save()
+
+
+@receiver(fail_payment_signal)
+def payment_failed(sender, **kwargs):
+    order = Order.objects.get(pk=kwargs['InvId'])
+    order.status = 'fail'
+    order.paid_sum = kwargs['OutSum']
+    order.save()
+
+
+class UserSubscription(models.Model):
+    subscription_type = models.ForeignKey(
+        SubscriptionType,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='subscriptions',
+        verbose_name='Тип подписки'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        related_name='subscriptions',
+        verbose_name='Пользователь'
+    )
+    subscribed_from = models.DateTimeField('Дата оформления подписки')
+    total_cost = models.DecimalField('Окончательная стоимость подписки', max_digits=15, decimal_places=2)
+    subscribed_to = models.DateTimeField('Дата окончания подписки')
+    discount_percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
+    is_active = models.BooleanField('Активна ли подписка')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Подписка типа: {self.subscription_type.type}, пользователя {self.user.email}'
+
+    class Meta:
+        verbose_name = 'Подписка пользователя'
+        verbose_name_plural = 'Подписки пользователей'
+        constraints = [
+            UniqueConstraint(fields=['is_active', 'user'], name='unique_user_active_subscription_priority')
+        ]
+
+
+class UserDiscount(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='discounts',
+        verbose_name='Пользователь'
+    )
+    percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
+    is_active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Скидка на подписку пользователя: {self.user.email}'
+
+    class Meta:
+        verbose_name = 'Скидка пользователя'
+        verbose_name_plural = 'Скидки пользователей'
+        constraints = [
+            UniqueConstraint(fields=['is_active', 'user'], name='unique_user_active_discount_priority')
+        ]
 
 
 class WBApiKey(models.Model):
@@ -183,6 +276,39 @@ class SaleObject(models.Model):
     delivery_rub = models.FloatField('Стоимость логистики')
     rid = models.BigIntegerField('Уникальный идентификатор позиции заказа')
     supplier_oper_name = models.CharField(max_length=125, verbose_name='Обоснование для оплаты')
+    rrd_id = models.BigIntegerField('Номер строки', null=True)
+    retail_amount = models.FloatField('Сумма продаж (возвратов)')
+    sale_percent = models.IntegerField('Согласованная скидка', null=True)
+    commission_percent = models.FloatField('Процент комиссии', null=True)
+    rr_dt = models.DateTimeField('Дата операции', null=True)
+    shk_id = models.BigIntegerField('Штрих-код', null=True)
+    delivery_amount = models.IntegerField('Количество доставок', null=True)
+    return_amount = models.IntegerField('Количество возвратов', null=True)
+    gi_box_type_name = models.CharField(max_length=40, verbose_name='Тип коробов', null=True)
+    product_discount_for_report = models.FloatField('Согласованный продуктовый дисконт', null=True)
+    supplier_promo = models.FloatField('Промокод', null=True)
+    ppvz_spp_prc = models.FloatField('Скидка постоянного покупателя', null=True)
+    ppvz_kvw_prc_base = models.FloatField('Размер кВВ без НДС, % базовый', null=True)
+    ppvz_kvw_prc = models.FloatField('Итоговый кВВ без НДС, %', null=True)
+    ppvz_sales_commission = models.FloatField('Вознаграждение с продаж до вычета услуг поверенного, без НДС', null=True)
+    ppvz_reward = models.FloatField('Возмещение за выдачу и возврат товаров на ПВЗ', null=True)
+    acquiring_fee = models.FloatField('Возмещение расходов по эквайрингу', null=True)
+    acquiring_bank = models.CharField(
+        max_length=40,
+        verbose_name='Наименование банка, предоставляющего услуги эквайринга',
+        null=True
+    )
+    ppvz_vw = models.FloatField('Вознаграждение WB без НДС', null=True)
+    ppvz_vw_nds = models.FloatField('НДС с вознаграждения WB', null=True)
+    ppvz_office_id = models.IntegerField('Номер офиса', null=True)
+    ppvz_office_name = models.CharField(max_length=40, verbose_name='Наименование офиса доставки', null=True)
+    ppvz_supplier_id = models.BigIntegerField('Номер партнера', null=True)
+    ppvz_supplier_name = models.CharField(max_length=125, verbose_name='Партнёр', null=True)
+    ppvz_inn = models.CharField(max_length=50, verbose_name='ИНН партнера', null=True)
+    declaration_number = models.CharField(max_length=50, verbose_name='Номер таможенной декларации', null=True)
+    bonus_type_name = models.TextField('Обоснование штрафов и доплат', null=True)
+    sticker_id = models.CharField(max_length=40, verbose_name='Цифровое значение стикера', null=True)
+    kiz = models.TextField('Код маркировки', null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания в базе данных')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления в базе данных')
 

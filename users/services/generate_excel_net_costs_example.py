@@ -1,7 +1,14 @@
 from openpyxl import Workbook, styles
+from typing import List
 
 
-def generate_excel_net_costs_example(net_costs_set):
+def generate_excel_net_costs_example(net_costs_set: List[set]) -> Workbook:
+    """
+    The function generates an Excel file
+    :param net_costs_set: QuerySet containing a list with a nested set.
+    It has the following structure [(nm_id: int, amount: decimal, cost_date: datetime), ...]
+    :return: returns an instance of the Workbook
+    """
     work_book = Workbook()
     columns = ['Код номенклатуры', 'Себестоимость, руб', 'Дата начала действия себестоимости, дд.мм.гггг']
     work_sheet = work_book.active

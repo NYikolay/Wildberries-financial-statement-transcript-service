@@ -71,7 +71,7 @@ def get_wb_request_response(date_from: str, date_to: str, current_api_key) -> di
     """
     response = send_request_for_sales(date_from, date_to, current_api_key)
 
-    if not response.get('status') or response.get('data') is None or len(response.get('data')) < 100000:
+    if not response.get('status') or not response.get('data') or len(response.get('data')) < 100000:
         return response
 
     handled_response_data: dict = {

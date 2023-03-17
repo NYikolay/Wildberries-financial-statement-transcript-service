@@ -1,7 +1,8 @@
 import time
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from urllib.parse import urlencode
+import pytz
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -23,8 +24,10 @@ from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          ChangeUserDataForm, ChangeUserPasswordForm, TaxRateForm,
                          UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
                          LoadNetCostsFileForm)
-from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport
+from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport, \
+    UserSubscription
 from users.services.encrypt_api_key import get_encrypted_key
+from users.services.genearte_subscriptions_data import get_user_subscriptions_data
 from users.services.generate_excel_net_costs_example import generate_excel_net_costs_example
 from users.services.generate_last_report_date import get_last_report_date
 from users.services.handle_uploaded_netcosts_excel import handle_uploaded_net_costs
@@ -203,11 +206,14 @@ class ProfilePage(LoginRequiredMixin, View):
 
     def get(self, request):
 
+        subscriptions = get_user_subscriptions_data(request.user)
+
         context = {
             'api_keys': request.user.keys.filter(),
-            'sales': request.user.sales.all(),
             'profile_form': ChangeUserDataForm(instance=request.user),
             'change_password_form': ChangeUserPasswordForm(),
+            'subscriptions': subscriptions,
+            'is_active_subscription_exists': UserSubscription.objects.filter(user=request.user, is_active=True).exists()
         }
         return render(request, 'users/profile/profile.html', context)
 
@@ -547,7 +553,7 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
         if report_status.get('status') is True:
             current_api_key.is_wb_data_loaded = True
             current_api_key.is_active_import = False
-            current_api_key.last_reports_update = datetime.now().replace(tzinfo=timezone.utc)
+            current_api_key.last_reports_update = datetime.now().replace(tzinfo=pytz.timezone('Europe/Moscow'))
             current_api_key.save()
 
             messages.success(request, 'Данные успешно загружены')

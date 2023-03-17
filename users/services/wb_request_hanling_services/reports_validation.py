@@ -38,37 +38,35 @@ def check_sale_obj_validation(sale_obj: dict) -> True or dict:
     :return: If the object passed the validation, we return True,
     otherwise we return the dictionary which includes some values of the object
     """
-    delivery_rub: float = sale_obj.get('delivery_rub', None)
-    if sale_obj.get('office_name', None) is None:
-        office_name = 'Склад WB без названия'
-    else:
-        office_name = sale_obj.get('office_name', None)
+    delivery_rub: float = sale_obj.get('delivery_rub')
+    office_name = 'Склад WB без названия' if not sale_obj.get('office_name') else sale_obj.get('office_name')
 
     sale_obj_values = [
-        sale_obj.get('date_from', None),
-        sale_obj.get('realizationreport_id', None),
-        sale_obj.get('date_to', None),
-        sale_obj.get('create_dt', None),
-        sale_obj.get('gi_id', None),
-        sale_obj.get('subject_name', None),
-        sale_obj.get('nm_id', None),
-        sale_obj.get('brand_name', None),
-        sale_obj.get('barcode', None),
-        sale_obj.get('doc_type_name', None),
-        sale_obj.get('order_dt', None),
-        sale_obj.get('sale_dt', None),
-        sale_obj.get('quantity', None),
-        sale_obj.get('retail_price', None),
-        sale_obj.get('retail_price_withdisc_rub', None),
-        sale_obj.get('ppvz_for_pay', None),
-        sale_obj.get('penalty', None),
-        sale_obj.get('additional_payment', None),
-        sale_obj.get('site_country', None),
+        sale_obj.get('date_from'),
+        sale_obj.get('realizationreport_id'),
+        sale_obj.get('date_to'),
+        sale_obj.get('create_dt'),
+        sale_obj.get('gi_id'),
+        sale_obj.get('subject_name'),
+        sale_obj.get('nm_id'),
+        sale_obj.get('brand_name'),
+        sale_obj.get('barcode'),
+        sale_obj.get('doc_type_name'),
+        sale_obj.get('order_dt'),
+        sale_obj.get('sale_dt'),
+        sale_obj.get('quantity'),
+        sale_obj.get('retail_price'),
+        sale_obj.get('retail_price_withdisc_rub'),
+        sale_obj.get('ppvz_for_pay'),
+        sale_obj.get('penalty'),
+        sale_obj.get('additional_payment'),
+        sale_obj.get('site_country'),
         office_name,
-        sale_obj.get('srid', None),
-        sale_obj.get('delivery_rub', None),
-        sale_obj.get('rid', None),
-        sale_obj.get('supplier_oper_name', None)
+        sale_obj.get('srid'),
+        sale_obj.get('delivery_rub'),
+        sale_obj.get('rid'),
+        sale_obj.get('supplier_oper_name'),
+        sale_obj.get('retail_amount')
     ]
 
     for value in sale_obj_values:

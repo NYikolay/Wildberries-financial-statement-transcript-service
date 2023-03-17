@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'users',
     'reports',
     'payments',
-    'support'
+    'support',
 ]
 
 MIDDLEWARE = [
@@ -101,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -151,6 +151,14 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = env("EMAIL_PORT")
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
+
+# ROBOKASSA SETTINGS
+ROBOKASSA_MERCHANT_LOGIN = env("MERCHANT_LOGIN")
+ROBOKASSA_PASSWORD1 = env("ROBOKASSA_PASSWORD1")
+ROBOKASSA_PASSWORD2 = env("ROBOKASSA_PASSWORD2")
+IS_TEST_MODE = True
+ROBOKASSA_TARGET_URL = 'https://auth.robokassa.ru/Merchant/Index.aspx'
+ROBOKASSA_CULTURE = 'ru'
 
 
 # LOGGING

@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from payments.models import SubscriptionType, SuccessPaymentNotification, FailPaymentNotification
+
+admin.site.register(SubscriptionType)
+admin.site.register(SuccessPaymentNotification)
+admin.site.register(FailPaymentNotification)

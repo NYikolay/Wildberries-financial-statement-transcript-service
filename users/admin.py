@@ -1,13 +1,17 @@
 from django.contrib import admin
 
-from users.models import User, WBApiKey, SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate, IncorrectReport, \
-    UnloadedReports
+from users.models import (User, WBApiKey, SaleObject,
+                          ClientUniqueProduct, NetCost, SaleReport, TaxRate,
+                          IncorrectReport, UnloadedReports, UserSubscription, UserDiscount, Order)
 
 admin.site.register(SaleObject)
 admin.site.register(NetCost)
 admin.site.register(TaxRate)
 admin.site.register(IncorrectReport)
 admin.site.register(UnloadedReports)
+admin.site.register(UserSubscription)
+admin.site.register(UserDiscount)
+admin.site.register(Order)
 
 
 @admin.register(User)

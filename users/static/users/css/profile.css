@@ -141,6 +141,8 @@
 
 .tariff_block-wrapper {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 20px;
 }
 
@@ -196,6 +198,7 @@
 
 .tariff_duration-block {
     border-radius: 7px;
+    width: 190px;
     border: 1px solid #dbdbdb;
     padding: 8px 60px;
 }
@@ -222,13 +225,24 @@
 }
 
 .percent_sale-block {
-    min-height: 29px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+    width: 70px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+}
+
+.percent_sale_background {
+    background-color: #ff8364;
+    border-radius: 50%;
 }
 
 .percent_sale {
     font-size: 25px;
     font-weight: bold;
-    color: #f65731;
+    color: white;
 }
 
 .connect_tariff-btn {
