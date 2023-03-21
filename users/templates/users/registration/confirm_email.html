@@ -11,7 +11,7 @@
 
     <form action="{% url 'users:email_confirmation_info' %}" method="post" class="resend_email-form" id="resend_email_form_id">
         {% csrf_token %}
-        <button type="submit" class="resend_email-btn">Письмо не пришло, отправить еще раз.</button>
+        <button type="submit" class="resend_email-btn">Отправить письмо повторно.</button>
         <p class="resend_email-counter">Получить новое письмо можно через <span class="counter">60</span> секунд</p>
     </form>
 </div>

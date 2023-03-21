@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
             .then(data => {
-                if (data.status.is_active_import === false) {
+                if (!data.status.is_active_import) {
                     window.location.replace(`${loadBtn.getAttribute('data-redirect-url')}`);
                 }
             })
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (loadBtn.getAttribute("data-check") === 'true') {
         const requestUrl = loadBtn.getAttribute("data-url")
-        setInterval(function(){sendFetchForStatus(requestUrl)}, 1000);
+        setInterval(function(){sendFetchForStatus(requestUrl)}, 3000);
     } else {
         loadBtn.addEventListener('click', () => {
             loadBtn.classList.add("loading");

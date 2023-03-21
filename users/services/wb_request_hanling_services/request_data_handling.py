@@ -204,7 +204,7 @@ def generate_reports_and_sales_objs(current_user, date_from: str, date_to, curre
 
     try:
         with transaction.atomic():
-            SaleObject.objects.bulk_create(sale_obj_list, batch_size=5000)
+            SaleObject.objects.bulk_create(sale_obj_list, batch_size=10000)
 
             generate_incorrect_reports(
                 current_user,
