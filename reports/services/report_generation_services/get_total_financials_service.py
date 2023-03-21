@@ -21,7 +21,6 @@ def get_total_financials(sale_objects_by_weeks, supplier_costs_sum_list, wb_cost
     """
 
     revenue_total = []
-    retail_amount_revenue_total = []
     sales_amount_total = []
     returns_amount_total = []
     logistics_total = []
@@ -41,7 +40,6 @@ def get_total_financials(sale_objects_by_weeks, supplier_costs_sum_list, wb_cost
         calculated_financials: dict = get_calculated_financials_by_weeks(inter_data, supplier_cost, wb_cost)
         reports_by_week.append(calculated_financials)
         revenue_total.append(calculated_financials.get('revenue'))
-        retail_amount_revenue_total.append(calculated_financials.get('retail_amount_revenue'))
         sales_amount_total.append(calculated_financials.get('sales_amount'))
         returns_amount_total.append(calculated_financials.get('returns_amount'))
         logistics_total.append(calculated_financials.get('logistics'))
@@ -56,11 +54,11 @@ def get_total_financials(sale_objects_by_weeks, supplier_costs_sum_list, wb_cost
         penalty_total.append(calculated_financials.get('penalty'))
         additional_payment_sum_total.append(calculated_financials.get('additional_payment_sum'))
 
-    marginality = calculate_marginality(sum(net_costs_sum_total), sum(retail_amount_revenue_total))
-    profitability_total = calculate_profitability(sum(profit_total), sum(retail_amount_revenue_total))
+    marginality = calculate_marginality(sum(net_costs_sum_total), sum(revenue_total))
+    profitability_total = calculate_profitability(sum(profit_total), sum(revenue_total))
 
     return {
-        'revenue_total': sum(retail_amount_revenue_total),
+        'revenue_total': sum(revenue_total),
         'sales_amount_total': sum(sales_amount_total),
         'returns_amount_total': sum(returns_amount_total),
         'logistics_total': round(sum(logistics_total)),
