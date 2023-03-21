@@ -2,7 +2,7 @@ import datetime
 from typing import List
 
 from users.models import UnloadedReports
-from users.services.decrypt_api_key import get_decrypted_key
+from users.services.decrypt_api_key_service import get_decrypted_key
 import requests
 
 from users.services.wb_request_hanling_services.generating_unique_reports import get_unique_reports

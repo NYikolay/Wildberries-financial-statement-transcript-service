@@ -6,12 +6,9 @@ from django.core import validators
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.validators import RegexValidator
-from django.dispatch import receiver
 
 from payments.models import SubscriptionType
-from payments.signals import result_received, fail_payment_signal
 from users.managers import UserManager
-
 
 cyrillic_exclusion = RegexValidator(r'^[^а-яА-Я]*$', 'Символы кириллицы в API ключе недопустимы')
 
@@ -71,22 +68,6 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
-
-
-@receiver(result_received)
-def payment_received(sender, **kwargs):
-    order = Order.objects.get(pk=kwargs['InvId'])
-    order.status = 'paid'
-    order.paid_sum = kwargs['OutSum']
-    order.save()
-
-
-@receiver(fail_payment_signal)
-def payment_failed(sender, **kwargs):
-    order = Order.objects.get(pk=kwargs['InvId'])
-    order.status = 'fail'
-    order.paid_sum = kwargs['OutSum']
-    order.save()
 
 
 class UserSubscription(models.Model):
@@ -251,6 +232,13 @@ class SaleObject(models.Model):
         related_name='api_key_sales',
         verbose_name='Апи ключ'
     )
+    product = models.ForeignKey(
+        ClientUniqueProduct,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='product_sales',
+        verbose_name='Товар'
+    )
     date_from = models.DateTimeField('Дата начала отчетного периода')
     date_to = models.DateTimeField('Дата конца отчетного периода')
     create_dt = models.DateTimeField('Дата формирования отчёта')
@@ -315,6 +303,9 @@ class SaleObject(models.Model):
     class Meta:
         verbose_name = 'Продажа'
         verbose_name_plural = 'Продажи'
+        index_together = [
+            ("year", "week_num"),
+        ]
 
     def __str__(self):
         return f'Продажа {self.owner.email}, за отчётный период {self.create_dt}'

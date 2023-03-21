@@ -334,7 +334,7 @@
                     <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Прибыль считается некорректно - на странице "Склад" не указана себестоимость товаров.</span>
                 </div>
                 {% endif %}
-                {% if not report.is_empty_tax_values %}
+                {% if not report.is_exists_tax_values %}
                 <div class="error_list_item">
                     <img src="{% static 'images/iconizer-4201973.svg' %}" alt="" style="width: 14px; height: 14px;"><span>Прибыль считается некорректно - на странице "Настройки - Магазин" не указана ставка налога.</span>
                 </div>
@@ -375,28 +375,8 @@
                     <button type="button" id="marginality_sort" onclick="marginalitySort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
                 </div>
             </div>
-            <div class="products_block" data-title="{{ report_by_products_json }}" id="products_block">
-                <!--                <div class="product_wrapper" id="products_wrapper_id">-->
-                <!--                    <div class="product_item">-->
-                <!--                        <img class="product_img" src="{{ product.image }}" alt="">-->
-                <!--                        <div class="text-wrapper">-->
-                <!--                            <p class="product_statistic">{{ product.sales_quantity_value|floatformat:"-3g" }}</p>-->
-                <!--                        </div>-->
-                <!--                        <div class="text-wrapper">-->
-                <!--                            <p class="product_statistic">{{ product.returns_quantity_value|floatformat:"-3g" }}</p>-->
-                <!--                        </div>-->
-                <!--                        <div class="text-wrapper">-->
-                <!--                            <p class="product_statistic">{{ product.revenue_by_article|floatformat:"-3g" }}</p>-->
-                <!--                        </div>-->
-                <!--                        <div class="text-wrapper">-->
-                <!--                            <p class="product_statistic">{{ product.share_in_profits }}%</p>-->
-                <!--                        </div>-->
-                <!--                        <div class="text-wrapper">-->
-                <!--                            <p class="product_statistic">{{ product.product_marginality }}%</p>-->
-                <!--                        </div>-->
-                <!--                    </div>-->
-                <!--                    <p class="barcode">Артикул: {{ product.nm_id }}</p>-->
-                <!--                </div>-->
+            <div class="products_block" data-title="{{ report.report_by_products }}" id="products_block">
+
             </div>
         </div>
     </div>

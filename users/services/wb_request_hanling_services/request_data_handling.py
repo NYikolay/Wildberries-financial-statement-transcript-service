@@ -1,10 +1,10 @@
 import logging
-from datetime import datetime, timezone
-from typing import List, Set
+from datetime import datetime
+from typing import List
 import pytz
 
 from django.db import transaction
-from users.models import SaleObject, SaleReport, UnloadedReports
+from users.models import SaleObject, SaleReport, UnloadedReports, ClientUniqueProduct
 from users.services.wb_request_hanling_services.generating_unique_reports import get_unique_reports
 
 from users.services.wb_request_hanling_services.generating_user_reports import generate_reports
@@ -31,7 +31,7 @@ def get_unique_articles(sales: list) -> list:
     return articles_data
 
 
-def handle_sale_obj(current_user, sale_obj: dict, api_key):
+def handle_sale_obj(current_user, sale_obj: dict, api_key, current_product_objs):
     """
     The function generates an instance of the SaleObject class.
     IMPORTANT: Such values as: date_from, date_to, create_dt, order_dt, sale_dt
@@ -39,6 +39,7 @@ def handle_sale_obj(current_user, sale_obj: dict, api_key):
     :param current_user:
     :param sale_obj: Dictionary containing sales data
     :param api_key: WBApiKey object of the current user
+    :param current_product_objs:
     :return:
     """
     wb_office_name = sale_obj.get('office_name')
@@ -63,6 +64,7 @@ def handle_sale_obj(current_user, sale_obj: dict, api_key):
         owner=current_user,
         api_key=api_key,
         week_num=week_num,
+        product=current_product_objs.get(sale_obj.get('nm_id')),
         year=year,
         month_num=month_num,
         realizationreport_id=sale_obj.get('realizationreport_id'),
@@ -158,8 +160,22 @@ def generate_reports_and_sales_objs(current_user, date_from: str, date_to, curre
             'status': False,
             'message': 'Отчёты принадлежат другому пользователю.'
         }
-
     sale_obj_list: list = []
+
+    try:
+        generate_user_products(current_user, unique_articles, current_api_key)
+    except Exception as err:
+        django_logger.critical(
+            f'Failed to create product objects for a user - {current_user.email}',
+            exc_info=err
+        )
+        return {
+            'status': False,
+            'message': 'Произошла ошибка во время загрузки отчёта. Пожалуйста, обратитесь в службу поддержки.'
+        }
+
+    current_product_objs = ClientUniqueProduct.objects.in_bulk(
+        [article_data.get('nm_id') for article_data in unique_articles], field_name='nm_id')
 
     generated_reports_ids = SaleReport.objects.filter(
         owner=current_user,
@@ -171,9 +187,9 @@ def generate_reports_and_sales_objs(current_user, date_from: str, date_to, curre
             if sale_obj.get('realizationreport_id') in generated_reports_ids \
                     or sale_obj.get('realizationreport_id') in incorrect_reports.get('realizationreport_ids'):
                 continue
-            sale_obj_list.append(handle_sale_obj(current_user, sale_obj, current_api_key))
+            sale_obj_list.append(handle_sale_obj(current_user, sale_obj, current_api_key, current_product_objs))
     except Exception as err:
-        django_logger.critical(f'Error when creating sale objects {current_user.user.email}.'
+        django_logger.critical(f'Error when creating sale objects {current_user.email}.'
                                f'An error on the Wildberries side that blocks the loading of reports', exc_info=err)
         return {
             'status': False,
@@ -196,19 +212,18 @@ def generate_reports_and_sales_objs(current_user, date_from: str, date_to, curre
                 current_api_key
             )
             generate_reports(current_user, current_api_key)
-            generate_user_products(current_user, unique_articles, current_api_key)
             UnloadedReports.objects.filter(
                 api_key=current_api_key,
                 realizationreport_id__in=generated_reports_ids
             ).delete()
     except Exception as err:
         django_logger.critical(
-            f'Failed to load reports into the database for a user {current_user.user.email}',
+            f'Failed to load reports into the database for a user {current_user.email}',
             exc_info=err
         )
         return {
             'status': False,
-            'message': 'Произошла ошибка во время загрузки отчёта. Не удалось сохранить данные.'
+            'message': 'Произошла ошибка во время загрузки отчёта. Пожалуйста, обратитесь в службу поддержки.'
         }
 
     return {

@@ -1,6 +1,5 @@
 import logging
 from typing import List
-import json
 
 from django.shortcuts import render, redirect
 from django.views.generic import View
@@ -12,7 +11,7 @@ from django.contrib import messages
 
 from reports.forms import SaleReportForm
 from reports.models import GeneralInformationObj, InfoTypes
-from reports.services.generate_reports import get_report
+from reports.services.execute_generating_report_service import get_full_user_report
 from reports.services.handle_graphs_filter_data import get_period_filter_data
 
 from users.models import SaleReport, IncorrectReport, UnloadedReports
@@ -33,6 +32,10 @@ class DashboardView(LoginRequiredMixin, View):
         try:
             period_filter_data: List[dict] = get_period_filter_data(dict(request.GET))
         except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                exc_info=err
+            )
             messages.error(request, 'Ошибка фильтрации периода.')
             return redirect('reports:dashboard')
 
@@ -51,7 +54,7 @@ class DashboardView(LoginRequiredMixin, View):
         )
 
         try:
-            report = get_report(request, current_api_key, period_filter_data)
+            report = get_full_user_report(request.user, current_api_key, period_filter_data)
         except Exception as err:
             django_logger.critical(
                 f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
@@ -61,10 +64,8 @@ class DashboardView(LoginRequiredMixin, View):
                                     'Пожалуйста, свяжитесь со службой поддержки.')
             return redirect('users:profile')
 
-        report_by_products_json = json.dumps(report.get('report_by_products'))
         context = {
             'report': report,
-            'report_by_products_json': report_by_products_json,
             'incorrect_reports_ids': incorrect_reports_ids,
             'filter_dates_data': filter_dates_queryset,
             'current_filter_data': period_filter_data,

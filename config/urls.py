@@ -12,8 +12,8 @@ urlpatterns = [
     path('', include('reports.urls', namespace='reports')),
     path('', include('payments.urls', namespace='payments')),
     path('support/', include('support.urls', namespace='support')),
-    path('__debug__/', include(debug_toolbar.urls)),
 ]
+
 
 handler400 = "config.views.handler400"
 handler403 = "config.views.handler403"
@@ -24,3 +24,4 @@ handler503 = "config.views.handler503"
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += path('__debug__/', include(debug_toolbar.urls)),

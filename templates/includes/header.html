@@ -41,7 +41,9 @@
                     <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">Склад</a>
                 </li>
                 {% endif %}
-
+                <li>
+                    <a href="https://commery.ru/education" class="nav_link" target="_blank">Обучение</a>
+                </li>
                 {% url 'users:companies_list' as url %}
                 <li><a href="{{ url }}" class="nav_link {% if request.path == url or '/profile/' in request.path %} nav_link-active {% endif %}">Настройки</a></li>
                 {% else %}
@@ -62,7 +64,7 @@
         </nav>
         <ul class="right_nav-list">
             <li><a href="https://commery.ru/idea" target="_blank" class="nav_link-normal"> <img class="link_normal-img" src="{% static 'images/iconizer-686084.svg' %}"
-                                                                                                                            alt="">Предложи идею</a></li>
+                                                                                                alt="">Предложи идею</a></li>
             <li><a href="https://t.me/+CFhOWMG-qnIxY2Iy" target="_blank" class="nav_link-normal"> <img class="link_normal-img" src="{% static 'images/telegram_image.jpg' %}"
                                                                                                        alt="">Сообщество продавцов</a></li>
 

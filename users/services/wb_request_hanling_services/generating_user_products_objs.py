@@ -66,17 +66,10 @@ def generate_user_products(current_user, unique_articles: list, current_api_key)
     for article_data in unique_articles_values:
         article_obj_list.append(handle_unique_articles(article_data, current_api_key))
 
-    try:
-        with transaction.atomic():
+    with transaction.atomic():
 
-            ClientUniqueProduct.objects.bulk_create(article_obj_list)
+        ClientUniqueProduct.objects.bulk_create(article_obj_list)
 
-            if not current_api_key.is_products_loaded:
-                current_api_key.is_products_loaded = True
-                current_api_key.save()
-    except Exception as err:
-        django_logger.critical(
-            f'Failed to create product objects for a user - {current_user.email}',
-            exc_info=err
-        )
-        transaction.rollback()
+        if not current_api_key.is_products_loaded:
+            current_api_key.is_products_loaded = True
+            current_api_key.save()

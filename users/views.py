@@ -18,6 +18,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
+from django.utils.decorators import method_decorator
 
 from users.decorators import redirect_authenticated_user
 from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
@@ -26,11 +27,11 @@ from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          LoadNetCostsFileForm)
 from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport, \
     UserSubscription
-from users.services.encrypt_api_key import get_encrypted_key
-from users.services.genearte_subscriptions_data import get_user_subscriptions_data
-from users.services.generate_excel_net_costs_example import generate_excel_net_costs_example
-from users.services.generate_last_report_date import get_last_report_date
-from users.services.handle_uploaded_netcosts_excel import handle_uploaded_net_costs
+from users.services.encrypt_api_key_service import get_encrypted_key
+from users.services.generate_subscriptions_data_service import get_user_subscriptions_data
+from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
+from users.services.generate_last_report_date_service import get_last_report_date
+from users.services.handle_uploaded_netcosts_excel_service import handle_uploaded_net_costs
 from users.services.wb_request_hanling_services.request_data_handling import generate_reports_and_sales_objs
 from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
@@ -88,8 +89,11 @@ class ConfirmRegistrationView(View):
             user.is_active = True
             user.save()
 
-            del request.session['new_email']
-            del request.session['email_message_timestamp']
+            try:
+                del request.session['new_email']
+                del request.session['email_message_timestamp']
+            except:
+                pass
             messages.success(request, 'Благодарим за подтверждение почты. Вы можете войти в свой аккаунт.')
             return redirect('users:login')
 
@@ -547,8 +551,19 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
                 ).latest('create_dt').create_dt.strftime('%Y-%m-%d')
         else:
             last_report_date = get_last_report_date()
+        try:
+            report_status = generate_reports_and_sales_objs(request.user, last_report_date, today_date, current_api_key)
+        except Exception as err:
+            django_logger.critical(
+                f'Failed to load reports for a user {request.user.email}',
+                exc_info=err
+            )
 
-        report_status = generate_reports_and_sales_objs(request.user, last_report_date, today_date, current_api_key)
+            current_api_key.is_active_import = False
+            current_api_key.save()
+
+            messages.error(request, 'Ошибка формирования отчёта. Пожалуйста, обратитесь в службу поддержки.')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
 
         if report_status.get('status') is True:
             current_api_key.is_wb_data_loaded = True

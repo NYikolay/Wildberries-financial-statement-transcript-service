@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 from django.test import TestCase
 
 from users.models import SaleObject, SaleReport, WBApiKey, User, IncorrectReport, ClientUniqueProduct
-from users.services.decrypt_api_key import get_decrypted_key
-from users.services.encrypt_api_key import get_encrypted_key
+from users.services.decrypt_api_key_service import get_decrypted_key
+from users.services.encrypt_api_key_service import get_encrypted_key
 from users.services.generate_last_report_date import get_last_report_date
 from users.services.wb_request_hanling_services.generating_incorrect_reports import generate_incorrect_reports
 from users.services.wb_request_hanling_services.generating_user_products_data import handle_article_additional_data
