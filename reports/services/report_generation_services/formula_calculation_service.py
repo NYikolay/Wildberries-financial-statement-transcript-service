@@ -58,15 +58,18 @@ def calculate_commission(
         correct_sales_sum: float,
         commission_correct_sales_sum: float,
         correct_returns_sum: float,
-        commission_correct_returns_sum: float
+        commission_correct_returns_sum: float,
+        marriage_payment_sum,
+        payment_lost_marriage_sum,
+        commission_marriage_payment_sum: float,
+        commission_payment_lost_marriage_sum: float
 ):
     commission: float = (
-            (sales_sum - commission_sales_sum) -
-            (returns_sum - commission_returns_sum) -
-            (storno_sales_sum - commission_storno_sales_sum) +
-            (storno_returns_sum - commission_storno_returns_sum) +
-            (correct_sales_sum - commission_correct_sales_sum) -
-            (correct_returns_sum - commission_correct_returns_sum)
+            (sales_sum - storno_sales_sum + correct_sales_sum - returns_sum +
+             storno_returns_sum - correct_returns_sum + marriage_payment_sum + payment_lost_marriage_sum) -
+            (commission_sales_sum - commission_storno_sales_sum + commission_correct_sales_sum -
+             commission_returns_sum + commission_storno_returns_sum - commission_correct_returns_sum +
+             commission_marriage_payment_sum + commission_payment_lost_marriage_sum)
     )
 
     return commission

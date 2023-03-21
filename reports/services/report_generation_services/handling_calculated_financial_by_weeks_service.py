@@ -71,7 +71,11 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('correct_sales_sum'),
         sales_object_figures.get('сommission_correct_sales_sum'),
         sales_object_figures.get('correct_returns_sum'),
-        sales_object_figures.get('сommission_correct_returns_sum')
+        sales_object_figures.get('сommission_correct_returns_sum'),
+        sales_object_figures.get('marriage_payment_sum'),
+        sales_object_figures.get('payment_lost_marriage_sum'),
+        sales_object_figures.get('сommission_marriage_payment_sum'),
+        sales_object_figures.get('сommission_payment_lost_marriage_sum')
     )
 
     logistics: float = calculate_logistics(sales_object_figures.get('logistic_sum'))
