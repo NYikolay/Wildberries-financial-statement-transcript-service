@@ -25,13 +25,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    const sendFetchForStatus = (url) => {
+    const sendFetchForStatus = (url, interval) => {
         fetch(url, {
             method: 'GET',
         })
             .then(response => response.json())
             .then(data => {
                 if (!data.status.is_active_import) {
+                    clearInterval(interval)
                     window.location.replace(`${loadBtn.getAttribute('data-redirect-url')}`);
                 }
             })
@@ -41,7 +42,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (loadBtn.getAttribute("data-check") === 'true') {
         const requestUrl = loadBtn.getAttribute("data-url")
-        setInterval(function(){sendFetchForStatus(requestUrl)}, 3000);
+        let requestInterval = setInterval(function(){
+            sendFetchForStatus(requestUrl, requestInterval)}, 3000);
     } else {
         loadBtn.addEventListener('click', () => {
             loadBtn.classList.add("loading");
