@@ -330,6 +330,15 @@ input::-webkit-inner-spin-button {
     align-self: flex-start;
 }
 
+
+.report-warning__tooltip {
+    display: none;
+    opacity: 0;
+    position: absolute;
+    background-color: white;
+    border: 1px solid black;
+}
+
 .report_link-div {
     width: 15px;
     display: flex;
