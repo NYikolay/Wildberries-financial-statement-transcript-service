@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 from django.db.models import Q, UniqueConstraint
 from django.db import models
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.validators import RegexValidator
@@ -26,7 +29,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField('Дата регистрации', auto_now_add=True)
     phone = models.CharField(max_length=18, blank=True, verbose_name='Контактный номер телефона')
     is_accepted_terms_of_offer = models.BooleanField('Согласен ли с условиями Оферты')
-    is_subscribed = models.BooleanField('Оплачена ли подписка', default=False)
     role = models.CharField(
         max_length=9,
         choices=UserRoles.choices,
@@ -44,6 +46,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_superuser
 
+    @property
+    def is_subscribed(self):
+        return UserSubscription.objects.filter(
+            user=self,
+            subscribed_to__gt=datetime.now()
+        ).exists()
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
@@ -51,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Order(models.Model):
     paid_sum = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
-    status = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=255, blank=True, null=True, default='processed')
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -63,11 +72,11 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата заказа')
 
     def __str__(self):
-        return f'Покупка подписки пользователем {self.user.email}. Статус оплаты - {self.status}'
+        return f'Покупка подписки. Статус оплаты - {self.status}'
 
     class Meta:
-        verbose_name = 'Заказ'
-        verbose_name_plural = 'Заказы'
+        verbose_name = 'Статус покупки подписки'
+        verbose_name_plural = 'Статусы покупки подписки'
 
 
 class UserSubscription(models.Model):
@@ -89,18 +98,14 @@ class UserSubscription(models.Model):
     total_cost = models.DecimalField('Окончательная стоимость подписки', max_digits=15, decimal_places=2)
     subscribed_to = models.DateTimeField('Дата окончания подписки')
     discount_percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
-    is_active = models.BooleanField('Активна ли подписка')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Подписка типа: {self.subscription_type.type}, пользователя {self.user.email}'
+        return f'Подписка пользователя {self.user.email}'
 
     class Meta:
         verbose_name = 'Подписка пользователя'
         verbose_name_plural = 'Подписки пользователей'
-        constraints = [
-            UniqueConstraint(fields=['is_active', 'user'], name='unique_user_active_subscription_priority')
-        ]
 
 
 class UserDiscount(models.Model):
@@ -120,7 +125,10 @@ class UserDiscount(models.Model):
         verbose_name = 'Скидка пользователя'
         verbose_name_plural = 'Скидки пользователей'
         constraints = [
-            UniqueConstraint(fields=['is_active', 'user'], name='unique_user_active_discount_priority')
+            UniqueConstraint(
+                fields=['is_active', 'user'],
+                condition=Q(is_active=True),
+                name='unique_user_active_discount_priority')
         ]
 
 
@@ -137,11 +145,11 @@ class WBApiKey(models.Model):
     is_products_loaded = models.BooleanField(default=False, verbose_name='Загружен ли первоначальный список товаров')
     is_active_import = models.BooleanField(default=False, verbose_name='Происходит ли загрузка отчёта')
     last_reports_update = models.DateTimeField(blank=True, null=True, verbose_name='Дата обновления списка отчётов')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания ключа')
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'API ключ пользователя {self.user}'
+        return f'Ключ пользователя {self.user}'
 
     class Meta:
         verbose_name = 'API ключ'

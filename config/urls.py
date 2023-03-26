@@ -5,6 +5,20 @@ from django.conf.urls.static import static
 
 import debug_toolbar
 
+from django_otp.admin import OTPAdminSite
+from django_otp.plugins.otp_totp.models import TOTPDevice
+
+from users.models import User
+
+
+class OTPAdmin(OTPAdminSite):
+    pass
+
+
+admin.site.__class__ = OTPAdminSite
+admin.site.site_header = 'Commery Administration'
+admin.site.site_title = 'Commery Administration'
+
 
 urlpatterns = [
     path('ai6_lo_orsur@d39!ss_k33_vjr!!l4sk3r0(uqrpo266s/', admin.site.urls),

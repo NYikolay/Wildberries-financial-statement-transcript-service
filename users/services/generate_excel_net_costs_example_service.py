@@ -1,8 +1,10 @@
 from openpyxl import Workbook, styles
-from typing import List
+from typing import List, Tuple
+from decimal import Decimal
+from datetime import datetime
 
 
-def generate_excel_net_costs_example(net_costs_set: List[set]) -> Workbook:
+def generate_excel_net_costs_example(net_costs_set: List[Tuple[int, Decimal, datetime]]) -> Workbook:
     """
     The function generates an Excel file
     :param net_costs_set: QuerySet containing a list with a nested set.

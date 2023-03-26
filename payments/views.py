@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+import logging
 
 from django.shortcuts import render, redirect
 from django.views.generic import View
@@ -7,14 +7,17 @@ from django.http import HttpResponse
 from django.contrib import messages
 from config.settings.base import ROBOKASSA_PASSWORD1, ROBOKASSA_MERCHANT_LOGIN
 from payments.forms import RoboKassaForm, ResultURLForm, SuccessRedirectForm, FailRedirectForm
-from payments.models import SuccessPaymentNotification, FailPaymentNotification, SubscriptionType
-from payments.services.generating_subscribed_to_date import get_subscribed_to_date
+from payments.models import SuccessPaymentNotification, FailPaymentNotification
+from payments.services.create_user_subscription_service import create_user_subscription
 from payments.signals import result_received, fail_payment_signal
-from users.models import Order, User, UserSubscription
+from users.models import Order, User
 from payments.services.generating_redirect_link import generate_payment_link
 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+
+
+django_logger = logging.getLogger('django_logger')
 
 
 class RedirectToRobokassaView(LoginRequiredMixin, View):
@@ -46,6 +49,13 @@ class RedirectToRobokassaView(LoginRequiredMixin, View):
 
             return redirect(target_link)
 
+        django_logger.error(
+            f'Unable to generate a payment link for a user - {request.user.email}.'
+        )
+        messages.error(
+            request,
+            'Невозможно сформировать ссылку на оплату. Пожалуйста, повторите попытку или обратитесь в службу поддержки.'
+        )
         return redirect('users:profile')
 
 
@@ -54,13 +64,12 @@ class ReceiveResultView(View):
     form_class = ResultURLForm
 
     def post(self, request):
-        form = ResultURLForm(request.POST)
+        form = self.form_class(request.POST)
 
         if form.is_valid():
+
             inv_id, out_sum = form.cleaned_data['InvId'], form.cleaned_data['OutSum']
-
             notification = SuccessPaymentNotification.objects.create(inv_id=inv_id, out_sum=out_sum)
-
             result_received.send(sender=notification, InvId=inv_id, OutSum=out_sum)
 
             return HttpResponse('OK%s' % inv_id)
@@ -76,32 +85,34 @@ class SuccessPaymentView(View):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            user = User.objects.get(email=form.cleaned_data['Shp_user'])
-            user.is_subscribed = True
-            user.save()
-            print(form.cleaned_data)
-            subscription_type_obj = SubscriptionType.objects.get(type=form.cleaned_data['Shp_type'])
+            try:
+                current_user = User.objects.get(email=form.cleaned_data['Shp_user'])
 
-            UserSubscription.objects.create(
-                subscription_type=subscription_type_obj,
-                user=user,
-                subscribed_from=datetime.now(),
-                total_cost=form.cleaned_data['OutSum'],
-                subscribed_to=get_subscribed_to_date(
+                create_user_subscription(
+                    current_user,
+                    form.cleaned_data['Shp_type'],
+                    form.cleaned_data['OutSum'],
                     form.cleaned_data['Shp_duration'],
-                    form.cleaned_data['Shp_durationdesc']
-                ),
-                discount_percent=form.cleaned_data['Shp_discount'],
-                is_active=True,
+                    form.cleaned_data['Shp_durationdesc'],
+                    form.cleaned_data['Shp_discount']
+                )
+            except Exception as err:
+                django_logger.critical(
+                    f'Subscription was not created for a user - {request.user.email}.',
+                    exc_info=err
+                )
+                messages.error(
+                    request,
+                    'Оплата не удалась. Пожалуйста, свяжитесь со службой поддержки.'
+                )
+                return redirect('users:profile')
 
-            )
-
-            messages.success(request, 'Оплата прошла успешно')
+            messages.success(request, 'Оплата прошла успешно.')
             return redirect('users:profile')
 
         messages.error(
             request,
-            'Оплата не удалась. Если средства были списаны, пожалуйста, свяжитесь со службой поддержки'
+            'Оплата не удалась. Если средства были списаны, пожалуйста, свяжитесь со службой поддержки.'
         )
 
         return redirect('users:profile')
@@ -115,25 +126,15 @@ class FailPaymentView(View):
         form = self.form_class(request.POST)
 
         if form.is_valid():
+
             inv_id, out_sum = form.cleaned_data['InvId'], form.cleaned_data['OutSum']
-
             notification = FailPaymentNotification.objects.create(inv_id=inv_id, out_sum=out_sum)
-
             fail_payment_signal.send(sender=notification, InvId=inv_id, OutSum=out_sum)
 
-            messages.error(
-                request,
-                'Оплата неудалась или была отменена. '
-                'Если средства были списаны, пожалуйста, свяжитесь со службой поддержки.'
-            )
-
+            messages.error(request, 'Оплата была отменена.')
             return redirect('users:profile')
 
-        messages.error(
-            request,
-            'Оплата неудалась или была отменена. '
-            'Если средства были списаны, пожалуйста, свяжитесь со службой поддержки.'
-        )
+        messages.error(request, 'Оплата была отменена.')
 
         return redirect('users:profile')
 

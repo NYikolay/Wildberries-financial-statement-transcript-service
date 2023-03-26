@@ -6,7 +6,8 @@ from django.db import transaction
 from django.core.exceptions import RequestAborted
 
 from users.models import ClientUniqueProduct
-from users.services.wb_request_hanling_services.generating_user_products_data import handle_article_additional_data
+from users.services.wb_request_hanling_services.generating_user_products_data_service import \
+    handle_article_additional_data
 
 
 django_logger = logging.getLogger('django_logger')
@@ -38,10 +39,11 @@ def generate_user_products(current_user, unique_articles: list, current_api_key)
     unique_articles_values: list = []
     article_obj_list: list = []
 
+    created_unique_products = ClientUniqueProduct.objects.filter(
+        api_key=current_api_key).values_list("nm_id", flat=True)
+
     for article in unique_articles:
-        if ClientUniqueProduct.objects.filter(api_key__user=current_user,
-                                              api_key=current_api_key,
-                                              nm_id=article.get('nm_id')).exists():
+        if article.get('nm_id') in created_unique_products:
             unique_articles_len_counter -= 1
             continue
 

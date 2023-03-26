@@ -28,24 +28,52 @@
                     <h1>Подписка</h1>
                 </div>
                 <div class="tariff_block-wrapper">
+                    {% for subscription in subscriptions %}
                     <div class="tariff_item">
-                        <div class="tariff_main-content tariff_active">
+                        <div class="tariff_main-content {% if subscription.is_active %} tariff_active {% endif %}">
+                            {% if subscription.is_active %}
                             <div class="active_info-block">
                                 <div class="active_info-top">
                                     Подключён
                                 </div>
-                                <p class="active_info-duration">ДЕЙСТВУЕТ ДО 01.04.2023</p>
+                                <p class="active_info-duration">ДЕЙСТВУЕТ ДО {{ subscription.subscribed_to|date:"d.m.Y" }}</p>
                             </div>
+                            {% else %}
+                            <div class="active_info-block">
+                                <div class="active_info-top">
+                                </div>
+                                <p class="active_info-duration"></p>
+                            </div>
+                            {% endif %}
                             <div class="tariff_duration-block">
-                                <p class="tariff_duration-text" style="text-align: center">beta</p>
+                                <p class="tariff_duration-text" style="text-align: center">{{ subscription.duration }} {{ subscription.duration_desc }}</p>
                             </div>
                             <div class="tariff_prices-block">
+                                {% if subscription.is_test_period %}
                                 <h1 class="tariff_price">Бесплатно</h1>
+                                {% else %}
+                                <h1 class="tariff_price">{{ subscription.cost|floatformat:"-3g" }} <span style="font-size: 30px;">₽</span></h1>
+                                <div class="tariff_subprice"><span style="color: #EC583D">{{ subscription.cost_for_week|floatformat:"-3g" }} руб</span> <br> в неделю</div>
+                                {% endif %}
                             </div>
+                            {% if subscription.build_in_discount > 0 and not subscription.is_test_period  %}
+                            <div class="percent_sale-block percent_sale_background">
+                                <p class="percent_sale">-{{ subscription.build_in_discount|floatformat:"0" }}%</p>
+                            </div>
+                            {% else %}
                             <div class="percent_sale-block">
+                                <p class="percent_sale"></p>
                             </div>
-                            <div class="connect_tariff-block">
-                            </div>
+                            {% endif %}
+                            {% if is_active_subscription_exists or subscription.is_test_period %}
+                            <div style="width: 104px; height: 25px"></div>
+                            {% else %}
+                            <form action="{% url 'payments:generate_robokassa_redirection' %}" method="post">
+                                {% csrf_token %}
+                                {{ subscription.form.as_p }}
+                                <button class="connect_tariff-btn" type="submit">Подключить</button>
+                            </form>
+                            {% endif %}
                         </div>
                         <div class="tariff_footer">
                             <img src="{% static 'images/check (2).svg' %}" alt="">
@@ -54,6 +82,7 @@
                             </p>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

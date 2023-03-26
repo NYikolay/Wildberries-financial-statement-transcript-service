@@ -58,6 +58,24 @@ services:
       - db
       - web
       - nginx
+  celery-beat:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: "prod"
+    container_name: commery_celery_beat
+    restart: always
+    command: celery -A config beat -l info
+    volumes:
+      - ./:/commery_project/commery_celery
+      - /var/web_logs:/commery_project/logs
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - web
+      - nginx
   nginx:
     build:
       dockerfile: ./Dockerfile

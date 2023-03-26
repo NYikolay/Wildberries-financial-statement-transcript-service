@@ -39,8 +39,7 @@ def generate_reports(current_user, api_key):
     unique_weeks_uuid: dict = {}
 
     for sale in sale_objects:
-        if SaleReport.objects.filter(api_key__is_current=True,
-                                     api_key__user=current_user,
+        if SaleReport.objects.filter(api_key=api_key,
                                      realizationreport_id=sale.realizationreport_id).exists():
             continue
 

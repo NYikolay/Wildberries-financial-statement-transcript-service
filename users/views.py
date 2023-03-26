@@ -1,8 +1,8 @@
 import time
 import logging
+import pytz
 from datetime import date, datetime
 from urllib.parse import urlencode
-import pytz
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -18,21 +18,23 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
-from django.utils.decorators import method_decorator
 
+from payments.models import SubscriptionTypes
+from payments.services.create_user_subscription_service import create_user_subscription
 from users.decorators import redirect_authenticated_user
 from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          ChangeUserDataForm, ChangeUserPasswordForm, TaxRateForm,
                          UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
                          LoadNetCostsFileForm)
-from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport, \
-    UserSubscription
+from users.mixins import SubscriptionRequiredMixin
+from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport
 from users.services.encrypt_api_key_service import get_encrypted_key
 from users.services.generate_subscriptions_data_service import get_user_subscriptions_data
 from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
 from users.services.generate_last_report_date_service import get_last_report_date
 from users.services.handle_uploaded_netcosts_excel_service import handle_uploaded_net_costs
-from users.services.wb_request_hanling_services.request_data_handling import generate_reports_and_sales_objs
+from users.services.wb_request_hanling_services.execute_request_data_handling import \
+    execute_wildberries_request_data_handling
 from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
 
@@ -90,9 +92,23 @@ class ConfirmRegistrationView(View):
             user.save()
 
             try:
+                create_user_subscription(
+                    current_user=user,
+                    sub_type=SubscriptionTypes.TEST,
+                    total_cost=0,
+                    duration=1,
+                    duration_description='неделя',
+                    discount=0
+                )
+            except Exception as err:
+                django_logger.info(
+                    f'Failed to issue a test subscription to a user - {user.email}.',
+                    exc_info=err)
+
+            try:
                 del request.session['new_email']
                 del request.session['email_message_timestamp']
-            except:
+            except Exception as err:
                 pass
             messages.success(request, 'Благодарим за подтверждение почты. Вы можете войти в свой аккаунт.')
             return redirect('users:login')
@@ -119,7 +135,7 @@ class ConfirmEmailPageView(View):
 
     def post(self, request):
         try:
-            user = User.objects.get(email=request.session.get('new_email', None), is_active=False)
+            user = User.objects.get(email=request.session.get('new_email'), is_active=False)
         except:
             return JsonResponse(
                 {
@@ -180,11 +196,9 @@ class LoginPageView(View):
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password']
             )
-
             if user is not None:
                 login(request, user)
                 return redirect('reports:dashboard')
-
             context = {
                 'form': form,
                 'user_error': 'Введён неверный пароль или почта.'
@@ -217,7 +231,7 @@ class ProfilePage(LoginRequiredMixin, View):
             'profile_form': ChangeUserDataForm(instance=request.user),
             'change_password_form': ChangeUserPasswordForm(),
             'subscriptions': subscriptions,
-            'is_active_subscription_exists': UserSubscription.objects.filter(user=request.user, is_active=True).exists()
+            'is_active_subscription_exists': request.user.is_subscribed
         }
         return render(request, 'users/profile/profile.html', context)
 
@@ -519,7 +533,7 @@ class DeleteCompanyView(LoginRequiredMixin, View):
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-class LoadDataFromWBView(LoginRequiredMixin, View):
+class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
 
@@ -537,22 +551,15 @@ class LoadDataFromWBView(LoginRequiredMixin, View):
 
         current_api_key.is_active_import = True
         current_api_key.save()
+        last_report_date = get_last_report_date(current_api_key)
 
-        if current_api_key.is_wb_data_loaded:
-            if IncorrectReport.objects.filter(owner=request.user, api_key=current_api_key).exists():
-                last_report_date = IncorrectReport.objects.filter(
-                    owner=request.user,
-                    api_key=current_api_key,
-                ).earliest('date_from').date_from.strftime('%Y-%m-%d')
-            else:
-                last_report_date = SaleReport.objects.filter(
-                    api_key__is_current=True,
-                    api_key__user=request.user
-                ).latest('create_dt').create_dt.strftime('%Y-%m-%d')
-        else:
-            last_report_date = get_last_report_date()
         try:
-            report_status = generate_reports_and_sales_objs(request.user, last_report_date, today_date, current_api_key)
+            report_status = execute_wildberries_request_data_handling(
+                request.user,
+                last_report_date,
+                today_date,
+                current_api_key
+            )
         except Exception as err:
             django_logger.critical(
                 f'Failed to load reports for a user {request.user.email}',

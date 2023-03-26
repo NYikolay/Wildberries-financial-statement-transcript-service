@@ -33,6 +33,9 @@ INSTALLED_APPS = [
     'reports',
     'payments',
     'support',
+    'django_otp',
+    'django_celery_beat',
+    'django_otp.plugins.otp_totp',
 ]
 
 MIDDLEWARE = [
@@ -41,6 +44,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -105,7 +109,7 @@ TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -122,6 +126,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # CELERY SETTINGS
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # CACHES
 CACHES = {

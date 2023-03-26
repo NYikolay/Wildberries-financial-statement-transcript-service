@@ -1,10 +1,13 @@
+import datetime
 import logging
 
 from django.core.mail import EmailMessage
+from django.db import transaction
 
-from celery import shared_task
+from celery import shared_task, app
 
 from config.settings.base import EMAIL_HOST_USER
+from users.models import UserSubscription, User
 
 celery_logger = logging.getLogger('celery_logger')
 
@@ -20,4 +23,6 @@ def send_email_verification(mail_message, to_email, mail_subject):
         email.send()
     except Exception as err:
         celery_logger.critical('Background sending of messages to email does not work', exc_info=err)
+
+
 

@@ -20,9 +20,9 @@ def generate_payment_link(
     cost: decimal,
     description: str,
     is_test: int,
-    customer_email,
-    culture,
-    number,
+    customer_email: str,
+    culture: str,
+    inv_id: int,
     **kwargs
 ) -> str:
 
@@ -33,7 +33,7 @@ def generate_payment_link(
     signature = calculate_signature(
         merchant_login,
         cost,
-        number,
+        inv_id,
         merchant_password_1,
         *extra_params_for_signature
     )
@@ -41,7 +41,7 @@ def generate_payment_link(
     data = {
         'MerchantLogin': merchant_login,
         'OutSum': cost,
-        'InvId': number,
+        'InvId': inv_id,
         'Description': description,
         'SignatureValue': signature,
         'IsTest': is_test,

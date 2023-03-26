@@ -56,8 +56,8 @@ def handle_article_additional_data(article: int, brand: str, article_obj_list: l
 
     basket_url: str = links_conditions_data.get(True, '//basket-12.wb.ru/')
 
-    json_data_url: str = f'https:{basket_url}/vol{small_article_1}/part{small_article_2}/{article}/info/ru/card.json'
-    img_url: str = f'https:{basket_url}/vol{small_article_1}/part{small_article_2}/{article}/images/tm/1.jpg'
+    json_data_url: str = f'https:{basket_url}vol{small_article_1}/part{small_article_2}/{article}/info/ru/card.json'
+    img_url: str = f'https:{basket_url}vol{small_article_1}/part{small_article_2}/{article}/images/tm/1.jpg'
 
     product_name: str = send_request_for_card_json(json_data_url, article)
 

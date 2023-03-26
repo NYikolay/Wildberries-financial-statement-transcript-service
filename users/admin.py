@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib import admin
 
 from users.models import (User, WBApiKey, SaleObject,
@@ -9,15 +11,19 @@ admin.site.register(NetCost)
 admin.site.register(TaxRate)
 admin.site.register(IncorrectReport)
 admin.site.register(UnloadedReports)
-admin.site.register(UserSubscription)
 admin.site.register(UserDiscount)
-admin.site.register(Order)
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'date_joined')
     list_display = ('email', 'date_joined')
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_filter = ('status', 'created_at')
+    list_display = ('user', 'status', 'paid_sum', 'created_at')
 
 
 @admin.register(WBApiKey)
@@ -29,7 +35,14 @@ class WBApiKeyAdmin(admin.ModelAdmin):
         'last_reports_update',
         'is_active_import'
     )
-    list_display = ('__str__', 'created_at')
+    list_display = (
+        '__str__',
+        'is_wb_data_loaded',
+        'is_products_loaded',
+        'is_active_import',
+        'last_reports_update',
+        'created_at'
+    )
 
 
 @admin.register(ClientUniqueProduct)
@@ -42,3 +55,15 @@ class ClientUniqueProductAdmin(admin.ModelAdmin):
 class SaleReportAdmin(admin.ModelAdmin):
     list_filter = ('owner',)
     list_display = ('owner', 'realizationreport_id', 'create_dt', 'week_num')
+
+
+@admin.register(UserSubscription)
+class UserSubscriptionAdmin(admin.ModelAdmin):
+    list_filter = ('user', 'subscription_type', )
+    list_display = ('__str__', 'subscription_type', 'subscribed_from', 'subscribed_to', 'is_active')
+
+    def is_active(self, obj):
+        result = True if obj.subscribed_to >= datetime.now() else False
+        return result
+
+    is_active.short_description = "Активна ли подписка"

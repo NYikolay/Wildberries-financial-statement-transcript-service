@@ -1,257 +1,611 @@
+from datetime import datetime
+from decimal import Decimal
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from datetime import datetime, timezone
 
-from django.test import TestCase
-
-from users.models import SaleObject, SaleReport, WBApiKey, User, IncorrectReport, ClientUniqueProduct
+from payments.services.generating_subscribed_to_date import get_subscribed_to_date
+from users.models import ClientUniqueProduct, SaleReport
 from users.services.decrypt_api_key_service import get_decrypted_key
 from users.services.encrypt_api_key_service import get_encrypted_key
-from users.services.generate_last_report_date import get_last_report_date
-from users.services.wb_request_hanling_services.generating_incorrect_reports import generate_incorrect_reports
-from users.services.wb_request_hanling_services.generating_user_products_data import handle_article_additional_data
-from users.services.wb_request_hanling_services.generating_user_products_objs import generate_user_products
-from users.services.wb_request_hanling_services.generating_user_reports import generate_reports
-from users.services.wb_request_hanling_services.reports_validation import check_sale_obj_validation, \
-    get_incorrect_reports_lst
-from users.services.wb_request_hanling_services.generating_unique_reports import get_unique_reports
-from users.services.wb_request_hanling_services.request_data_handling import get_unique_articles
-from users.tests.users_app_testing_data import test_sale_objs_data, test_articles_data, test_user_data, \
-    test_incorrect_reports_data, test_invalid_objs_data
+from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
+from users.services.generate_last_report_date_service import get_last_report_date, generate_date_by_months_filter
+from users.services.generate_subscriptions_data_service import get_user_subscriptions_data, \
+    get_calculated_subscription_values, generate_robokassa_form
+from users.services.wb_request_hanling_services.generating_incorrect_reports_service import generate_incorrect_reports
+from users.services.wb_request_hanling_services.generating_products_objs_service import generate_user_products
+from users.services.wb_request_hanling_services.generating_sale_objects_service import create_sale_objects
+from users.services.wb_request_hanling_services.generating_unique_articles_service import get_unique_articles
+from users.services.wb_request_hanling_services.generating_unique_reports_service import get_unique_reports
+from users.services.wb_request_hanling_services.generating_user_products_data_service import send_request_for_card_json
+from users.services.wb_request_hanling_services.generating_user_reports_service import generate_reports
+from users.services.wb_request_hanling_services.reports_validation_service import check_sale_obj_validation
+from users.tests.pytest_fixtures import (
+    test_password, test_subscriptions_data, create_user, create_subscription_types, create_user_discount,
+    create_user_subscription, create_api_key, create_incorrect_reports, create_client_unique_product, test_products,
+    test_incorrect_reports, test_sales, create_user_report, test_invalid_sales, test_sales_with_exception
+)
+
+import pytest
+from openpyxl import Workbook
 
 
-class TestUserAppFunctions(TestCase):
+@pytest.fixture
+def test_api_key():
+    return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NJRCI6IjBlNTE5YmEwLWRmMGMtNGY1NC04ZWU2'
 
-    def setUp(self) -> None:
-        self.user = User.objects.create(
-            email=test_user_data.get('email'),
-            is_accepted_terms_of_offer=True,
-            password=test_user_data.get('password')
-        )
-        self.api_key_obj = WBApiKey.objects.create(
-            api_key=get_encrypted_key('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3'),
-            name='Test Company',
-            user=self.user,
-            is_current=True,
-            is_wb_data_loaded=True,
-            is_products_loaded=True,
-        )
-        self.sale_objects = test_sale_objs_data
-        self.articles_data = test_articles_data
-        self.invalid_sale_objects = test_invalid_objs_data
 
-        sale_objs = []
+@pytest.fixture
+def test_encrypted_api_key(test_api_key):
+    return get_encrypted_key(test_api_key)
 
-        for sale in self.sale_objects:
-            wb_office_name = sale.get('office_name', None)
-            office_name = 'Склад WB без названия' if wb_office_name is None else wb_office_name
-            sale_objs.append(SaleObject(
-                owner=self.user,
-                api_key=self.api_key_obj,
-                week_num=
-                datetime.strptime(sale.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').
-                replace(tzinfo=timezone.utc).isocalendar()[1],
-                year=datetime.strptime(sale.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').
-                replace(tzinfo=timezone.utc).year,
-                month_num=datetime.strptime(sale.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').
-                replace(tzinfo=timezone.utc).month,
-                realizationreport_id=sale.get('realizationreport_id'),
-                date_from=datetime.strptime(sale.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').replace(
-                    tzinfo=timezone.utc),
-                date_to=datetime.strptime(sale.get('date_to'), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc),
-                create_dt=datetime.strptime(sale.get('create_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(
-                    tzinfo=timezone.utc),
-                gi_id=sale.get('gi_id'),
-                subject_name=sale.get('subject_name'),
-                nm_id=sale.get('nm_id'),
-                brand_name=sale.get('brand_name'),
-                sa_name=sale.get('sa_name'),
-                ts_name=sale.get('ts_name'),
-                barcode=sale.get('barcode'),
-                doc_type_name=sale.get('doc_type_name'),
-                order_dt=datetime.strptime(sale.get('order_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc),
-                sale_dt=datetime.strptime(sale.get('sale_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc),
-                quantity=sale.get('quantity'),
-                retail_price=sale.get('retail_price'),
-                retail_price_withdisc_rub=sale.get('retail_price_withdisc_rub'),
-                ppvz_for_pay=sale.get('ppvz_for_pay'),
-                penalty=sale.get('penalty'),
-                additional_payment=sale.get('additional_payment'),
-                site_country=sale.get('site_country'),
-                office_name=office_name,
-                srid=sale.get('srid'),
-                delivery_rub=sale.get('delivery_rub'),
-                rid=sale.get('rid'),
-                supplier_oper_name=sale.get('supplier_oper_name'),
-                ))
 
-        SaleObject.objects.bulk_create(sale_objs)
+@pytest.fixture
+def test_decrypted_api_key(test_encrypted_api_key):
+    return get_decrypted_key(test_encrypted_api_key)
 
-    def test_decrypt_api_key(self):
-        decrypted_api_key = get_decrypted_key(self.api_key_obj.api_key)
-        self.assertFalse(decrypted_api_key == self.api_key_obj.api_key)
 
-    def test_encrypt_api_key(self):
-        encrypted_api_key = get_encrypted_key('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3')
-        self.assertTrue(encrypted_api_key != 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3')
+def test_decrypted_api_key_func(test_api_key, test_decrypted_api_key, test_encrypted_api_key):
+    assert test_decrypted_api_key == test_api_key
+    assert test_decrypted_api_key != test_encrypted_api_key
 
-    def test_generating_last_report_date(self):
-        test_date = date.today() - relativedelta(months=3)
-        test_first_date_of_month = test_date.replace(day=1)
 
-        year = test_first_date_of_month.year - 1 \
-            if test_first_date_of_month.isocalendar()[1] == 52 else test_first_date_of_month.year
+def test_encrypted_api_key_func(test_api_key, test_encrypted_api_key, test_decrypted_api_key):
+    assert test_encrypted_api_key != test_api_key
+    assert test_encrypted_api_key != test_decrypted_api_key
 
-        test_last_report_date = date.fromisocalendar(
-            year,
-            test_first_date_of_month.isocalendar()[1], 1).strftime('%Y-%m-%d')
 
-        last_report_date = get_last_report_date()
-        self.assertEqual(test_last_report_date, last_report_date)
+def test_generate_excel_net_costs_example():
+    data = [(12, Decimal(12.2), datetime(2022, 12, 25))]
 
-    def test_generating_unique_articles(self):
-        unique_articles = get_unique_articles(self.sale_objects)
+    net_costs_example_result = generate_excel_net_costs_example(data)
 
-        self.assertEqual(unique_articles, [{'brand': 'Hanes Store', 'nm_id': 129494856},
-                                           {'brand': 'Hanes Store', 'nm_id': 129494851},
-                                           {'brand': 'Hanes Store', 'nm_id': 129494822}])
+    assert type(net_costs_example_result) == Workbook
 
-    def test_generating_unique_reports(self):
-        unique_reports = get_unique_reports(self.sale_objects)
 
-        self.assertEqual(unique_reports, {19279748, 19279741})
+def test_get_last_report_date():
+    past_months_date = date.today() - relativedelta(months=3)
+    first_date_of_month = past_months_date.replace(day=1)
+    year = first_date_of_month.year - 1 if first_date_of_month.isocalendar()[1] == 52 else first_date_of_month.year
+    last_report_date_test = date.fromisocalendar(
+        year,
+        first_date_of_month.isocalendar()[1],
+        1
+    ).strftime('%Y-%m-%d')
 
-    def test_generating_user_products_data(self):
-        article_obj_list = []
+    last_report_date_result = generate_date_by_months_filter(3)
 
-        for article_data in self.articles_data:
-            handle_article_additional_data(article_data.get('nm_id'), article_data.get('brand'), article_obj_list)
+    assert last_report_date_result == last_report_date_test
 
-        self.assertEqual(len(article_obj_list), 5)
-        self.assertEqual(article_obj_list[0].get('nm_id'), 94212294)
-        self.assertEqual(article_obj_list[0].get('title'), 'Щетки стеклоочистителя для автомобилей дворники ')
-        self.assertEqual(
-            article_obj_list[0].get('img'),
-            'https://basket-05.wb.ru//vol942/part94212/94212294/images/tm/1.jpg'
+
+@pytest.mark.django_db
+def test_get_user_subscriptions_data(create_user, create_subscription_types):
+    user = create_user()
+    subscription_types_objects = create_subscription_types
+
+    user_subscription_data = get_user_subscriptions_data(user)
+
+    assert len(user_subscription_data) == len(subscription_types_objects)
+    assert all(type(data_dict) is dict for data_dict in user_subscription_data)
+
+
+@pytest.mark.django_db
+def test_get_calculated_subscription_values_with_default_data(create_user, create_subscription_types):
+    user = create_user()
+    subscription_types_objects = create_subscription_types
+
+    calculated_subscription_values = get_calculated_subscription_values(subscription_types_objects[0], None, None)
+
+    assert calculated_subscription_values.get('build_in_discount') == subscription_types_objects[0].build_in_discount
+    assert calculated_subscription_values.get('cost') == subscription_types_objects[0].build_in_discount
+    assert calculated_subscription_values.get('cost_for_week') == 0
+    assert calculated_subscription_values.get('subscribed_to') is None
+    assert calculated_subscription_values.get('is_active') is False
+    assert calculated_subscription_values.get('is_test_period') is True
+
+
+@pytest.mark.django_db
+def test_get_calculated_subscription_values_with_additional_data_1(
+        create_user,
+        create_subscription_types,
+        create_user_discount,
+        create_user_subscription
+):
+    user = create_user()
+    subscription_types_objects = create_subscription_types
+    user_discount = create_user_discount(user=user, percent=30)
+
+    user_subscription = create_user_subscription(
+        subscription_type=subscription_types_objects[2],
+        user=user,
+        subscribed_from=datetime.now(),
+        total_cost=9240,
+        subscribed_to=get_subscribed_to_date(
+            subscription_types_objects[2].duration,
+            subscription_types_objects[2].duration_desc
         )
 
-    def test_generating_user_products(self):
-        unique_articles = get_unique_articles(self.sale_objects)
+    )
 
-        generate_user_products(self.user, unique_articles, self.api_key_obj)
-        user_products_count_1 = ClientUniqueProduct.objects.filter(api_key=self.api_key_obj).count()
+    calculated_subscription_values = get_calculated_subscription_values(
+        subscription_types_objects[2], user_subscription, user_discount)
 
-        """ Test duplicates of ClientUniqueProduct handled correctly """
-        generate_user_products(self.user, unique_articles, self.api_key_obj)
-        user_products_count_2 = ClientUniqueProduct.objects.filter(api_key=self.api_key_obj).count()
+    assert calculated_subscription_values.get('build_in_discount') == user_discount.percent
+    assert calculated_subscription_values.get('cost') == 9240
+    assert calculated_subscription_values.get('cost_for_week') == 770
+    assert calculated_subscription_values.get('subscribed_to') == user_subscription.subscribed_to
+    assert calculated_subscription_values.get('is_active') is True
+    assert calculated_subscription_values.get('is_test_period') is False
 
-        self.assertEqual(user_products_count_1, 3)
-        self.assertEqual(user_products_count_2, 3)
 
-    def test_successful_generating_incorrect_reports(self):
-        generate_incorrect_reports(self.user, test_incorrect_reports_data, self.api_key_obj)
-        incorrect_reports_count_1 = IncorrectReport.objects.filter(api_key=self.api_key_obj, owner=self.user).count()
+@pytest.mark.django_db
+def test_get_calculated_subscription_values_with_additional_data_2(
+        create_user,
+        create_subscription_types,
+        create_user_discount,
+        create_user_subscription
+):
+    user = create_user()
+    subscription_types_objects = create_subscription_types
+    user_discount = create_user_discount(user=user, percent=50)
 
-        generate_incorrect_reports(self.user, [], self.api_key_obj)
-        incorrect_reports_count_3 = IncorrectReport.objects.filter(api_key=self.api_key_obj, owner=self.user).count()
+    user_subscription = create_user_subscription(
+        subscription_type=subscription_types_objects[3],
+        user=user,
+        subscribed_from=datetime.now(),
+        total_cost=6600,
+        subscribed_to=get_subscribed_to_date(
+            subscription_types_objects[3].duration,
+            subscription_types_objects[3].duration_desc
+        )
 
-        self.assertEqual(incorrect_reports_count_1, 3)
-        self.assertEqual(incorrect_reports_count_3, 0)
+    )
 
-    def test_duplicates_of_incorrectreport_handled_correctly(self):
-        generate_incorrect_reports(self.user, test_incorrect_reports_data, self.api_key_obj)
-        incorrect_reports_count_1 = IncorrectReport.objects.filter(api_key=self.api_key_obj, owner=self.user).count()
+    calculated_subscription_values = get_calculated_subscription_values(
+        subscription_types_objects[2], user_subscription, user_discount)
 
-        generate_incorrect_reports(self.user, test_incorrect_reports_data, self.api_key_obj)
-        incorrect_reports_count_2 = IncorrectReport.objects.filter(api_key=self.api_key_obj, owner=self.user).count()
+    assert calculated_subscription_values.get('build_in_discount') == user_discount.percent
+    assert calculated_subscription_values.get('cost') == 6600
+    assert calculated_subscription_values.get('cost_for_week') == 550
+    assert calculated_subscription_values.get('subscribed_to') is None
+    assert calculated_subscription_values.get('is_active') is False
+    assert calculated_subscription_values.get('is_test_period') is False
 
-        self.assertEqual(incorrect_reports_count_1, 3)
-        self.assertEqual(incorrect_reports_count_2, 3)
 
-    def test_generating_reports(self):
-        generate_reports(self.user, self.api_key_obj)
+@pytest.mark.django_db
+def test_generate_incorrect_reports(create_user, create_api_key, test_incorrect_reports):
+    user = create_user()
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
 
-        reports_objs_count_1 = SaleReport.objects.filter(
-            api_key__is_current=True,
-            api_key__user=self.user,
-        ).count()
+    generate_incorrect_reports(user, test_incorrect_reports, api_key)
 
-        report_obj = SaleReport.objects.filter(
-            api_key__is_current=True,
-            api_key__user=self.user,
-        ).first()
+    generated_incorrect_reports_status = [api_key.unavailable_api_key_reports.filter(
+        realizationreport_id=report.get('realizationreport_id'),
+        date_from=report.get('date_from'),
+        date_to=report.get('date_to')
+    ).exists() for report in test_incorrect_reports]
 
-        self.assertEqual(reports_objs_count_1, 2)
-        self.assertEqual(report_obj.api_key, self.api_key_obj)
-        self.assertEqual(report_obj.owner, self.user)
-        self.assertEqual(report_obj.realizationreport_id, 19279741)
-        self.assertEqual(report_obj.year, 2022)
-        self.assertEqual(report_obj.month_num, 10)
-        self.assertEqual(report_obj.create_dt, datetime(2022, 11, 7, 11, 31, 43, tzinfo=timezone.utc))
-        self.assertEqual(report_obj.date_from, datetime(2022, 10, 31, 0, 0, tzinfo=timezone.utc))
-        self.assertEqual(report_obj.date_to, datetime(2022, 11, 6, 0, 0, tzinfo=timezone.utc))
+    assert api_key.unavailable_api_key_reports.count() == 3
+    assert all(generated_incorrect_reports_status)
 
-    def test_duplicates_of_salereport_handled_correctly(self):
-        generate_reports(self.user, self.api_key_obj)
 
-        reports_objs_count_1 = SaleReport.objects.filter(
-            api_key__is_current=True,
-            api_key__user=self.user,
-        ).count()
+@pytest.mark.django_db
+def test_duplicates_generate_incorrect_reports(
+        create_user,
+        create_api_key,
+        create_incorrect_reports,
+        test_incorrect_reports
+):
+    user = create_user()
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
 
-        generate_reports(self.user, self.api_key_obj)
+    for report in test_incorrect_reports:
+        create_incorrect_reports(
+            api_key=api_key,
+            owner=user,
+            realizationreport_id=report.get("realizationreport_id"),
+            date_from=report.get("date_from"),
+            date_to=report.get("date_to")
+        )
 
-        reports_objs_count_2 = SaleReport.objects.filter(
-            api_key__is_current=True,
-            api_key__user=self.user,
-        ).count()
+    generate_incorrect_reports(user, test_incorrect_reports, api_key)
 
-        self.assertEqual(reports_objs_count_1, 2)
-        self.assertEqual(reports_objs_count_2, 2)
+    assert api_key.unavailable_api_key_reports.count() == 3
 
-    def test_check_validity_condition_of_invalid_report(self):
-        test_validation_result = check_sale_obj_validation(self.invalid_sale_objects[3])
 
-        self.assertEqual(test_validation_result, True)
+@pytest.mark.django_db
+def test_deleting_generate_incorrect_reports(
+        create_user,
+        create_api_key,
+        create_incorrect_reports,
+        test_incorrect_reports
+):
 
-    def test_successful_check_sale_obj_validation(self):
-        test_validation_result = check_sale_obj_validation(self.sale_objects[1])
+    user = create_user()
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
 
-        self.assertEqual(test_validation_result, True)
+    create_incorrect_reports(
+        api_key=api_key,
+        owner=user,
+        realizationreport_id=test_incorrect_reports[0].get("realizationreport_id"),
+        date_from=test_incorrect_reports[0].get("date_from"),
+        date_to=test_incorrect_reports[0].get("date_to")
+    )
 
-    def test_unsuccessful_check_sale_obj_validation(self):
-        test_validation_result = check_sale_obj_validation(self.invalid_sale_objects[0])
+    generate_incorrect_reports(user, [], api_key)
 
-        self.assertEqual(test_validation_result.get('realizationreport_id'), 19279748)
-        self.assertEqual(test_validation_result.get('incorrect_report_data').get('date_from'), None)
-        self.assertEqual(test_validation_result.get('incorrect_report_data').get('date_to'), "2022-11-06T00:00:00Z")
+    assert api_key.unavailable_api_key_reports.count() == 0
 
-    def test_validation_with_invalid_reports(self):
-        test_validation_result = get_incorrect_reports_lst(self.invalid_sale_objects)
 
-        self.assertEqual(test_validation_result, {
-            'realizationreport_ids': [19279748, 19279728],
-            'incorrect_reports_data_list': [
-                {
-                    'realizationreport_id': 19279748,
-                    'date_from': None,
-                    'date_to': '2022-11-06T00:00:00Z'
-                },
-                {
-                    'realizationreport_id': 19279728,
-                    'date_from': '2022-10-31T00:00:00Z',
-                    'date_to': '2022-11-06T00:00:00Z'
-                }
-            ]
-        })
+@pytest.mark.django_db
+def test_generate_user_products(create_user, create_api_key, test_products):
+    user = create_user()
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
 
-    def test_validation_with_valid_reports(self):
-        test_validation_result = get_incorrect_reports_lst(self.sale_objects)
+    generate_user_products(user, test_products, api_key)
 
-        self.assertEqual(test_validation_result, {
+    generated_user_products_status = [
+        api_key.api_key_products.filter(
+            nm_id=product.get("nm_id"),
+            brand=product.get("brand"),
+            image=product.get("image"),
+            product_name=product.get("product_name")
+        ).exists() for product in test_products
+    ]
+
+    assert api_key.api_key_products.count() == 4
+    assert api_key.is_products_loaded
+    assert all(generated_user_products_status)
+
+
+@pytest.mark.django_db
+def test_duplicates_generate_user_products(create_user, create_api_key, test_products, create_client_unique_product):
+    user = create_user()
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
+
+    for product in test_products:
+        create_client_unique_product(
+            api_key=api_key,
+            nm_id=product.get("nm_id"),
+            brand=product.get("brand"),
+            image=product.get("image"),
+            product_name=product.get("product_name")
+        )
+
+    generate_user_products(user, test_products, api_key)
+
+    assert api_key.api_key_products.count() == 4
+
+
+@pytest.mark.django_db
+def test_create_sale_objects_without_conditions(
+        create_user,
+        create_api_key,
+        test_sales,
+        test_products,
+        create_client_unique_product
+):
+    user = create_user()
+
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
+
+    for product in test_products:
+        create_client_unique_product(
+            api_key=api_key,
+            nm_id=product.get("nm_id"),
+            brand=product.get("brand"),
+            image=product.get("image"),
+            product_name=product.get("product_name")
+        )
+
+    created_product_objs = ClientUniqueProduct.objects.in_bulk(
+        [product.get('nm_id') for product in test_products], field_name='nm_id')
+
+    sale_objects_creation_status = create_sale_objects(
+        user,
+        api_key,
+        test_sales,
+        [],
+        {
             'realizationreport_ids': [],
             'incorrect_reports_data_list': []
-        })
+        },
+        created_product_objs
+    )
+
+    assert sale_objects_creation_status
+    assert api_key.api_key_sales.count() == 4
+    assert api_key.api_key_sales.filter(office_name='Склад WB без названия').exists()
+
+
+@pytest.mark.django_db
+def test_create_sale_objects_with_conditions(
+        create_user,
+        create_api_key,
+        test_sales,
+        test_products,
+        create_client_unique_product
+):
+    user = create_user()
+
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
+
+    for product in test_products:
+        create_client_unique_product(
+            api_key=api_key,
+            nm_id=product.get("nm_id"),
+            brand=product.get("brand"),
+            image=product.get("image"),
+            product_name=product.get("product_name")
+        )
+
+    created_product_objs = ClientUniqueProduct.objects.in_bulk(
+        [product.get('nm_id') for product in test_products], field_name='nm_id')
+
+    sale_objects_creation_status = create_sale_objects(
+        user,
+        api_key,
+        test_sales,
+        [27982078],
+        {
+            'realizationreport_ids': [27982028],
+            'incorrect_reports_data_list': []
+        },
+        created_product_objs
+    )
+
+    assert sale_objects_creation_status
+    assert api_key.api_key_sales.count() == 2
+    assert not api_key.api_key_sales.filter(realizationreport_id__in=[27982078, 27982028]).exists()
+
+
+def test_get_unique_articles():
+    articles_input_data = [
+        {"nm_id": 141371096, "brand_name": "Kadiev"},
+        {"nm_id": 141371096, "brand_name": "Kadiev"},
+        {"nm_id": 141972556, "brand_name": "Kadiev"},
+        {"nm_id": 140930947, "brand_name": "Kadiev"},
+        {"nm_id": 140930947, "brand_name": "Kadiev"},
+        {"nm_id": 140930947, "brand_name": "Kadiev"},
+        {"nm_id": 141371096, "brand_name": "Kadiev"},
+    ]
+
+    unique_articles = get_unique_articles(articles_input_data)
+
+    expected_articles_output = [
+        {"nm_id": 141371096, "brand": "Kadiev"},
+        {"nm_id": 141972556, "brand": "Kadiev"},
+        {"nm_id": 140930947, "brand": "Kadiev"},
+    ]
+
+    assert expected_articles_output == unique_articles
+
+
+def test_get_unique_reports():
+    report_input_data = [
+        {"realizationreport_id": 141371096},
+        {"realizationreport_id": 141371096},
+        {"realizationreport_id": 141972556},
+        {"realizationreport_id": 140930947},
+        {"realizationreport_id": 140930947},
+        {"realizationreport_id": 140930947},
+        {"realizationreport_id": 141371096},
+    ]
+
+    unique_reports = list(get_unique_reports(report_input_data))
+    unique_reports.sort()
+
+    expected_reports_output = [140930947, 141371096, 141972556]
+
+    assert expected_reports_output == unique_reports
+
+
+@pytest.mark.django_db
+def test_generate_reports_without_sales(
+        create_user,
+        create_api_key
+):
+    user = create_user()
+
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
+
+    generate_reports(
+        user,
+        api_key
+    )
+
+    assert SaleReport.objects.filter(api_key=api_key).count() == 0
+
+
+@pytest.mark.django_db
+def test_generate_reports_with_sales(
+        create_user,
+        create_api_key,
+        test_sales,
+        test_products,
+        create_client_unique_product
+):
+    user = create_user()
+
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
+    for product in test_products:
+        create_client_unique_product(
+            api_key=api_key,
+            nm_id=product.get("nm_id"),
+            brand=product.get("brand"),
+            image=product.get("image"),
+            product_name=product.get("product_name")
+        )
+    created_product_objs = ClientUniqueProduct.objects.in_bulk(
+        [product.get('nm_id') for product in test_products], field_name='nm_id')
+
+    create_sale_objects(user, api_key, test_sales, [],
+                        {'realizationreport_ids': [], 'incorrect_reports_data_list': []},
+                        created_product_objs)
+
+    generate_reports(
+        user,
+        api_key
+    )
+
+    assert SaleReport.objects.filter(api_key=api_key).count() == 4
+
+
+@pytest.mark.django_db
+def test_duplicates_generate_reports(
+        create_user,
+        create_api_key,
+        test_sales,
+        test_products,
+        create_client_unique_product,
+        create_user_report
+):
+    user = create_user()
+
+    api_key = create_api_key(
+        api_key='qweqwesad',
+        name='Тест',
+        user=user,
+        is_current=False,
+        is_wb_data_loaded=False,
+        is_products_loaded=False,
+        is_active_import=False,
+        last_reports_update=datetime.now(),
+    )
+    for product in test_products:
+        create_client_unique_product(
+            api_key=api_key,
+            nm_id=product.get("nm_id"),
+            brand=product.get("brand"),
+            image=product.get("image"),
+            product_name=product.get("product_name")
+        )
+
+    created_product_objs = ClientUniqueProduct.objects.in_bulk(
+        [product.get('nm_id') for product in test_products], field_name='nm_id')
+
+    create_sale_objects(user, api_key, test_sales, [],
+                        {'realizationreport_ids': [], 'incorrect_reports_data_list': []},
+                        created_product_objs)
+
+    for i in range(2):
+        generate_reports(
+            user,
+            api_key
+        )
+
+    assert SaleReport.objects.filter(api_key=api_key).count() == 4
+
+
+def test_success_check_sale_obj_validation_without_exception(test_sales):
+    success_validation_result = [check_sale_obj_validation(sale) for sale in test_sales]
+
+    assert all(success_validation_result)
+
+
+def test_success_check_sale_obj_validation_with_exception(test_sales_with_exception):
+    success_validation_result = [check_sale_obj_validation(sale) for sale in test_sales_with_exception]
+
+    assert success_validation_result is True
+
+
+def test_fail_check_sale_obj_validation(test_invalid_sales):
+    fail_validation_sales_data = [check_sale_obj_validation(sale) for sale in test_invalid_sales]
+
+    fail_validation_result = []
+
+    for sale, invalid_sale in zip(test_invalid_sales, fail_validation_sales_data):
+        if sale.get("realizationreport_id") == invalid_sale.get("realizationreport_id"):
+            fail_validation_result.append(True)
+
+    assert all(fail_validation_result)
+    assert len(fail_validation_result) == len(test_invalid_sales)
+
+
+
+
+
+
 
 
 

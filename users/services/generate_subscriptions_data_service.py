@@ -1,6 +1,6 @@
 from typing import List
-import datetime
-
+from datetime import datetime
+import pytz
 from payments.forms import RoboKassaForm
 from payments.models import SubscriptionType, SubscriptionTypes
 from users.models import UserSubscription, UserDiscount
@@ -28,7 +28,7 @@ def generate_robokassa_form(
     })
 
 
-def get_calculated_subscription_values(subscription_type, current_user_subscription, active_user_discount):
+def get_calculated_subscription_values(subscription_type, current_user_subscription, active_user_discount) -> dict:
     """
     The function calculates the subscription values for the user
     :param subscription_type: Object of a subscription type common to all users
@@ -47,14 +47,14 @@ def get_calculated_subscription_values(subscription_type, current_user_subscript
 
     cost_for_week: int = round((cost / 4) / subscription_type.duration)
 
-    subscribed_to: datetime = current_user_subscription.subscribed_to if current_user_subscription else None
-
     if current_user_subscription and current_user_subscription.subscription_type == subscription_type:
+        subscribed_to = current_user_subscription.subscribed_to
         is_active: bool = True
     else:
+        subscribed_to = None
         is_active: bool = False
 
-    is_test_period: bool = subscription_type.type == SubscriptionTypes.FREE
+    is_test_period: bool = subscription_type.type == SubscriptionTypes.TEST
 
     return {
         'build_in_discount': build_in_discount,
@@ -74,10 +74,12 @@ def get_user_subscriptions_data(request_user) -> list:
     :return: Returns a list containing the dictionaries
     """
     subscriptions_types = SubscriptionType.objects.all()
+
     current_user_subscription = UserSubscription.objects.filter(
         user=request_user,
-        is_active=True
+        subscribed_to__gt=datetime.now().replace(tzinfo=pytz.timezone('Europe/Moscow'))
     ).first()
+
     active_user_discount = UserDiscount.objects.filter(
         user=request_user,
         is_active=True
@@ -86,7 +88,6 @@ def get_user_subscriptions_data(request_user) -> list:
     subscriptions_data: List[dict] = []
 
     for subscription_type in subscriptions_types:
-
         calculated_subscription_values: dict = get_calculated_subscription_values(
             subscription_type,
             current_user_subscription,

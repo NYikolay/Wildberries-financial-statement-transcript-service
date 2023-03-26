@@ -19,10 +19,8 @@ class RoboKassaForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        if IS_TEST_MODE is True:
-            self.fields['IsTest'] = forms.IntegerField(required=False)
-            self.fields['IsTest'].initial = 1
+        self.fields['IsTest'] = forms.IntegerField(required=False)
+        self.fields['IsTest'].initial = 1 if IS_TEST_MODE else 0
 
         for field in self.fields:
             self.fields[field].widget = forms.HiddenInput()

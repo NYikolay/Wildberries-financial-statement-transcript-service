@@ -13,6 +13,7 @@ from reports.forms import SaleReportForm
 from reports.models import GeneralInformationObj, InfoTypes
 from reports.services.execute_generating_report_service import get_full_user_report
 from reports.services.handle_graphs_filter_data import get_period_filter_data
+from users.mixins import SubscriptionRequiredMixin
 
 from users.models import SaleReport, IncorrectReport, UnloadedReports
 

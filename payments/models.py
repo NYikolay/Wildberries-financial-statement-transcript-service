@@ -4,14 +4,14 @@ from django.core import validators
 
 
 class SubscriptionTypes(models.TextChoices):
-    FREE = _('Free')
-    FIRST = _('First')
-    SECOND = _('Second')
-    THIRD = _('Third')
+    TEST = _('Test')
+    START = _('Start')
+    MIDDLE = _('Middle')
+    LONG = _('Long')
 
 
 # !IMPORTANT. When changing DURATION_DESCRIPTION_CHOICES pay
-# attention to the function payments.services.generating_subscribed_to_date
+# attention to the function payments.services.generating_subscribed_to_date and users.views.ConfirmRegistrationView
 DURATION_DESCRIPTION_CHOICES = [
     ('Недели', (
         ('неделя', 'Неделя'),
@@ -40,11 +40,11 @@ class SubscriptionType(models.Model):
     build_in_discount = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
 
     def __str__(self):
-        return f'Подписка. Стоимость: {self.cost}, длительность: {self.duration} {self.duration_desc}'
+        return f'Стоимость: {self.cost}, длительность: {self.duration} {self.duration_desc}'
 
     class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
+        verbose_name = 'Тип подписки'
+        verbose_name_plural = 'Типы подписок'
         ordering = ['cost']
 
 

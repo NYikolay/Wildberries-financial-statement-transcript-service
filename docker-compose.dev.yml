@@ -52,6 +52,23 @@ services:
       - redis
       - db
       - web
+  celery-beat:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: "dev"
+    container_name: commery_celery_beat
+    command: celery -A config beat -l info
+    volumes:
+      - ./:/commery_project/commery_celery
+      - /var/web_logs:/commery_project/logs
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+      - web
+
 
 volumes:
   static_volume:
