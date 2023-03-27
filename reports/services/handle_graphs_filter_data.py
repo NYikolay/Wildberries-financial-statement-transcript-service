@@ -11,4 +11,7 @@ def get_period_filter_data(filter_dict: dict) -> List[dict]:
         new_filter_dict['week_nums'] = list(map(int, filter_dict[dict_values][0].split(',')))
 
         new_filter_list.append(new_filter_dict)
+
     return new_filter_list
+
+

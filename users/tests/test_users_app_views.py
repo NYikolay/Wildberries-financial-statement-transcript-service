@@ -4,7 +4,7 @@ import pytest
 from django.urls import reverse
 
 from users.models import User
-from users.tests.pytest_fixtures import test_password, create_user
+from users.tests.users_pytest_fixtures import test_password, create_user
 
 
 @pytest.mark.django_db

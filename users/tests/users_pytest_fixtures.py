@@ -13,6 +13,11 @@ def test_password():
 
 
 @pytest.fixture
+def test_api_key():
+    return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NJRCI6IjBlNTE5YmEwLWRmMGMtNGY1NC04ZWU2'
+
+
+@pytest.fixture
 def test_subscriptions_data() -> List[tuple]:
 
     subscriptions_data: List[tuple] = [
@@ -324,7 +329,7 @@ def test_sales_with_exception():
             "retail_price_withdisc_rub": 0,
             "delivery_amount": 0,
             "return_amount": 0,
-            "delivery_rub": 0,
+            "delivery_rub": 12,
             "gi_box_type_name": "Без коробов",
             "product_discount_for_report": 30,
             "supplier_promo": 0,
@@ -358,7 +363,7 @@ def test_sales_with_exception():
 def test_invalid_sales():
     sales = [
         {
-            "realizationreport_id": 27982018,
+            "realizationreport_id": 27982011,
             "date_from": "2023-03-06T00:00:00Z",
             "date_to": "2023-03-12T00:00:00Z",
             "create_dt": "2023-03-13T05:51:14Z",
@@ -467,7 +472,61 @@ def test_invalid_sales():
             "additional_payment": 0,
             "srid": "36143466073767957.0.0"
         },
-
+        {
+            "realizationreport_id": 27982018,
+            "date_from": "2023-03-06T00:00:00Z",
+            "date_to": "2023-03-12T00:00:00Z",
+            "create_dt": "2023-03-13T05:51:14Z",
+            "suppliercontract_code": None,
+            "rrd_id": 11597805863,
+            "gi_id": 7997454,
+            "subject_name": "Ботинки",
+            "nm_id": 141371096,
+            "brand_name": None,
+            "sa_name": "К-5023/17К-5023/17",
+            "ts_name": "39",
+            "barcode": "2036379766665",
+            "doc_type_name": "Продажа",
+            "quantity": 1,
+            "retail_price": None,
+            "retail_amount": 123,
+            "sale_percent": 30,
+            "commission_percent": 0.23,
+            "office_name": "Коледино",
+            "supplier_oper_name": "Продажа",
+            "order_dt": "2023-02-28T00:00:00Z",
+            "sale_dt": "2023-03-12T00:00:00Z",
+            "rr_dt": "2023-03-12T00:00:00Z",
+            "shk_id": 6483881955,
+            "retail_price_withdisc_rub": 5250,
+            "delivery_amount": 123,
+            "return_amount": 0,
+            "delivery_rub": 0,
+            "gi_box_type_name": "Без коробов",
+            "product_discount_for_report": 30,
+            "supplier_promo": 0,
+            "rid": 0,
+            "ppvz_spp_prc": 0.1746,
+            "ppvz_kvw_prc_base": 0.1917,
+            "ppvz_kvw_prc": 0.0171,
+            "ppvz_sales_commission": 89.58,
+            "ppvz_for_pay": 4084.84,
+            "ppvz_reward": 176.38,
+            "acquiring_fee": 35.28,
+            "acquiring_bank": "Сбербанк Росси 7707083893",
+            "ppvz_vw": -122.08,
+            "ppvz_vw_nds": -24.42,
+            "ppvz_office_id": 202886,
+            "ppvz_supplier_id": 369039,
+            "ppvz_supplier_name": "ООО \"СОЮЗ\"",
+            "ppvz_inn": "2511117161",
+            "declaration_number": "",
+            "sticker_id": "",
+            "site_country": "RU",
+            "penalty": 0,
+            "additional_payment": 0,
+            "srid": "36143466073767957.0.0"
+        },
     ]
 
     return sales
@@ -488,6 +547,17 @@ def create_user(db, test_password):
 @pytest.fixture()
 def create_api_key(db):
     def make_api_key(**kwargs):
+        kwargs['name'] = 'Тест'
+        kwargs['api_key'] = 'asdasd'
+        kwargs['last_reports_update'] = datetime.now()
+        if 'is_current' not in kwargs:
+            kwargs['is_current'] = False
+        if 'is_wb_data_loaded' not in kwargs:
+            kwargs['is_wb_data_loaded'] = False
+        if 'is_products_loaded' not in kwargs:
+            kwargs['is_products_loaded'] = False
+        if 'is_active_import' not in kwargs:
+            kwargs['is_active_import'] = False
         return WBApiKey.objects.create(**kwargs)
     return make_api_key
 

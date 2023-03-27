@@ -20,7 +20,6 @@ def get_incorrect_reports_lst(sales: list) -> dict:
             continue
 
         if sale_obj_validation_result.get('realizationreport_id') not in invalid_reports.get('realizationreport_ids'):
-
             invalid_reports['realizationreport_ids'].append(sale_obj_validation_result.get('realizationreport_id'))
             invalid_reports['incorrect_reports_data_list'].append(
                 sale_obj_validation_result.get('incorrect_report_data')

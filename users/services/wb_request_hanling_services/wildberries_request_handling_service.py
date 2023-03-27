@@ -38,6 +38,7 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> dic
         headers=headers,
         params=query
     )
+
     data = response.json()
 
     if response.status_code == 401:
@@ -64,7 +65,7 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> dic
     }
 
 
-def get_wb_request_response(wildberries_response, current_api_key) -> dict:
+def get_wildberries_changed_response(wildberries_response, current_api_key) -> dict:
     """
     The function processes and returns a request to Wildberries.
     For lists that are longer than 100.000 objects the logic of deleting last reports is used,
@@ -107,7 +108,7 @@ def get_wildberries_response_data(date_from: str, date_to: str, current_api_key)
     if not response.get('status') or len(response.get('data')) < 100000:
         return response
 
-    changed_response = get_wb_request_response(response, current_api_key)
+    changed_response = get_wildberries_changed_response(response, current_api_key)
 
     return changed_response
 

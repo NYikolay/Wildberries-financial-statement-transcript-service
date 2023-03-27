@@ -10,9 +10,10 @@ def calculate_revenue(
         correct_sales_sum: float,
         storno_returns_sum: float,
         correct_returns_sum: float,
-        marriage_payment_sum,
-        payment_lost_marriage_sum
-):
+        marriage_payment_sum: float,
+        payment_lost_marriage_sum: float
+) -> float:
+
     revenue: float = (
             sales_sum - storno_sales_sum + correct_sales_sum - returns_sum +
             storno_returns_sum - correct_returns_sum + marriage_payment_sum + payment_lost_marriage_sum
@@ -25,8 +26,8 @@ def calculate_sales_quantity(
         sales_quantity_sum: float,
         strono_sales_quantity_sum: float,
         correct_sales_quantity_sum: float,
-        marriage_payment_sum,
-        payment_lost_marriage_sum
+        marriage_payment_sum: float,
+        payment_lost_marriage_sum: float
 ):
     sales_quantity: float = (
             sales_quantity_sum - strono_sales_quantity_sum + correct_sales_quantity_sum +
@@ -42,7 +43,6 @@ def calculate_returns_quantity(
         correct_return_quantity_sum: float
 ):
     returns_quantity: float = (returns_quantity_sum + strono_returns_quantity_sum - correct_return_quantity_sum)
-
     return returns_quantity
 
 
@@ -59,8 +59,8 @@ def calculate_commission(
         commission_correct_sales_sum: float,
         correct_returns_sum: float,
         commission_correct_returns_sum: float,
-        marriage_payment_sum,
-        payment_lost_marriage_sum,
+        marriage_payment_sum: float,
+        payment_lost_marriage_sum: float,
         commission_marriage_payment_sum: float,
         commission_payment_lost_marriage_sum: float
 ):
@@ -75,7 +75,7 @@ def calculate_commission(
     return commission
 
 
-def calculate_logistics(logistic_sum):
+def calculate_logistics(logistic_sum: float):
     return logistic_sum
 
 
@@ -90,8 +90,8 @@ def calculate_tax_value(
         tax_return_sum: float,
         tax_storno_return_sum: float,
         tax_correct_return_sum: float,
-        tax_marriage_payment_sum,
-        tax_payment_lost_marriage_sum
+        tax_marriage_payment_sum: float,
+        tax_payment_lost_marriage_sum: float
 ):
     tax_value: float = (
             tax_sale_sum - tax_storno_sale_sum + tax_correct_sale_sum -
@@ -109,8 +109,8 @@ def calculate_net_costs(
         netcost_return_sum: float,
         net_cost_strono_returns_sum: float,
         net_cost_correct_return_sum: float,
-        net_cost_marriage_payment_sum,
-        net_cost_payment_lost_marriage_sum
+        net_cost_marriage_payment_sum: float,
+        net_cost_payment_lost_marriage_sum: float
 ):
     net_costs: float = (
             netcost_sale_sum - netcost_storno_sale_sum + netcost_correct_sale_sum -

@@ -1,37 +1,36 @@
+import uuid
 from datetime import datetime
 from decimal import Decimal
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from unittest.mock import Mock, patch
 
 from payments.services.generating_subscribed_to_date import get_subscribed_to_date
-from users.models import ClientUniqueProduct, SaleReport
+from users.models import ClientUniqueProduct, SaleReport, UnloadedReports
 from users.services.decrypt_api_key_service import get_decrypted_key
 from users.services.encrypt_api_key_service import get_encrypted_key
 from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
 from users.services.generate_last_report_date_service import get_last_report_date, generate_date_by_months_filter
 from users.services.generate_subscriptions_data_service import get_user_subscriptions_data, \
-    get_calculated_subscription_values, generate_robokassa_form
+    get_calculated_subscription_values
 from users.services.wb_request_hanling_services.generating_incorrect_reports_service import generate_incorrect_reports
 from users.services.wb_request_hanling_services.generating_products_objs_service import generate_user_products
 from users.services.wb_request_hanling_services.generating_sale_objects_service import create_sale_objects
 from users.services.wb_request_hanling_services.generating_unique_articles_service import get_unique_articles
 from users.services.wb_request_hanling_services.generating_unique_reports_service import get_unique_reports
-from users.services.wb_request_hanling_services.generating_user_products_data_service import send_request_for_card_json
 from users.services.wb_request_hanling_services.generating_user_reports_service import generate_reports
-from users.services.wb_request_hanling_services.reports_validation_service import check_sale_obj_validation
-from users.tests.pytest_fixtures import (
+from users.services.wb_request_hanling_services.reports_validation_service import check_sale_obj_validation, \
+    get_incorrect_reports_lst
+from users.services.wb_request_hanling_services.wildberries_request_handling_service import \
+    get_wildberries_changed_response
+from users.tests.users_pytest_fixtures import (
     test_password, test_subscriptions_data, create_user, create_subscription_types, create_user_discount,
     create_user_subscription, create_api_key, create_incorrect_reports, create_client_unique_product, test_products,
-    test_incorrect_reports, test_sales, create_user_report, test_invalid_sales, test_sales_with_exception
+    test_incorrect_reports, test_sales, create_user_report, test_invalid_sales, test_sales_with_exception, test_api_key
 )
 
 import pytest
 from openpyxl import Workbook
-
-
-@pytest.fixture
-def test_api_key():
-    return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NJRCI6IjBlNTE5YmEwLWRmMGMtNGY1NC04ZWU2'
 
 
 @pytest.fixture
@@ -62,7 +61,7 @@ def test_generate_excel_net_costs_example():
     assert type(net_costs_example_result) == Workbook
 
 
-def test_get_last_report_date():
+def test_generate_date_by_months_filter():
     past_months_date = date.today() - relativedelta(months=3)
     first_date_of_month = past_months_date.replace(day=1)
     year = first_date_of_month.year - 1 if first_date_of_month.isocalendar()[1] == 52 else first_date_of_month.year
@@ -75,6 +74,67 @@ def test_get_last_report_date():
     last_report_date_result = generate_date_by_months_filter(3)
 
     assert last_report_date_result == last_report_date_test
+
+
+@pytest.mark.django_db
+def test_get_last_report_date_without_created_reports(create_user, create_api_key, create_incorrect_reports):
+    user = create_user()
+    api_key = create_api_key(user=user)
+
+    past_months_date = date.today() - relativedelta(months=3)
+    first_date_of_month = past_months_date.replace(day=1)
+    year = first_date_of_month.year - 1 if first_date_of_month.isocalendar()[1] == 52 else first_date_of_month.year
+    last_report_date_test = date.fromisocalendar(
+        year,
+        first_date_of_month.isocalendar()[1],
+        1
+    ).strftime('%Y-%m-%d')
+
+    last_report_date = get_last_report_date(api_key)
+
+    assert last_report_date == last_report_date_test
+
+
+@pytest.mark.django_db
+def test_get_last_report_date_with_sale_report(create_user, create_api_key, create_user_report):
+    user = create_user()
+    api_key = create_api_key(user=user, is_wb_data_loaded=True)
+    create_dt = datetime.now()
+
+    create_user_report(
+        api_key=api_key,
+        owner=user,
+        realizationreport_id=28856935,
+        week_num=2,
+        month_num=12,
+        unique_week_uuid=uuid.uuid4(),
+        create_dt=create_dt,
+        date_from=datetime.now(),
+        date_to=datetime.now()
+    )
+
+    last_report_date = get_last_report_date(api_key)
+
+    assert last_report_date == create_dt.strftime('%Y-%m-%d')
+
+
+@pytest.mark.django_db
+def test_get_last_report_date_with_incorrect_report(create_user, create_api_key, create_incorrect_reports):
+    user = create_user()
+    api_key = create_api_key(user=user, is_wb_data_loaded=True)
+    create_dt = datetime.now()
+
+    create_incorrect_reports(
+        api_key=api_key,
+        owner=user,
+        realizationreport_id=28856935,
+        date_from=datetime.now(),
+        date_to=datetime.now()
+    )
+
+    last_report_date = get_last_report_date(api_key)
+
+    assert last_report_date == create_dt.strftime('%Y-%m-%d')
 
 
 @pytest.mark.django_db
@@ -174,16 +234,7 @@ def test_get_calculated_subscription_values_with_additional_data_2(
 @pytest.mark.django_db
 def test_generate_incorrect_reports(create_user, create_api_key, test_incorrect_reports):
     user = create_user()
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
+    api_key = create_api_key(user=user)
 
     generate_incorrect_reports(user, test_incorrect_reports, api_key)
 
@@ -205,16 +256,7 @@ def test_duplicates_generate_incorrect_reports(
         test_incorrect_reports
 ):
     user = create_user()
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
+    api_key = create_api_key(user=user)
 
     for report in test_incorrect_reports:
         create_incorrect_reports(
@@ -239,16 +281,7 @@ def test_deleting_generate_incorrect_reports(
 ):
 
     user = create_user()
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
+    api_key = create_api_key(user=user,)
 
     create_incorrect_reports(
         api_key=api_key,
@@ -266,17 +299,7 @@ def test_deleting_generate_incorrect_reports(
 @pytest.mark.django_db
 def test_generate_user_products(create_user, create_api_key, test_products):
     user = create_user()
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
-
+    api_key = create_api_key(user=user)
     generate_user_products(user, test_products, api_key)
 
     generated_user_products_status = [
@@ -296,16 +319,7 @@ def test_generate_user_products(create_user, create_api_key, test_products):
 @pytest.mark.django_db
 def test_duplicates_generate_user_products(create_user, create_api_key, test_products, create_client_unique_product):
     user = create_user()
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
+    api_key = create_api_key(user=user)
 
     for product in test_products:
         create_client_unique_product(
@@ -331,16 +345,7 @@ def test_create_sale_objects_without_conditions(
 ):
     user = create_user()
 
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
+    api_key = create_api_key(user=user)
 
     for product in test_products:
         create_client_unique_product(
@@ -380,17 +385,7 @@ def test_create_sale_objects_with_conditions(
         create_client_unique_product
 ):
     user = create_user()
-
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
+    api_key = create_api_key(user=user)
 
     for product in test_products:
         create_client_unique_product(
@@ -468,17 +463,7 @@ def test_generate_reports_without_sales(
         create_api_key
 ):
     user = create_user()
-
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
+    api_key = create_api_key(user=user)
 
     generate_reports(
         user,
@@ -497,17 +482,8 @@ def test_generate_reports_with_sales(
         create_client_unique_product
 ):
     user = create_user()
+    api_key = create_api_key(user=user)
 
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
     for product in test_products:
         create_client_unique_product(
             api_key=api_key,
@@ -541,17 +517,8 @@ def test_duplicates_generate_reports(
         create_user_report
 ):
     user = create_user()
+    api_key = create_api_key(user=user)
 
-    api_key = create_api_key(
-        api_key='qweqwesad',
-        name='Тест',
-        user=user,
-        is_current=False,
-        is_wb_data_loaded=False,
-        is_products_loaded=False,
-        is_active_import=False,
-        last_reports_update=datetime.now(),
-    )
     for product in test_products:
         create_client_unique_product(
             api_key=api_key,
@@ -580,13 +547,14 @@ def test_duplicates_generate_reports(
 def test_success_check_sale_obj_validation_without_exception(test_sales):
     success_validation_result = [check_sale_obj_validation(sale) for sale in test_sales]
 
-    assert all(success_validation_result)
+    assert len(list(filter(lambda it: True if it is True else False, success_validation_result
+                           ))) == len(success_validation_result)
 
 
 def test_success_check_sale_obj_validation_with_exception(test_sales_with_exception):
     success_validation_result = [check_sale_obj_validation(sale) for sale in test_sales_with_exception]
 
-    assert success_validation_result is True
+    assert success_validation_result[0] is True
 
 
 def test_fail_check_sale_obj_validation(test_invalid_sales):
@@ -600,6 +568,39 @@ def test_fail_check_sale_obj_validation(test_invalid_sales):
 
     assert all(fail_validation_result)
     assert len(fail_validation_result) == len(test_invalid_sales)
+
+
+def test_get_incorrect_reports_lst_with_correct_sales(test_sales):
+    success_validation_result = get_incorrect_reports_lst(test_sales)
+
+    assert len(success_validation_result['realizationreport_ids']) == 0
+    assert len(success_validation_result['incorrect_reports_data_list']) == \
+           len(success_validation_result['realizationreport_ids'])
+
+
+def test_get_incorrect_reports_lst_with_invalid_sales(test_invalid_sales):
+    success_validation_result = get_incorrect_reports_lst(test_invalid_sales)
+
+    fail_validation_result = []
+
+    for sale, invalid_report_id in zip(test_invalid_sales, success_validation_result.get('realizationreport_ids')):
+        if sale.get("realizationreport_id") == invalid_report_id:
+            fail_validation_result.append(True)
+
+    assert all(fail_validation_result)
+    assert len(success_validation_result['realizationreport_ids']) == 2
+    assert len(success_validation_result['incorrect_reports_data_list']) == \
+           len(success_validation_result['realizationreport_ids'])
+
+
+@pytest.mark.django_db
+def test_get_wildberries_changed_response(create_user, create_api_key, test_sales):
+    user = create_user()
+    api_key = create_api_key(user=user)
+    test_change_response_data = get_wildberries_changed_response({'status': True, "data": test_sales}, api_key)
+
+    assert api_key.unloaded_reports.filter(realizationreport_id=27982078).exists()
+
 
 
 
