@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
-import sys
 from datetime import datetime
 
+from django.dispatch import receiver
 from django.db.models import Q, UniqueConstraint
 from django.db import models
 from django.core import validators
-from django.core.exceptions import ValidationError
+from payments.signals import result_received, fail_payment_signal
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.validators import RegexValidator
@@ -77,6 +77,22 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'Статус покупки подписки'
         verbose_name_plural = 'Статусы покупки подписки'
+
+
+@receiver(result_received)
+def payment_received(sender, **kwargs):
+    order = Order.objects.get(pk=kwargs['InvId'])
+    order.status = 'paid'
+    order.paid_sum = kwargs['OutSum']
+    order.save()
+
+
+@receiver(fail_payment_signal)
+def payment_failed(sender, **kwargs):
+    order = Order.objects.get(pk=kwargs['InvId'])
+    order.status = 'fail'
+    order.paid_sum = kwargs['OutSum']
+    order.save()
 
 
 class UserSubscription(models.Model):

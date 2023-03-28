@@ -51,6 +51,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
 
     brands_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'brand_name')
+
     stocks_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'office_name')
 

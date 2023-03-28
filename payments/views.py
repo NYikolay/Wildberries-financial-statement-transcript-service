@@ -70,6 +70,7 @@ class ReceiveResultView(View):
 
             inv_id, out_sum = form.cleaned_data['InvId'], form.cleaned_data['OutSum']
             notification = SuccessPaymentNotification.objects.create(inv_id=inv_id, out_sum=out_sum)
+
             result_received.send(sender=notification, InvId=inv_id, OutSum=out_sum)
 
             return HttpResponse('OK%s' % inv_id)
@@ -135,7 +136,6 @@ class FailPaymentView(View):
             return redirect('users:profile')
 
         messages.error(request, 'Оплата была отменена.')
-
         return redirect('users:profile')
 
 

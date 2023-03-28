@@ -39,8 +39,6 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> dic
         params=query
     )
 
-    data = response.json()
-
     if response.status_code == 401:
         return {
             'status': False,
@@ -52,6 +50,8 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> dic
             'status': False,
             'message': 'Ошибка при попытке получения данных от Wildberries. Пожалуйста, попробуйте позже.'
         }
+
+    data = response.json()
 
     if not data:
         return {

@@ -1,6 +1,5 @@
 import decimal
 from datetime import datetime
-import pytz
 
 from django.db import transaction
 

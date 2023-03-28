@@ -1,9 +1,6 @@
 import decimal
 import hashlib
 from urllib import parse
-from urllib.parse import urlparse
-
-import requests
 
 from config.settings.base import ROBOKASSA_TARGET_URL
 
@@ -26,9 +23,8 @@ def generate_payment_link(
     **kwargs
 ) -> str:
 
-    sorted_extra_params = sorted([(f'Shp_{key}', value) for key, value in kwargs.items()])
-    final_extra_params_values = {param_name: param_value for param_name, param_value in sorted_extra_params}
-    extra_params_for_signature = [f'{param_name}={param_value}' for param_name, param_value in sorted_extra_params]
+    final_extra_params_values = {f'Shp_{key}': kwargs[key] for key in sorted(kwargs)}
+    extra_params_for_signature = [f'Shp_{key}={kwargs[key]}' for key in sorted(kwargs)]
 
     signature = calculate_signature(
         merchant_login,

@@ -43,11 +43,11 @@ class ResultURLForm(forms.Form):
                 self.cleaned_data['OutSum'],
                 self.cleaned_data['SignatureValue'],
                 ROBOKASSA_PASSWORD2,
-                self.cleaned_data['Shp_discount'],
-                self.cleaned_data['Shp_duration'],
-                self.cleaned_data['Shp_durationdesc'],
-                self.cleaned_data['Shp_type'],
-                self.cleaned_data['Shp_user']
+                discount=self.cleaned_data['Shp_discount'],
+                duration=self.cleaned_data['Shp_duration'],
+                durationdesc=self.cleaned_data['Shp_durationdesc'],
+                type=self.cleaned_data['Shp_type'],
+                user=self.cleaned_data['Shp_user']
             )
 
             if not check_status:
@@ -67,11 +67,11 @@ class SuccessRedirectForm(ResultURLForm):
                 self.cleaned_data['OutSum'],
                 self.cleaned_data['SignatureValue'],
                 ROBOKASSA_PASSWORD1,
-                self.cleaned_data['Shp_discount'],
-                self.cleaned_data['Shp_duration'],
-                self.cleaned_data['Shp_durationdesc'],
-                self.cleaned_data['Shp_type'],
-                self.cleaned_data['Shp_user']
+                discount=self.cleaned_data['Shp_discount'],
+                duration=self.cleaned_data['Shp_duration'],
+                durationdesc=self.cleaned_data['Shp_durationdesc'],
+                type=self.cleaned_data['Shp_type'],
+                user=self.cleaned_data['Shp_user']
             )
 
             if not check_status:

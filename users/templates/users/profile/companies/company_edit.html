@@ -30,6 +30,7 @@
                                 <input
                                         class="shop_name-input {% if api_key_form.name.errors %}invalid_input{% endif %}"
                                         type="text"
+                                        autocomplete="off"
                                         value="{{api_key_form.name.value|default_if_none:''}}"
                                         name="{{api_key_form.name.html_name}}"
                                         maxlength="65"
@@ -46,6 +47,7 @@
                                         name="{{api_key_form.api_key.html_name}}"
                                         cols="3"
                                         rows="2"
+                                        autocomplete="off"
                                         class="api_key-input {% if api_key_form.api_key.errors %}invalid_input{% endif %}"
                                         maxlength="655"
                                         id="{{api_key_form.api_key.id_for_label}}"

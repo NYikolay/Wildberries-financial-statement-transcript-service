@@ -300,7 +300,16 @@ def test_deleting_generate_incorrect_reports(
 def test_generate_user_products(create_user, create_api_key, test_products):
     user = create_user()
     api_key = create_api_key(user=user)
-    generate_user_products(user, test_products, api_key)
+    with patch(
+            'users.services.wb_request_hanling_services.generating_user_products_data_service.send_request_for_card_json',
+            side_effect=[
+                'Носки женские короткие набор белые черные хлопок',
+                'Носки женские короткие набор белые черные хлопок',
+                'Носки женские короткие белые 1 пара',
+                'Носки женские короткие набор белые черные хлопок'
+            ]
+    ):
+        generate_user_products(user, test_products, api_key)
 
     generated_user_products_status = [
         api_key.api_key_products.filter(
@@ -330,7 +339,16 @@ def test_duplicates_generate_user_products(create_user, create_api_key, test_pro
             product_name=product.get("product_name")
         )
 
-    generate_user_products(user, test_products, api_key)
+    with patch(
+            'users.services.wb_request_hanling_services.generating_user_products_data_service.send_request_for_card_json',
+            side_effect=[
+                'Носки женские короткие набор белые черные хлопок',
+                'Носки женские короткие набор белые черные хлопок',
+                'Носки женские короткие белые 1 пара',
+                'Носки женские короткие набор белые черные хлопок'
+            ]
+    ):
+        generate_user_products(user, test_products, api_key)
 
     assert api_key.api_key_products.count() == 4
 
