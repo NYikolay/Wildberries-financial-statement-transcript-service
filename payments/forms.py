@@ -88,6 +88,5 @@ class SuccessRedirectForm(ResultURLForm):
 class FailRedirectForm(forms.Form):
     OutSum = forms.DecimalField(min_value=0, max_digits=15, decimal_places=2)
     InvId = forms.IntegerField(min_value=0)
-    Culture = forms.CharField(max_length=10)
 
 

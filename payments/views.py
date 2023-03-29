@@ -21,10 +21,13 @@ django_logger = logging.getLogger('django_logger')
 
 
 class RedirectToRobokassaView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
     form_class = RoboKassaForm
 
     def post(self, request):
         form = self.form_class(request.POST)
+
         if form.is_valid():
 
             current_order = Order.objects.create(
