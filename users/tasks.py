@@ -1,13 +1,10 @@
-import datetime
 import logging
 
 from django.core.mail import EmailMessage
-from django.db import transaction
 
-from celery import shared_task, app
+from celery import shared_task
 
 from config.settings.base import EMAIL_HOST_USER
-from users.models import UserSubscription, User
 
 celery_logger = logging.getLogger('celery_logger')
 

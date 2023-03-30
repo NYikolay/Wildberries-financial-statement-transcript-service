@@ -1,4 +1,6 @@
+
 import json
+
 from typing import List
 
 from django.db.models import Q
@@ -51,7 +53,6 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
 
     brands_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'brand_name')
-
     stocks_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'office_name')
 
@@ -64,6 +65,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
         'brands_share_in_revenue_dict': json.dumps(brands_share_in_revenue_dict, ensure_ascii=False),
         'stocks_share_in_revenue_dict': json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False)
     }
+
 
 
 

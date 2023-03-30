@@ -1,3 +1,4 @@
+import json
 
 from reports.services.report_generation_services.formula_calculation_service import (
     calculate_marginality,
@@ -24,7 +25,9 @@ def get_calculated_financials_by_products(sales_objects_by_product_figures, reve
         sales_objects_by_product_figures.get('strono_sales_quantity_sum'),
         sales_objects_by_product_figures.get('correct_sales_quantity_sum'),
         sales_objects_by_product_figures.get('marriage_payment_quantity_sum'),
-        sales_objects_by_product_figures.get('payment_lost_marriage_quantity_sum')
+        sales_objects_by_product_figures.get('payment_lost_marriage_quantity_sum'),
+        sales_objects_by_product_figures.get('partial_compensation_marriage_quantity_sum'),
+        sales_objects_by_product_figures.get('advance_payment_goods_without_payment_quantity_sum')
     )
 
     returns_quantity_value: float = calculate_returns_quantity(
@@ -41,7 +44,9 @@ def get_calculated_financials_by_products(sales_objects_by_product_figures, reve
         sales_objects_by_product_figures.get('retail_storno_returns_sum'),
         sales_objects_by_product_figures.get('retail_correct_returns_sum'),
         sales_objects_by_product_figures.get('retail_marriage_payment_sum'),
-        sales_objects_by_product_figures.get('retail_payment_lost_marriage_sum')
+        sales_objects_by_product_figures.get('retail_payment_lost_marriage_sum'),
+        sales_objects_by_product_figures.get('retail_partial_compensation_marriage_sum'),
+        sales_objects_by_product_figures.get('retail_advance_payment_goods_without_payment_sum')
     )
 
     share_in_profits: float = calculate_share_in_revenue(
@@ -57,7 +62,9 @@ def get_calculated_financials_by_products(sales_objects_by_product_figures, reve
         sales_objects_by_product_figures.get('net_cost_strono_returns_sum'),
         sales_objects_by_product_figures.get('net_cost_correct_return_sum'),
         sales_objects_by_product_figures.get('net_cost_marriage_payment_sum'),
-        sales_objects_by_product_figures.get('net_cost_payment_lost_marriage_sum')
+        sales_objects_by_product_figures.get('net_cost_payment_lost_marriage_sum'),
+        sales_objects_by_product_figures.get('net_cost_partial_compensation_marriage_sum'),
+        sales_objects_by_product_figures.get('net_cost_advance_payment_goods_without_payment_sum')
     )
 
     marginality = calculate_marginality(

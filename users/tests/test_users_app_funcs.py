@@ -456,6 +456,21 @@ def test_get_unique_articles():
     assert expected_articles_output == unique_articles
 
 
+def test_get_unique_articles_without_brand_name():
+    articles_input_data = [
+        {"nm_id": 141371096, "brand_name": "Kadiev"},
+        {"nm_id": 141972556, "brand_name": None},
+    ]
+
+    unique_articles = get_unique_articles(articles_input_data)
+
+    expected_articles_output = [
+        {"nm_id": 141371096, "brand": "Kadiev"},
+    ]
+
+    assert expected_articles_output == unique_articles
+
+
 def test_get_unique_reports():
     report_input_data = [
         {"realizationreport_id": 141371096},

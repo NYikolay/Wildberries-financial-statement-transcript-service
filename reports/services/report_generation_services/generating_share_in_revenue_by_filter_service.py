@@ -40,7 +40,7 @@ def get_share_in_revenue(
         current_api_key,
         period_filter_data,
         revenue_total: float,
-        filter_name: str
+        filter_name: str,
 ):
     revenues_list = get_revenue_by_filter(current_user, current_api_key, period_filter_data, filter_name)
 
