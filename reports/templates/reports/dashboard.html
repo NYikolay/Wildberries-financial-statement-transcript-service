@@ -223,9 +223,7 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
         <div class="report_block">
             <div class="report_title-block">
                 <h1 class="report_title">Нарастающий итог</h1>
@@ -341,6 +339,225 @@
                 {% endif %}
             </div>
         </div>
+        <div class="abc-xyz__block">
+            <div class="abc-xyz__graphs-wrapper">
+                <div class="abc-graph__wrapper">
+                    <div class="abc-graph__left">
+                        <p>ABC КЛАССИФИКАЦИЯ ТОВАРОВ</p>
+                        <canvas id="abc" width="190px" height="240px"></canvas>
+                        <div class="abc-graph__left__description">
+                            <div class="group-revenue__wrapper">
+                                <div style="width: 16px; height: 10px; background-color: #ff8364"></div>
+                                <div style="width: 16px; height: 10px; background-color: #dbdbdb"></div>
+                                <div style="width: 16px; height: 10px; background-color: #c0cee0"></div>
+                                <p>Выручка группы</p>
+                            </div>
+                            <div class="scu-count__wrapper">
+                                <div class="sku-count__line"></div>
+                                <p>Количество scu в группе</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="abc-graph__right">
+                        <a href="" class="abc-graph__link" style="color: #ff8364;">как читать гарфик</a>
+                        <div class="abc__info-item" style="border-color: #ff8364; margin-top: 10px;">
+                            <h3 class="abc-info__revenue" style="color: #ff8364">1 427 004</h3>
+                            <h3 class="abc-info__scu">12%</h3>
+                        </div>
+                        <div class="abc__info-item">
+                            <h3 class="abc-info__revenue" style="color: #ccc4c4">278 665</h3>
+                            <h3 class="abc-info__scu">29%</h3>
+                        </div>
+                        <div class="abc__info-item" style="border-color: #c0cee0">
+                            <h3 class="abc-info__revenue" style="color: #c0cee0">99 388</h3>
+                            <h3 class="abc-info__scu">59%</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="abc-xyz-table__wrapper">
+                    <div class="abc-xyz__top">
+                        <p>ABC-XYZ АНАЛИЗ</p>
+                        <a href="" class="abc-graph__link" style="color: #ff8364;">КАК ЧИТАТЬ ГРАФИК</a>
+                    </div>
+                    <div class="abc-xyz__top__designators">
+                        <div style="width: 40px"></div>
+                        <div class="top-designators__item">
+                            <p>X</p>
+                        </div>
+                        <div class="top-designators__item">
+                            <p>Y</p>
+                        </div>
+                        <div class="top-designators__item">
+                            <p>Z</p>
+                        </div>
+                    </div>
+                    <div class="abc-xyz__main">
+                        <div class="abc-xyz__left__designators">
+                            <div class="left-designators__title">
+                                <img src="{% static 'images/iconizer-7387786.svg' %}" alt="" class="abc-xyz__image">
+                                <p>Объёмы продаж</p>
+                            </div>
+                            <div class="left-designators__wrapper">
+                                <div class="left-designator__item">
+                                    <p>A</p>
+                                </div>
+                                <div class="left-designator__item">
+                                    <p>B</p>
+                                </div>
+                                <div class="left-designator__item">
+                                    <p>C</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__wrapper">
+                            <div class="abc-xyz__content__info__item">
+                                <h3>ВЫСОКИЕ СТАБИЛЬНЫЕ ПРОДАЖИ</h3>
+                                <p>0</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #ffd8cc">
+                                <h3>Высокие продажи, незначительные колебания спроса</h3>
+                                <p>0</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #f2f2f2">
+                                <h3>ВЫСОКИЕ ПРОДАЖИ, ЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                                <p>1 427 007</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #ffd8cc">
+                                <h3>СРЕДНИЕ СТАБИЛЬНЫЕ ПРОДАЖИ</h3>
+                                <p>0</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #f2f2f2">
+                                <h3>СРЕДНИЕ ПРОДАЖИ, НЕЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                                <p>0</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #dfe5ed">
+                                <h3>СРЕДНИЕ ПРОДАЖИ, ЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                                <p>278 665</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #f2f2f2">
+                                <h3>НИЗКИЕ СТАБИЛЬНЫЕ ПРОДАЖИ</h3>
+                                <p>0</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #dfe5ed">
+                                <h3>НИЗКИЕ ПРОДАЖИ, НЕЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                                <p>0</p>
+                                <div class="item__evaluation">
+                                    <div class="cross"></div>
+                                    <div class="cross"></div>
+                                </div>
+                            </div>
+                            <div class="abc-xyz__content__info__item" style="background-color: #c0cee0">
+                                <h3>НИЗКИЕ ПРОДАЖИ, ЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                                <p>99 388</p>
+                                <div class="item__evaluation">
+                                    <div class="minus"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="abc-xyz__footer__info">
+                        <h3>Неопределённость</h3>
+                        <img src="{% static 'images/iconizer-7387786.svg' %}" alt="" class="abc-xyz__image">
+                    </div>
+                    <div class="abc-xyz__footer">
+                        <p>Выручка, руб.</p>
+                        <span><div class="cross"></div>Рекомендации по управлению остатками</span>
+                    </div>
+                </div>
+            </div>
+            <div class="abc-xyz__products__wrapper">
+                <div class="filter-dropdown_wrapper">
+                    <button type="button" class="graphs-dropbtn" id="graphs-dropbtn">
+                        <img src="{% static 'images/iconizer-5632732.svg' %}" alt="" style="height: 17px; width: 17px;">
+                        Группа: AX
+                        <img src="/static/images/iconizer-32195.svg" alt="" style="height: 8px; width: 8px;">
+                    </button>
+                    <div class="filter-dropdown_content">
+                        <label class="graphs-filter_label">
+                            <input type="checkbox" checked="" class="filter_checkbox" id="all-checkbox">
+                            <span></span>
+                            <p>Всё время</p>
+                        </label>
+                        <label class="graphs-filter_label">
+                            <input type="checkbox" checked="" class="filter_checkbox" id="period-checkbox" data-filter-week="12" data-filter-year="2023">
+                            <span></span>
+                            <p>12 неделя (20.03.2023-26.03.2023)</p>
+                        </label>
+                        <button type="button" class="apply-graphs-filter_btn">Применить</button>
+                    </div>
+                </div>
+                <div class="abc-xyz__products__report-wrapper">
+                    <div class="products_block-filters">
+                        <div class="plug"></div>
+                        <div class="products_filter-item">
+                            <div class="text-wrapper">
+                                <p>Выручка</p>
+                            </div>
+                        </div>
+                        <div class="products_filter-item">
+                            <div class="text-wrapper">
+                                <p>Маржинальность</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="products_block" id="products_block2">
+                        <div class="product_item">
+                            <img class="product_img" src="https://basket-04.wb.ru/vol518/part51897/51897113/images/tm/1.jpg" alt="">
+                            <div class="text-wrapper">
+                                <p class="product_statistic">1 235 538</p>
+                            </div>
+                            <div class="text-wrapper">
+                                <p class="product_statistic">72%</p>
+                            </div>
+                        </div>
+                        <p class="barcode">Артикул: 12</p>
+                        <div class="product_item">
+                            <img class="product_img" src="https://basket-04.wb.ru/vol518/part51897/51897113/images/tm/1.jpg" alt="">
+                            <div class="text-wrapper">
+                                <p class="product_statistic">1 235 538</p>
+                            </div>
+                            <div class="text-wrapper">
+                                <p class="product_statistic">72%</p>
+                            </div>
+                        </div>
+                        <p class="barcode">Артикул: 12</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="products_list-block">
             <div class="products_block-filters">
                 <div class="plug"></div>
@@ -382,7 +599,7 @@
     </div>
 </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'reports/js/dashboard_products.js' %}"></script>
 <script src="{% static 'reports/js/dashboard.js' %}"></script>
 <script src="{% static 'reports/js/graphs_filtering.js' %}"></script>

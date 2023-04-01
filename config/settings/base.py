@@ -3,8 +3,6 @@ import environ
 
 from pathlib import Path
 
-from pythonjsonlogger.jsonlogger import JsonFormatter
-
 from config.json_logging_formatters import CustomJsonFormatter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -85,7 +83,7 @@ DATABASES = {
         'USER': env("DB_USER"),
         'PASSWORD': env("DB_PASSWORD"),
         'HOST': env("DB_HOST"),
-        'PORT': 5432
+        'PORT': env("DB_PORT")
     }
 }
 
@@ -164,7 +162,7 @@ ROBOKASSA_PASSWORD1 = env("ROBOKASSA_PASSWORD1")
 ROBOKASSA_PASSWORD2 = env("ROBOKASSA_PASSWORD2")
 IS_TEST_MODE = True
 ROBOKASSA_TARGET_URL = 'https://auth.robokassa.ru/Merchant/Index.aspx'
-ROBOKASSA_CULTURE = 'ru'
+ROBOKASSA_CULTURE = env("ROBOKASSA_CULTURE")
 
 
 # LOGGING
