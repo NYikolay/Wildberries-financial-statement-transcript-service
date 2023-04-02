@@ -10,6 +10,7 @@ from payments.forms import RoboKassaForm, ResultURLForm, SuccessRedirectForm, Fa
 from payments.models import SuccessPaymentNotification, FailPaymentNotification
 from payments.services.create_user_subscription_service import create_user_subscription
 from payments.signals import result_received, fail_payment_signal
+from support.tasks import send_user_report_to_chat
 from users.models import Order, User
 from payments.services.generating_redirect_link import generate_payment_link
 
@@ -110,7 +111,8 @@ class SuccessPaymentView(View):
                     'Оплата не удалась. Пожалуйста, свяжитесь со службой поддержки.'
                 )
                 return redirect('users:profile')
-
+            send_user_report_to_chat.delay(F'Оплата подписки пользователем - {current_user.email} '
+                                           F'на сумму {form.cleaned_data["OutSum"]} руб.')
             messages.success(request, 'Оплата прошла успешно.')
             return redirect('users:profile')
 
