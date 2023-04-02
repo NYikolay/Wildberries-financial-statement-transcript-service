@@ -1,5 +1,4 @@
 from users.models import WBApiKey, ClientUniqueProduct, SaleReport
-from django.db.models import Q
 
 
 def current_user_api_key(request):

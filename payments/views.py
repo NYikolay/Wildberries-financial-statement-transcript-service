@@ -58,7 +58,7 @@ class RedirectToRobokassaView(LoginRequiredMixin, View):
         )
         messages.error(
             request,
-            'Невозможно сформировать ссылку на оплату. Пожалуйста, повторите попытку или обратитесь в службу поддержки.'
+            'Невозможно сформировать ссылку на оплату. Пожалуйста, повторите попытку или обратитесь в службу поддержки'
         )
         return redirect('users:profile')
 
@@ -108,17 +108,17 @@ class SuccessPaymentView(View):
                 )
                 messages.error(
                     request,
-                    'Оплата не удалась. Пожалуйста, свяжитесь со службой поддержки.'
+                    'Оплата не удалась. Пожалуйста, свяжитесь со службой поддержки'
                 )
                 return redirect('users:profile')
             send_user_report_to_chat.delay(F'Оплата подписки пользователем - {current_user.email} '
                                            F'на сумму {form.cleaned_data["OutSum"]} руб.')
-            messages.success(request, 'Оплата прошла успешно.')
+            messages.success(request, 'Оплата прошла успешно')
             return redirect('users:profile')
 
         messages.error(
             request,
-            'Оплата не удалась. Если средства были списаны, пожалуйста, свяжитесь со службой поддержки.'
+            'Оплата не удалась. Если средства были списаны, пожалуйста, свяжитесь со службой поддержки'
         )
 
         return redirect('users:profile')
@@ -137,10 +137,10 @@ class FailPaymentView(View):
             notification = FailPaymentNotification.objects.create(inv_id=inv_id, out_sum=out_sum)
             fail_payment_signal.send(sender=notification, InvId=inv_id, OutSum=out_sum)
 
-            messages.error(request, 'Оплата была отменена.')
+            messages.error(request, 'Оплата была отменена')
             return redirect('users:profile')
 
-        messages.error(request, 'Оплата была отменена.')
+        messages.error(request, 'Оплата была отменена')
         return redirect('users:profile')
 
 

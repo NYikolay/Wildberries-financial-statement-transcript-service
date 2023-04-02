@@ -205,7 +205,7 @@ def test_success_payment_view(
     assert response.status_code == 302
     assert UserSubscription.objects.filter(user=user).exists()
     assert response['Location'] == reverse('users:profile')
-    assert messages[0].message == 'Оплата прошла успешно.'
+    assert messages[0].message == 'Оплата прошла успешно'
 
 
 @pytest.mark.django_db
@@ -226,7 +226,7 @@ def test_success_payment_view_fail_form(
     assert UserSubscription.objects.count() == 0
     assert response['Location'] == reverse('users:profile')
     assert messages[0].message == 'Оплата не удалась. Если средства были списаны, ' \
-                                  'пожалуйста, свяжитесь со службой поддержки.'
+                                  'пожалуйста, свяжитесь со службой поддержки'
 
 
 @pytest.mark.django_db
@@ -270,7 +270,7 @@ def test_success_payment_view_fail_signature(
     assert UserSubscription.objects.count() == 0
     assert response['Location'] == reverse('users:profile')
     assert messages[0].message == 'Оплата не удалась. Если средства были списаны, ' \
-                                  'пожалуйста, свяжитесь со службой поддержки.'
+                                  'пожалуйста, свяжитесь со службой поддержки'
 
 
 @pytest.mark.django_db
@@ -295,7 +295,7 @@ def test_fail_payment_view(client, create_order):
     assert response['Location'] == reverse('users:profile')
     assert FailPaymentNotification.objects.filter(inv_id=order.id).exists()
     assert Order.objects.get(id=order.id).status == 'fail'
-    assert messages[0].message == 'Оплата была отменена.'
+    assert messages[0].message == 'Оплата была отменена'
 
 
 @pytest.mark.django_db
@@ -314,5 +314,5 @@ def test_fail_payment_view_fail_form(client):
     messages = list(get_messages(response.wsgi_request))
     assert response['Location'] == reverse('users:profile')
     assert FailPaymentNotification.objects.count() == 0
-    assert messages[0].message == 'Оплата была отменена.'
+    assert messages[0].message == 'Оплата была отменена'
 

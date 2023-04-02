@@ -6,13 +6,6 @@ from django.conf.urls.static import static
 import debug_toolbar
 
 from django_otp.admin import OTPAdminSite
-from django_otp.plugins.otp_totp.models import TOTPDevice
-
-from users.models import User
-
-
-class OTPAdmin(OTPAdminSite):
-    pass
 
 
 admin.site.__class__ = OTPAdminSite

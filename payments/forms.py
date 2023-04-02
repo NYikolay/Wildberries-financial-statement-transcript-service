@@ -9,8 +9,8 @@ from payments.services.check_signature_result import check_signature_result
 class RoboKassaForm(forms.Form):
     OutSum = forms.DecimalField(min_value=0, max_digits=15, decimal_places=2, required=True)
     Description = forms.CharField(max_length=100, required=True)
-    CustomerEmail = forms.CharField(max_length=100, required=True)
-    UserEmail = forms.CharField(max_length=100, required=True)
+    CustomerEmail = forms.EmailField(max_length=100, required=True)
+    UserEmail = forms.EmailField(max_length=100, required=True)
     Culture = forms.CharField(max_length=10, initial=ROBOKASSA_CULTURE)
     SubscriptionType = forms.ChoiceField(choices=SubscriptionTypes.choices)
     Discount = forms.DecimalField(min_value=0, max_digits=4, decimal_places=2)

@@ -14,7 +14,6 @@ from reports.forms import SaleReportForm
 from reports.models import GeneralInformationObj, InfoTypes
 from reports.services.execute_generating_report_service import get_full_user_report
 from reports.services.handle_graphs_filter_data import get_period_filter_data
-from users.mixins import SubscriptionRequiredMixin
 
 from users.models import SaleReport, IncorrectReport, UnloadedReports
 
@@ -38,7 +37,7 @@ class DashboardView(LoginRequiredMixin, View):
                 f'Unable to filter data by period in the report for the user- {request.user.email}',
                 exc_info=err
             )
-            messages.error(request, 'Ошибка фильтрации периода.')
+            messages.error(request, 'Ошибка фильтрации периода')
             return redirect('reports:dashboard')
 
         incorrect_reports_ids = IncorrectReport.objects.filter(
@@ -63,7 +62,7 @@ class DashboardView(LoginRequiredMixin, View):
                 exc_info=err
             )
             messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
-                                    'Пожалуйста, свяжитесь со службой поддержки.')
+                                    'Пожалуйста, свяжитесь со службой поддержки')
             return redirect('users:profile')
 
         context = {
@@ -147,7 +146,7 @@ class ReportDetailView(LoginRequiredMixin, View):
 
         messages.error(
             request,
-            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10.')
+            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10')
 
         context = {
             'create_dt_list': SaleReport.objects.filter(
@@ -167,9 +166,8 @@ class EmptyReportsView(LoginRequiredMixin, View):
         current_api_key = request.user.keys.filter(is_current=True).first()
 
         if current_api_key and current_api_key.is_wb_data_loaded:
-            return redirect('reports:report_detail', create_dt=SaleReport.objects.filter(
-                api_key__is_current=True,
-                api_key__user=request.user
-            ).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d'))
+            return redirect(
+                'reports:report_detail', create_dt=SaleReport.objects.filter(
+                    api_key=current_api_key).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d'))
 
         return render(request, 'reports/empty_reports.html')
