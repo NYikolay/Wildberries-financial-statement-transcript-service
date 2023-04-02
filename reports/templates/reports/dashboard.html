@@ -51,6 +51,50 @@
                             <button type="button" class="apply-graphs-filter_btn">Применить</button>
                         </div>
                     </div>
+                    <div class="filter-dropdown_wrapper">
+                        <button class="graphs-dropbtn" id="graphs-dropbtn">
+                            <img src="{% static 'images/iconizer-7387786.svg' %}" alt="" style="height: 15px; width: 15px;">
+                            {% if not current_filter_data %}
+                            Категория: все
+                            {% else %}
+                            Категория: пользовательский
+                            {% endif %}
+                            <img src="{% static 'images/iconizer-32195.svg' %}" alt="" style="height: 8px; width: 8px;">
+                        </button>
+                        <div class="filter-dropdown_content">
+                            <label class="graphs-filter_label">
+                                <input
+                                        type="checkbox"
+                                        checked
+                                        class="filter_checkbox"
+                                        id="all-checkbox">
+                                <span></span>
+                                <p>Всё время</p>
+                            </label>
+                            {% for filter_date in filter_dates_data %}
+                            <label class="graphs-filter_label">
+                                <input
+                                        type="checkbox"
+                                        {% if current_filter_data %}
+                                        {% for filter_dict in current_filter_data %}
+                                        {% if filter_date.year == filter_dict.year and filter_date.week_num in filter_dict.week_nums %}
+                                        checked
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% else %}
+                                        checked
+                                        {% endif %}
+                                        class="filter_checkbox"
+                                        id="period-checkbox"
+                                        data-filter-week="{{ filter_date.week_num }}"
+                                        data-filter-year="{{ filter_date.year }}">
+                                <span></span>
+                                <p>{{ filter_date.week_num }} неделя ({{ filter_date.date_from|date:'d.m.Y'}}-{{filter_date.date_to|date:'d.m.Y'}})</p>
+                            </label>
+                            {% endfor %}
+                            <button type="button" class="apply-graphs-filter_btn">Применить</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="graphs-bar-wrap">
                     <div class="graphs-bar">
