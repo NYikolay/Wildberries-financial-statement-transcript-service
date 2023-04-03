@@ -116,7 +116,7 @@ class ReceiveResultView(View):
 
             return HttpResponse('OK%s' % inv_id)
         django_logger.critical(
-            f'Subscription was not created for a user - {request.user.email}. Error: {form.errors}',
+            f'Subscription was not created. Error: {form.errors}',
         )
         return HttpResponse('error: bad signature')
 
