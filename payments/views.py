@@ -1,6 +1,6 @@
 import logging
 
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
@@ -26,35 +26,49 @@ class RedirectToRobokassaView(LoginRequiredMixin, View):
     redirect_field_name = 'login'
     form_class = RoboKassaForm
 
+    def get(self):
+        return HttpResponse('Method not allowed')
+
     def post(self, request):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-
             current_order = Order.objects.create(
                 user=request.user
             )
 
-            target_link = generate_payment_link(
-                ROBOKASSA_MERCHANT_LOGIN,
-                ROBOKASSA_PASSWORD1,
-                form.cleaned_data['OutSum'],
-                form.cleaned_data['Description'],
-                form.cleaned_data['IsTest'],
-                form.cleaned_data['CustomerEmail'],
-                form.cleaned_data['Culture'],
-                current_order.id,
-                user=form.cleaned_data['UserEmail'],
-                type=form.cleaned_data['SubscriptionType'],
-                discount=form.cleaned_data['Discount'],
-                duration=form.cleaned_data['Duration'],
-                durationdesc=form.cleaned_data['DurationDescription']
-            )
+            try:
+                target_link = generate_payment_link(
+                    ROBOKASSA_MERCHANT_LOGIN,
+                    ROBOKASSA_PASSWORD1,
+                    form.cleaned_data['OutSum'],
+                    form.cleaned_data['Description'],
+                    form.cleaned_data['IsTest'],
+                    form.cleaned_data['CustomerEmail'],
+                    form.cleaned_data['Culture'],
+                    current_order.id,
+                    form.cleaned_data['Receipt'],
+                    user=form.cleaned_data['UserEmail'],
+                    type=form.cleaned_data['SubscriptionType'],
+                    discount=form.cleaned_data['Discount'],
+                    duration=form.cleaned_data['Duration'],
+                    durationdesc=form.cleaned_data['DurationDescription']
+                )
+            except Exception as err:
+                django_logger.error(
+                    f'Unable to generate a payment link for a user - {request.user.email}. Errors - {form.errors}',
+                    exc_info=err)
+                messages.error(
+                    request,
+                    'Невозможно сформировать ссылку на оплату. '
+                    'Пожалуйста, повторите попытку или обратитесь в службу поддержки'
+                )
+                return redirect('users:profile')
 
             return redirect(target_link)
 
         django_logger.error(
-            f'Unable to generate a payment link for a user - {request.user.email}.'
+            f'Unable to generate a payment link for a user - {request.user.email}. Errors - {form.errors}'
         )
         messages.error(
             request,
@@ -67,24 +81,8 @@ class RedirectToRobokassaView(LoginRequiredMixin, View):
 class ReceiveResultView(View):
     form_class = ResultURLForm
 
-    def post(self, request):
-        form = self.form_class(request.POST)
-
-        if form.is_valid():
-
-            inv_id, out_sum = form.cleaned_data['InvId'], form.cleaned_data['OutSum']
-            notification = SuccessPaymentNotification.objects.create(inv_id=inv_id, out_sum=out_sum)
-
-            result_received.send(sender=notification, InvId=inv_id, OutSum=out_sum)
-
-            return HttpResponse('OK%s' % inv_id)
-
-        return HttpResponse('error: bad signature')
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class SuccessPaymentView(View):
-    form_class = SuccessRedirectForm
+    def get(self):
+        return HttpResponse('Method not allowed')
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -101,32 +99,53 @@ class SuccessPaymentView(View):
                     form.cleaned_data['Shp_durationdesc'],
                     form.cleaned_data['Shp_discount']
                 )
+                send_user_report_to_chat.delay(F'Оплата подписки пользователем - {current_user.email} '
+                                               F'на сумму {form.cleaned_data["OutSum"]} руб.')
             except Exception as err:
                 django_logger.critical(
                     f'Subscription was not created for a user - {request.user.email}.',
                     exc_info=err
                 )
-                messages.error(
-                    request,
-                    'Оплата не удалась. Пожалуйста, свяжитесь со службой поддержки'
-                )
-                return redirect('users:profile')
-            send_user_report_to_chat.delay(F'Оплата подписки пользователем - {current_user.email} '
-                                           F'на сумму {form.cleaned_data["OutSum"]} руб.')
+                send_user_report_to_chat.delay(F'ОШИБКА!!!!! Оплата подписки пользователем - '
+                                               F'{form.cleaned_data["Shp_user"]} '
+                                               F'на сумму {form.cleaned_data["OutSum"]} руб.')
+
+            inv_id, out_sum = form.cleaned_data['InvId'], form.cleaned_data['OutSum']
+            notification = SuccessPaymentNotification.objects.create(inv_id=inv_id, out_sum=out_sum)
+            result_received.send(sender=notification, InvId=inv_id, OutSum=out_sum)
+
+            return HttpResponse('OK%s' % inv_id)
+
+        return HttpResponse('error: bad signature')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SuccessPaymentView(View):
+    form_class = SuccessRedirectForm
+
+    def get(self):
+        return HttpResponse('Method not allowed')
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
             messages.success(request, 'Оплата прошла успешно')
             return redirect('users:profile')
 
         messages.error(
             request,
-            'Оплата не удалась. Если средства были списаны, пожалуйста, свяжитесь со службой поддержки'
+            'Оплата прошла успешно. В случае возникновения ошибок обратитесь в службу поддержки'
         )
-
         return redirect('users:profile')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FailPaymentView(View):
     form_class = FailRedirectForm
+
+    def get(self):
+        return HttpResponse('Method not allowed')
 
     def post(self, request):
         form = self.form_class(request.POST)

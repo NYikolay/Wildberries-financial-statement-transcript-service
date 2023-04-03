@@ -17,7 +17,8 @@ admin.site.register(UserDiscount)
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'date_joined')
-    list_display = ('email', 'date_joined')
+    search_fields = ['email']
+    list_display = ('email', 'date_joined', 'phone')
 
 
 @admin.register(Order)
@@ -53,13 +54,14 @@ class ClientUniqueProductAdmin(admin.ModelAdmin):
 
 @admin.register(SaleReport)
 class SaleReportAdmin(admin.ModelAdmin):
-    list_filter = ('owner',)
+    search_fields = ['owner__email']
     list_display = ('owner', 'realizationreport_id', 'create_dt', 'week_num')
 
 
 @admin.register(UserSubscription)
 class UserSubscriptionAdmin(admin.ModelAdmin):
-    list_filter = ('user', 'subscription_type', )
+    list_filter = ('subscription_type', )
+    search_fields = ['user__email']
     list_display = ('__str__', 'subscription_type', 'subscribed_from', 'subscribed_to', 'is_active')
 
     def is_active(self, obj):

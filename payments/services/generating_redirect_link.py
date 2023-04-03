@@ -20,16 +20,20 @@ def generate_payment_link(
     customer_email: str,
     culture: str,
     inv_id: int,
+    receipt,
     **kwargs
 ) -> str:
 
     final_extra_params_values = {f'Shp_{key}': kwargs[key] for key in sorted(kwargs)}
     extra_params_for_signature = [f'Shp_{key}={kwargs[key]}' for key in sorted(kwargs)]
 
+    url_encoded_receipt = parse.quote(receipt)
+
     signature = calculate_signature(
         merchant_login,
         cost,
         inv_id,
+        url_encoded_receipt,
         merchant_password_1,
         *extra_params_for_signature
     )
@@ -38,6 +42,7 @@ def generate_payment_link(
         'MerchantLogin': merchant_login,
         'OutSum': cost,
         'InvId': inv_id,
+        'Receipt': url_encoded_receipt,
         'Description': description,
         'SignatureValue': signature,
         'IsTest': is_test,

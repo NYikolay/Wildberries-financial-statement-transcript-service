@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from django.urls import reverse
@@ -6,7 +8,7 @@ from django.contrib.messages import get_messages
 from config.settings.base import ROBOKASSA_TARGET_URL
 from payments.models import SubscriptionTypes, SuccessPaymentNotification, FailPaymentNotification
 from payments.tests.payments_pytest_fixtures import (
-    test_redirect_to_robokassa_view_data, create_order, create_success_payment_notification
+    test_redirect_to_robokassa_view_data, create_order, create_success_payment_notification, test_receipt_json
 )
 from users.models import UserSubscription, Order
 from users.tests.users_pytest_fixtures import (create_user,
@@ -16,7 +18,7 @@ from users.tests.users_pytest_fixtures import (create_user,
 
 
 @pytest.mark.django_db
-def test_redirect_to_robokassa_view(client, create_user, test_redirect_to_robokassa_view_data):
+def test_redirect_to_robokassa_view(client, create_user, test_redirect_to_robokassa_view_data, test_receipt_json):
     """
     The test checks if the RedirectToRobokassaView view is valid when the data is transferred correctly.
     :param client:
@@ -62,7 +64,12 @@ def test_fail_form_errors_redirect_to_robokassa_view(client, create_user):
 
 
 @pytest.mark.django_db
-def test_fail_not_authorized_redirect_to_robokassa_view(client, create_user, test_redirect_to_robokassa_view_data):
+def test_fail_not_authorized_redirect_to_robokassa_view(
+        client,
+        create_user,
+        test_redirect_to_robokassa_view_data,
+        test_receipt_json
+):
     """
     The test checks the behavior of the RedirectToRobokassaView view
     when an unauthorized user tries to make a post request
@@ -84,7 +91,13 @@ def test_fail_not_authorized_redirect_to_robokassa_view(client, create_user, tes
 
 
 @pytest.mark.django_db
-def test_receive_result_view(client, create_order):
+def test_receive_result_view(
+        client,
+        create_user,
+        create_order,
+        create_success_payment_notification,
+        create_subscription_types
+):
     """
     The test checks if the data of ReceiveResultView view is processed correctly with valid data.
     SignatureValue result of calculate_signature function (payments.services.generating_redirect_link),
@@ -94,8 +107,10 @@ def test_receive_result_view(client, create_order):
     :return:
     """
     url = reverse('payments:payment_result')
+    user = create_user()
     order = create_order(paid_sum=4200, status="proceed")
-
+    notification = create_success_payment_notification(inv_id=order.id, out_sum=4200)
+    sub_types = create_subscription_types
     data = {
         "OutSum": 4200,
         "InvId": order.id,
@@ -109,6 +124,7 @@ def test_receive_result_view(client, create_order):
 
     response = client.post(url, data)
 
+    assert UserSubscription.objects.filter(user=user).exists()
     assert response.status_code == 200
     assert SuccessPaymentNotification.objects.filter(out_sum=4200).exists()
     assert Order.objects.get(id=order.id).status == 'paid'
@@ -203,7 +219,6 @@ def test_success_payment_view(
     response = client.post(url, data)
     messages = list(get_messages(response.wsgi_request))
     assert response.status_code == 302
-    assert UserSubscription.objects.filter(user=user).exists()
     assert response['Location'] == reverse('users:profile')
     assert messages[0].message == 'Оплата прошла успешно'
 
@@ -223,10 +238,8 @@ def test_success_payment_view_fail_form(
     response = client.post(url, data)
     messages = list(get_messages(response.wsgi_request))
     assert response.status_code == 302
-    assert UserSubscription.objects.count() == 0
     assert response['Location'] == reverse('users:profile')
-    assert messages[0].message == 'Оплата не удалась. Если средства были списаны, ' \
-                                  'пожалуйста, свяжитесь со службой поддержки'
+    assert messages[0].message == 'Оплата прошла успешно. В случае возникновения ошибок обратитесь в службу поддержки'
 
 
 @pytest.mark.django_db
@@ -267,10 +280,8 @@ def test_success_payment_view_fail_signature(
 
     messages = list(get_messages(response.wsgi_request))
     assert response.status_code == 302
-    assert UserSubscription.objects.count() == 0
     assert response['Location'] == reverse('users:profile')
-    assert messages[0].message == 'Оплата не удалась. Если средства были списаны, ' \
-                                  'пожалуйста, свяжитесь со службой поддержки'
+    assert messages[0].message == 'Оплата прошла успешно. В случае возникновения ошибок обратитесь в службу поддержки'
 
 
 @pytest.mark.django_db

@@ -1,3 +1,4 @@
+import json
 from typing import List
 from datetime import datetime
 import pytz
@@ -15,11 +16,25 @@ def generate_robokassa_form(
         subscription_type,
         discount
 ):
+    receipt_json = {
+        "items": [
+            {
+                "name": f"Оплата информационно-аналитических и консалтинговых услуг на портале сервиса commery.ru "
+                        f"за {duration} {duration_desc.lower()}",
+                "quantity": duration,
+                "sum": cost,
+                "payment_method": "full_payment",
+                "tax": "none"
+            }
+        ]
+    }
+
     desc_text = f'Оплата подписки Commery.ru на срок {duration} {duration_desc}'
     return RoboKassaForm(initial={
         'Description': desc_text,
         'OutSum': cost,
         'CustomerEmail': request_user.email,
+        'Receipt': json.dumps(receipt_json, ensure_ascii=False),
         'UserEmail': request_user.email,
         'SubscriptionType': subscription_type,
         'Discount': discount,

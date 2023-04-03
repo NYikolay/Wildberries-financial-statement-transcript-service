@@ -59,7 +59,7 @@ class SuccessPaymentNotification(models.Model):
         verbose_name_plural = 'Уведомления об успешных платежах'
 
     def __str__(self):
-        return '#{}: {} ({})'.format(self.inv_id, self.out_sum, self.created_at)
+        return 'Номер - {}, сумма - {} ({})'.format(self.inv_id, self.out_sum, self.created_at)
 
 
 class FailPaymentNotification(models.Model):
@@ -73,7 +73,7 @@ class FailPaymentNotification(models.Model):
         verbose_name_plural = 'Уведомления об отменённых платежах'
 
     def __str__(self):
-        return '#{}: {} ({})'.format(self.inv_id, self.out_sum, self.created_at)
+        return 'Номер - {}, сумма - {} ({})'.format(self.inv_id, self.out_sum, self.created_at)
 
 
 
