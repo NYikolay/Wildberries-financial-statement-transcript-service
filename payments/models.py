@@ -36,7 +36,7 @@ class SubscriptionType(models.Model):
         max_length=10,
         choices=DURATION_DESCRIPTION_CHOICES
     )
-    cost = models.DecimalField('Стоимость подписки', max_digits=15, decimal_places=2)
+    cost = models.DecimalField('Стоимость подписки', max_digits=13, decimal_places=7)
     build_in_discount = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
 
     def __str__(self):
@@ -50,7 +50,7 @@ class SubscriptionType(models.Model):
 
 class SuccessPaymentNotification(models.Model):
     inv_id = models.IntegerField('Номер успешного заказа', db_index=True)
-    out_sum = models.DecimalField('Стоимость подписки', max_digits=15, decimal_places=2)
+    out_sum = models.DecimalField('Стоимость подписки', max_digits=13, decimal_places=7)
 
     created_at = models.DateTimeField('Дата и время получения уведомления', auto_now_add=True)
 
@@ -64,7 +64,7 @@ class SuccessPaymentNotification(models.Model):
 
 class FailPaymentNotification(models.Model):
     inv_id = models.IntegerField('Номер отмененного заказа', db_index=True)
-    out_sum = models.DecimalField('Стоимость подписки', max_digits=15, decimal_places=2)
+    out_sum = models.DecimalField('Стоимость подписки', max_digits=13, decimal_places=7)
 
     created_at = models.DateTimeField('Дата и время получения уведомления', auto_now_add=True)
 

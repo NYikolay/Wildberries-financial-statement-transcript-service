@@ -27,7 +27,7 @@ class RedirectToRobokassaView(LoginRequiredMixin, View):
     form_class = RoboKassaForm
 
     def get(self):
-        return HttpResponse('Method not allowed')
+        return redirect('users:profile')
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -82,7 +82,7 @@ class ReceiveResultView(View):
     form_class = ResultURLForm
 
     def get(self):
-        return HttpResponse('Method not allowed')
+        return redirect('users:profile')
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -126,7 +126,7 @@ class SuccessPaymentView(View):
     form_class = SuccessRedirectForm
 
     def get(self):
-        return HttpResponse('Method not allowed')
+        return redirect('users:profile')
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -147,7 +147,7 @@ class FailPaymentView(View):
     form_class = FailRedirectForm
 
     def get(self):
-        return HttpResponse('Method not allowed')
+        return redirect('users:profile')
 
     def post(self, request):
         form = self.form_class(request.POST)

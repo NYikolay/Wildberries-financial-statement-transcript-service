@@ -7,7 +7,7 @@ from payments.services.check_signature_result import check_signature_result
 
 
 class RoboKassaForm(forms.Form):
-    OutSum = forms.DecimalField(min_value=0, max_digits=15, decimal_places=2, required=True)
+    OutSum = forms.DecimalField(min_value=0, max_digits=13, decimal_places=7, required=True)
     Description = forms.CharField(max_length=100, required=True)
     CustomerEmail = forms.EmailField(max_length=100, required=True)
     Receipt = forms.CharField(max_length=255)
@@ -28,7 +28,7 @@ class RoboKassaForm(forms.Form):
 
 
 class ResultURLForm(forms.Form):
-    OutSum = forms.DecimalField(min_value=0, max_digits=15, decimal_places=2)
+    OutSum = forms.DecimalField(min_value=0, max_digits=13, decimal_places=7)
     InvId = forms.IntegerField(min_value=0)
     SignatureValue = forms.CharField(max_length=35)
     Shp_discount = forms.DecimalField(min_value=0, max_digits=4, decimal_places=2)
@@ -87,7 +87,7 @@ class SuccessRedirectForm(ResultURLForm):
 
 
 class FailRedirectForm(forms.Form):
-    OutSum = forms.DecimalField(min_value=0, max_digits=15, decimal_places=2)
+    OutSum = forms.DecimalField(min_value=0, max_digits=13, decimal_places=7)
     InvId = forms.IntegerField(min_value=0)
 
 

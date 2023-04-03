@@ -59,7 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Order(models.Model):
-    paid_sum = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    paid_sum = models.DecimalField(max_digits=13, decimal_places=7, blank=True, null=True)
     status = models.CharField(max_length=255, blank=True, null=True, default='processed')
     user = models.ForeignKey(
         User,
@@ -111,7 +111,7 @@ class UserSubscription(models.Model):
         verbose_name='Пользователь'
     )
     subscribed_from = models.DateTimeField('Дата оформления подписки')
-    total_cost = models.DecimalField('Окончательная стоимость подписки', max_digits=15, decimal_places=2)
+    total_cost = models.DecimalField('Окончательная стоимость подписки', max_digits=13, decimal_places=7)
     subscribed_to = models.DateTimeField('Дата окончания подписки')
     discount_percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
     created_at = models.DateTimeField(auto_now_add=True)
