@@ -163,7 +163,8 @@ ROBOKASSA_MERCHANT_LOGIN = env("MERCHANT_LOGIN")
 ROBOKASSA_PASSWORD1 = env("ROBOKASSA_PASSWORD1")
 ROBOKASSA_PASSWORD2 = env("ROBOKASSA_PASSWORD2")
 IS_TEST_MODE = env("IS_TEST_MODE").lower() in ('true', '1', 't')
-ROBOKASSA_TARGET_URL = 'https://auth.robokassa.ru/Merchant/Index.aspx'
+ROBOKASSA_TARGET_URL = 'https://auth.robokassa.ru/Merchant/Index/'
+ROBOKASSA_TARGET_JSON_URL = 'https://auth.robokassa.ru/Merchant/Indexjson.aspx?'
 ROBOKASSA_CULTURE = env("ROBOKASSA_CULTURE")
 
 

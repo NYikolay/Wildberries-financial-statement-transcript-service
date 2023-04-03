@@ -1,8 +1,9 @@
 import decimal
 import hashlib
+import json
 from urllib import parse
-
-from config.settings.base import ROBOKASSA_TARGET_URL
+import requests
+from config.settings.base import ROBOKASSA_TARGET_URL, ROBOKASSA_TARGET_JSON_URL
 
 
 def calculate_signature(*args) -> str:
@@ -51,5 +52,8 @@ def generate_payment_link(
         **final_extra_params_values
     }
 
-    return f'{ROBOKASSA_TARGET_URL}?{parse.urlencode(data)}'
+    resp = requests.post(url=ROBOKASSA_TARGET_JSON_URL, data=data)
+    resp_data = json.loads(resp.text)
+
+    return f'{ROBOKASSA_TARGET_URL}{resp_data.get("invoiceID")}'
 

@@ -135,7 +135,7 @@ class SuccessPaymentView(View):
             messages.success(request, 'Оплата прошла успешно')
             return redirect('users:profile')
 
-        messages.error(
+        messages.success(
             request,
             'Оплата прошла успешно. В случае возникновения ошибок обратитесь в службу поддержки'
         )
