@@ -30,7 +30,7 @@ class RoboKassaForm(forms.Form):
 class ResultURLForm(forms.Form):
     OutSum = forms.DecimalField(min_value=0, max_digits=15, decimal_places=2)
     InvId = forms.IntegerField(min_value=0)
-    SignatureValue = forms.CharField(max_length=32)
+    SignatureValue = forms.CharField(max_length=35)
     Shp_discount = forms.DecimalField(min_value=0, max_digits=4, decimal_places=2)
     Shp_duration = forms.IntegerField(min_value=1)
     Shp_durationdesc = forms.CharField(max_length=10)
