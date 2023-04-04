@@ -12,6 +12,13 @@ def calculate_signature(*args) -> str:
     return hashlib.md5(':'.join(str(arg) for arg in args).encode()).hexdigest()
 
 
+def send_request_for_invoice_id(post_data):
+    resp = requests.post(url=ROBOKASSA_TARGET_JSON_URL, data=post_data)
+    resp_data = json.loads(resp.text)
+
+    return resp_data["invoiceID"]
+
+
 def generate_payment_link(
     merchant_login: str,
     merchant_password_1: str,
@@ -52,8 +59,7 @@ def generate_payment_link(
         **final_extra_params_values
     }
 
-    resp = requests.post(url=ROBOKASSA_TARGET_JSON_URL, data=data)
-    resp_data = json.loads(resp.text)
+    invoice_id = send_request_for_invoice_id(data)
 
-    return f'{ROBOKASSA_TARGET_URL}{resp_data.get("invoiceID")}'
+    return f'{ROBOKASSA_TARGET_URL}{invoice_id}'
 
