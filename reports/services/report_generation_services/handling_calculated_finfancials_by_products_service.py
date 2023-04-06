@@ -49,7 +49,7 @@ def get_calculated_financials_by_products(sales_objects_by_product_figures, reve
         sales_objects_by_product_figures.get('retail_advance_payment_goods_without_payment_sum')
     )
 
-    share_in_profits: float = calculate_share_in_revenue(
+    share_in_revenue: float = calculate_share_in_revenue(
         revenue_by_article,
         revenue_total
     )
@@ -78,7 +78,7 @@ def get_calculated_financials_by_products(sales_objects_by_product_figures, reve
         'sales_quantity_value': round(sales_quantity_value),
         'returns_quantity_value': round(returns_quantity_value),
         'revenue_by_article': round(revenue_by_article),
-        'share_in_profits': round(share_in_profits, 2),
+        'share_in_profits': round(share_in_revenue, 2),
         'product_marginality': round(marginality),
     }
 

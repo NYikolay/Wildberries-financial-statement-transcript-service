@@ -1,33 +1,37 @@
-import json
-from typing import List
-
 from django.db.models import (
     Sum, Q, FloatField,
     F, Subquery,
     OuterRef, Value,
     Case, When, Min, Max)
 from django.db.models.functions import Coalesce
-from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
 
-from reports.services.report_generation_services.generating_sum_aggregation_objs_service import get_aggregate_sum_dicts
+from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
 
 
 def get_report_db_inter_data(
         current_user,
         current_api_key,
-        filter_period_conditions
+        filter_period_conditions,
+        general_dict_aggregation_objs: dict
 ):
     """
     The function is responsible for sending queries to the database to obtain information for the report
     :param current_user: Current authorized user
     :param current_api_key: The user's current active WBApiKey
     :param filter_period_conditions: Formed an instance of the Q() class to filter data
+    :param general_dict_aggregation_objs: ...
     :return: Returns a dictionary containing data from the Reporting Database
     """
-    general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
     sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict')
     net_costs_sum_aggregations_objs: dict = general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs')
     tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs')
+
+    products_count_by_period = SaleObject.objects.filter(
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+        nm_id__isnull=False
+    ).distinct('nm_id').count()
 
     tax_rates_objects = TaxRate.objects.filter(
         api_key=current_api_key
@@ -154,5 +158,6 @@ def get_report_db_inter_data(
         'sale_objects_by_products': sale_objects_by_products,
         'is_empty_reports_values': is_empty_reports_values,
         'is_empty_netcosts_values': is_empty_netcosts_values,
-        'is_exists_tax_values': is_exists_tax_values
+        'is_exists_tax_values': is_exists_tax_values,
+        'products_count_by_period': products_count_by_period
     }

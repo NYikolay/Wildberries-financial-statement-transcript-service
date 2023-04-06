@@ -2,7 +2,6 @@ from typing import List
 
 
 def get_period_filter_data(filter_dict: dict) -> List[dict]:
-
     new_filter_list: List[dict] = []
 
     for dict_values in filter_dict:
