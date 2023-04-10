@@ -329,6 +329,7 @@ class SaleObject(models.Model):
         verbose_name_plural = 'Продажи'
         index_together = [
             ("year", "week_num"),
+            ("brand_name", "nm_id", "product")
         ]
 
     def __str__(self):

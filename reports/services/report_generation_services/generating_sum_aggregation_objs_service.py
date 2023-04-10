@@ -1,6 +1,55 @@
 
-from django.db.models import Sum, Q, FloatField, F, Window
+from django.db.models import (
+    Sum, Q, FloatField,
+    F, Value,
+    Case, When, ExpressionWrapper)
 from django.db.models.functions import Coalesce
+
+
+def get_financials_annotation_objects() -> dict:
+    revenue_by_article = Coalesce(
+        ExpressionWrapper(
+            F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
+                'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
+                'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
+                'retail_partial_compensation_marriage_sum') + F('retail_advance_payment_goods_without_payment_sum'),
+            output_field=FloatField()
+        ), Value(0.0), output_field=FloatField())
+
+    share_in_revenue = Coalesce(Case(
+        When(total_revenue__gt=0, then=((F('revenue_by_article') / F('total_revenue')) * 100)),
+        default=Value(0.0),
+        output_field=FloatField()
+    ), Value(0.0), output_field=FloatField())
+
+    net_costs_sum = Coalesce(
+        ExpressionWrapper(
+            F('netcost_sale_sum') - F('netcost_storno_sale_sum') + F('netcost_correct_sale_sum') - F(
+                'netcost_return_sum') + F('net_cost_strono_returns_sum') - F('net_cost_correct_return_sum') + F(
+                'net_cost_marriage_payment_sum') + F('net_cost_payment_lost_marriage_sum') + F(
+                'net_cost_partial_compensation_marriage_sum') + F('net_cost_advance_payment_goods_without_payment_sum'),
+            output_field=FloatField()
+        ), Value(0.0), output_field=FloatField())
+
+    product_marginality = Coalesce(Case(
+        When(net_costs_sum__gt=0, then=(F('revenue_by_article') / F('net_costs_sum')) * 100),
+        default=Value(0.0),
+        output_field=FloatField()
+    ), Value(0.0), output_field=FloatField())
+
+    share_in_number = Coalesce(Case(
+        When(total_products_count__gt=0, then=((1 / F('total_products_count')) * 100)),
+        default=Value(0.0),
+        output_field=FloatField()
+    ), Value(0.0), output_field=FloatField())
+
+    return {
+        "revenue_by_article": revenue_by_article,
+        "share_in_revenue": share_in_revenue,
+        "net_costs_sum": net_costs_sum,
+        "product_marginality": product_marginality,
+        "share_in_number": share_in_number
+    }
 
 
 def get_aggregate_sum_dicts() -> dict:

@@ -13,10 +13,11 @@ from django.contrib import messages
 from reports.forms import SaleReportForm
 from reports.models import GeneralInformationObj, InfoTypes
 from reports.services.execute_generating_report_service import get_full_user_report
+from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_period_filter_data
 from users.mixins import SubscriptionRequiredMixin
 
-from users.models import SaleReport, IncorrectReport, UnloadedReports
+from users.models import SaleReport, IncorrectReport, UnloadedReports, SaleObject
 
 django_logger = logging.getLogger('django_logger')
 
@@ -31,8 +32,10 @@ class DashboardView(LoginRequiredMixin, View):
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return render(request, 'reports/empty_dashboard.html')
 
+        filters_data = get_filters_db_data(current_api_key)
+
         try:
-            period_filter_data: List[dict] = get_period_filter_data(dict(request.GET))
+            current_filter_data: dict = get_period_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
                 f'Unable to filter data by period in the report for the user- {request.user.email}',
@@ -45,18 +48,8 @@ class DashboardView(LoginRequiredMixin, View):
             api_key=current_api_key
         ).values_list('realizationreport_id', flat=True)
 
-        filter_dates_queryset = SaleReport.objects.filter(
-            id__in=Subquery(
-                SaleReport.objects.filter(
-                    api_key=current_api_key,
-                ).distinct('create_dt').values_list('id', flat=True))).order_by(
-            '-date_from').values('week_num', 'year').annotate(
-            date_to=Max(F('date_to')),
-            date_from=Min(F('date_from')),
-        )
-
         try:
-            report = get_full_user_report(request.user, current_api_key, period_filter_data)
+            report = get_full_user_report(request.user, current_api_key, current_filter_data.get('new_filter_list'))
         except Exception as err:
             django_logger.critical(
                 f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
@@ -69,8 +62,15 @@ class DashboardView(LoginRequiredMixin, View):
         context = {
             'report': report,
             'incorrect_reports_ids': incorrect_reports_ids,
-            'filter_dates_data': filter_dates_queryset,
-            'current_filter_data': period_filter_data,
+            'filters_data': filters_data,
+            'current_filter_data': current_filter_data.get('new_filter_list'),
+            'current_filters_names': current_filter_data.get('current_filters_names'),
+            'filter_names': {
+                'category': 'subject_name',
+                'brand': 'brand_name',
+                'year': 'year',
+                'week_nums': 'week_nums'
+            },
             'is_unloaded_reports': UnloadedReports.objects.filter(api_key=current_api_key).exists()
         }
         return render(request, 'reports/dashboard.html', context)

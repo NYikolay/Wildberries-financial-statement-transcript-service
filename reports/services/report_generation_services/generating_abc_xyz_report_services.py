@@ -1,70 +1,38 @@
-from collections import defaultdict
-from typing import List
 import datetime
-from itertools import groupby
-import statistics
-from django.db.models import (
-    Sum, Q, FloatField,
-    F, Subquery,
-    OuterRef, Value,
-    Case, When, Min, Max, Count, Func, IntegerField, Window, ExpressionWrapper, StdDev, Avg)
-from django.db.models.functions import Coalesce, Round
+from collections import defaultdict
+from typing import Union, List
 
-from reports.services.report_generation_services.generate_priod_filters_services import \
+from django.db.models import QuerySet
+
+from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
-from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
+from reports.services.report_generation_services.generating_report_db_data_service import \
+    get_calculated_financials_by_products, get_nm_ids_revenues_by_weeks
+from reports.services.report_generation_services.generating_sum_aggregation_objs_service import \
+    get_financials_annotation_objects
 
-from reports.services.report_generation_services.generating_sum_aggregation_objs_service import get_aggregate_sum_dicts
-
-
-def get_financials_annotation_objects():
-    revenue_by_article = ExpressionWrapper(
-        F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
-            'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
-            'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
-            'retail_partial_compensation_marriage_sum') + F('retail_advance_payment_goods_without_payment_sum'),
-        output_field=FloatField()
-    )
-
-    share_in_revenue = Case(
-        When(total_revenue__gt=0, then=((F('revenue_by_article') / F('total_revenue')) * 100)),
-        default=Value(0.0),
-        output_field=FloatField()
-    )
-
-    net_costs_sum = ExpressionWrapper(
-        F('netcost_sale_sum') - F('netcost_storno_sale_sum') + F('netcost_correct_sale_sum') - F(
-            'netcost_return_sum') + F('net_cost_strono_returns_sum') - F('net_cost_correct_return_sum') + F(
-            'net_cost_marriage_payment_sum') + F('net_cost_payment_lost_marriage_sum') + F(
-            'net_cost_partial_compensation_marriage_sum') + F('net_cost_advance_payment_goods_without_payment_sum'),
-        output_field=FloatField()
-    )
-
-    product_marginality = Case(
-        When(net_costs_sum__gt=0, then=(F('revenue_by_article') / F('net_costs_sum')) * 100),
-        default=Value(0.0),
-        output_field=FloatField()
-    )
-
-    share_in_number = ExpressionWrapper((1 / F('total_products_count')) * 100, output_field=FloatField())
-
-    return {
-        "revenue_by_article": revenue_by_article,
-        "share_in_revenue": share_in_revenue,
-        "net_costs_sum": net_costs_sum,
-        "product_marginality": product_marginality,
-        "share_in_number": share_in_number
-    }
+import pandas as pd
+import numpy as np
 
 
-def get_past_months_filters():
-    last_year = datetime.date.today() - datetime.timedelta(days=365)
-    weeks_by_years = defaultdict(set)
+def get_past_months_filters() -> dict:
+    """
+    The function generates dictionaries containing the last 12 weeks and the year to which they refer
+    :return:
+    """
+    last_year: datetime = datetime.date.today() - datetime.timedelta(days=365)
+    weeks_by_years: dict = defaultdict(set)
+
+    weeks_by_years_2: List[dict] = []
 
     for i in range(52):
         current_date = last_year + datetime.timedelta(weeks=i)
         year, week_num, _ = current_date.isocalendar()
         weeks_by_years[year].add(week_num)
+        weeks_by_years_2.append({
+            'year': year,
+            'week_num': week_num
+        })
 
     new_filter_list = [
         {
@@ -77,213 +45,214 @@ def get_past_months_filters():
 
     return {
         'filters': filters,
-        'weeks_by_years': weeks_by_years
+        'weeks_by_years': pd.DataFrame(weeks_by_years_2)
     }
 
 
-def get_calculated_financials_by_products(
-        current_user,
-        current_api_key,
-        filter_period_conditions,
-        sum_aggregation_objs_dict,
-        net_costs_sum_aggregations_objs,
-        total_revenue,
-        total_products_count,
-        annotations_objs
-):
-
-    calculated_financials = SaleObject.objects.filter(
-        filter_period_conditions,
-        owner=current_user,
-        api_key=current_api_key,
-        nm_id__isnull=False
-    ).annotate(
-        net_cost=Subquery(
-            NetCost.objects.filter(
-                product=OuterRef('product'),
-                cost_date__lte=OuterRef('order_dt')
-            ).order_by('-cost_date').values('amount')[:1]
-        ),
-    ).order_by('brand_name', 'nm_id').values('nm_id').annotate(
-        **sum_aggregation_objs_dict,
-        **net_costs_sum_aggregations_objs,
-        image=F('product__image'),
-        logistic_sum=(
-                Coalesce(Sum(
-                    'delivery_rub',
-                    filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
-                Coalesce(Sum(
-                    'delivery_rub',
-                    filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
-        ),
-        penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
-        additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField()),
-    ).annotate(
-        total_revenue=Value(total_revenue, output_field=FloatField()),
-        total_products_count=Value(total_products_count, output_field=FloatField()),
-        **annotations_objs,
-    ).values('nm_id', 'image', 'revenue_by_article', 'share_in_revenue', 'product_marginality', 'share_in_number')
-
-    return calculated_financials
+def get_abc_group(row):
+    group = 'A' if row['increasing_proportion'] <= 80 else 'B' if 80 < row['increasing_proportion'] <= 95 else 'C'
+    return group
 
 
-def get_nm_ids_revenues_by_weeks(current_nm_ids_set, sum_aggregation_objs_dict, filters):
-
-    revenues_queryset = SaleObject.objects.filter(
-        filters,
-        nm_id__in=current_nm_ids_set
-    ).order_by('week_num').values('week_num', 'year').annotate(
-        **sum_aggregation_objs_dict,
-        revenue_by_article=ExpressionWrapper(
-            F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
-                'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
-                'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
-                'retail_partial_compensation_marriage_sum') + F('retail_advance_payment_goods_without_payment_sum'),
-            output_field=FloatField()),
-    ).order_by('-nm_id').values('week_num', 'nm_id', 'revenue_by_article', 'year')
-
-    return revenues_queryset
+def remove_zeros(group):
+    nonzero_indices = lambda arr: np.where(arr)[0]
+    revenues = group['revenue_by_article'].to_numpy()
+    indices = nonzero_indices(revenues)
+    return group.iloc[indices[0]:indices[-1]+1] if len(indices) > 0 else pd.DataFrame(columns=group.columns)
 
 
-def generate_abc_report_values(calculated_financials_by_products):
+def get_xyz_group(row):
+    group = 'X' if row['coefficient_xyz'] <= 10 else 'Y' if 25 >= row['coefficient_xyz'] > 10 else 'Z'
+    return group
 
-    sorted_calculated_values_by_products = sorted(
-        calculated_financials_by_products, key=lambda x: x['share_in_revenue'], reverse=True)
 
-    current_nm_ids = set()
+def generate_abc_report_values(calculated_financials_by_products: QuerySet) -> dict:
+    """
+    The function generates ABC report data based on the financial report for unique items request.user
+    :param calculated_financials_by_products: QuerySet containing the financial report request.user for each unique item
+    :return: Returns the dictionary. Containing:
+    1. total_abc_dict - Final ABC report for processing in the template
+    2. current_nm_ids - A list containing the unique nm_id of the user
+    3. abc_values_by_nm_ids - Supplemented financial report by unique nm_id request.user.
+    Added increasing_proportion, group_abc
+    """
 
-    last_share_increasing_proportion = 0
+    # Sort descending by share_in_revenue field
+    calculated_values_by_products: pd.DataFrame = pd.DataFrame(
+        calculated_financials_by_products).sort_values('share_in_revenue', ascending=False)
 
-    for sale in sorted_calculated_values_by_products:
-        increasing_proportion = sale.get('share_in_revenue') + last_share_increasing_proportion
+    # Calculation of the cumulative total by the share_in_revenue field and
+    # recording in a separate column - increasing_proportion
+    calculated_values_by_products[
+        'increasing_proportion']: pd.DataFrame = calculated_values_by_products.loc[:, 'share_in_revenue'].cumsum()
 
-        sale['increasing_proportion'] = increasing_proportion
-        sale['group_abc'] = 'A' if increasing_proportion <= 80 else 'B' if 80 < increasing_proportion <= 95 else 'C'
+    # Calculating the group nm_id based on the increasing_proportion column
+    # and writing it to a separate column called group_abc
+    calculated_values_by_products['group_abc'] = calculated_values_by_products.apply(
+        get_abc_group, axis=1)
 
-        last_share_increasing_proportion = increasing_proportion
+    # Aggregates data from DataFrame calculated_values_by_products with grouping by group_abc column and
+    # creates a new DataFrame total_abc_df containing group_abc, revenue_by_article, share_in_number
+    total_abc_df: pd.DataFrame = calculated_values_by_products.groupby('group_abc').agg({
+        'revenue_by_article': 'sum',
+        'share_in_number': 'sum'
+    }).reset_index()[['group_abc', 'revenue_by_article', 'share_in_number']]
 
-        current_nm_ids.add(sale.get('nm_id'))
+    total_abc_df['revenue_by_article'] = total_abc_df['revenue_by_article'].round().astype(int)
+    total_abc_df['share_in_number'] = total_abc_df['share_in_number'].round().astype(int)
 
-    total_abc_dict = {group: {"revenue": 0, "share": 0} for group in ["A", "B", "C"]}
-
-    for value in sorted_calculated_values_by_products:
-        total_abc_dict.get(value.get("group_abc"))["revenue"] += value.get("revenue_by_article")
-        total_abc_dict.get(value.get("group_abc"))["share"] += value.get("share_in_number")
+    current_nm_ids: List[int] = calculated_values_by_products.nm_id.unique().tolist()
 
     return {
-        "total_abc_dict": total_abc_dict,
+        "total_abc_dict": total_abc_df.to_dict('records'),
         "current_nm_ids": current_nm_ids,
-        "abc_values_by_nm_ids": sorted_calculated_values_by_products
+        "abc_values_by_nm_ids": calculated_values_by_products
     }
 
 
-def remove_zeros(lst):
-    first_positive_index = next((i for i, x in enumerate(lst) if x > 0), None)
-    last_positive_index = next((i for i, x in enumerate(reversed(lst)) if x > 0), None)
+def generate_xyz_report_values(
+        current_user,
+        current_api_key,
+        sum_aggregation_objs_dict,
+        current_nm_ids_set
+) -> pd.DataFrame:
+    """
+    The function generates an XYZ report based on the current_nm_ids_set
+    :param current_user: request.user
+    :param current_api_key: active WebAPIKey of request.user
+    :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
+    in the value to filter values from the database
+    :param current_nm_ids_set: A list containing the unique nm_id of the current user from the SaleObject table
+    :return: Returns the final XYZ report, which has the DataFrame data type
+    """
 
-    if first_positive_index is None:
-        return []
+    past_months_values: dict = get_past_months_filters()
+    weeks_by_years: pd.DataFrame = past_months_values.get('weeks_by_years')
+    revenues_by_weeks: pd.DataFrame = pd.DataFrame(get_nm_ids_revenues_by_weeks(
+        current_user, current_api_key, current_nm_ids_set, sum_aggregation_objs_dict, past_months_values.get('filters')
+    ))
 
-    if last_positive_index is None:
-        return lst[first_positive_index:]
+    index = pd.MultiIndex.from_product(
+        [
+            revenues_by_weeks['nm_id'].unique(),
+            weeks_by_years['year'].unique(),
+            weeks_by_years['week_num'].unique()
+        ],
+        names=['nm_id', 'year', 'week_num'])
 
-    last_positive_index = len(lst) - last_positive_index - 1
+    new_revenues_by_weeks_df: pd.DataFrame = pd.DataFrame(index=index).reset_index()
 
-    return lst[first_positive_index:last_positive_index + 1]
+    # Combines new_revenues_by_weeks_df and revenues_by_weeks DataFrames. The result is a DataFrame where each unique
+    # nm_id contains a row with the number of week and year for the last 12 months
+    # (revenues of those weeks that do not have the original new_revenues_by_weeks_df is 0.0)
+    new_revenues_by_weeks_df: pd.DataFrame = new_revenues_by_weeks_df.merge(
+        revenues_by_weeks, how='left', on=['nm_id', 'year', 'week_num']
+    ).sort_values(['nm_id', 'year', 'week_num']).fillna(0.0)
+
+    groups = new_revenues_by_weeks_df.groupby('nm_id', as_index=False)
+
+    # At this point, the logic of trimming zeros at the edges for each unique nm_id works.
+    # Conditionally if represented as a list. Source [0.0, 0.0, 123, 0.0, 1123, 0.0] --> result [123, 0.0, 1123]
+    validated_revenues_by_weeks: pd.DataFrame = pd.concat(
+        [remove_zeros(group) for _, group in groups], ignore_index=True)
+
+    # The following 3 lines calculate the mean and standard deviation of the revenue_by_article column
+    mean_std_df = validated_revenues_by_weeks.groupby('nm_id').agg({'revenue_by_article': ['mean', 'std']})
+    mean_std_df.columns = ['mean_revenue', 'std_revenue']
+    mean_std_df = mean_std_df.reset_index()
+
+    std_mean_df = pd.DataFrame(validated_revenues_by_weeks['nm_id'].unique(), columns=['nm_id'])
+    std_mean_df = pd.merge(std_mean_df, mean_std_df, on='nm_id', how='left')
+
+    std_mean_df['coefficient_xyz'] = std_mean_df.apply(
+        lambda row: (row['std_revenue'] / row['mean_revenue']) * 100, axis=1)
+    std_mean_df['group'] = std_mean_df.apply(
+        lambda row: 'X' if row['coefficient_xyz'] <= 10 else 'Y' if 25 >= row['coefficient_xyz'] > 10 else 'Z', axis=1)
+
+    # Removes all values where the std_revenue column has the value NaN.
+    # Since goods with no standard deviation are not used in XYZ
+    total_xyz_df: pd.DataFrame = std_mean_df.dropna(subset=['std_revenue']).reset_index(drop=True)
+
+    return total_xyz_df
 
 
-def generate_xyz_report_values(sum_aggregation_objs_dict, current_nm_ids_set):
-    past_months_values = get_past_months_filters()
-    weeks_by_years = past_months_values.get('weeks_by_years')
-
-    revenues_by_weeks_queryset = get_nm_ids_revenues_by_weeks(
-        current_nm_ids_set, sum_aggregation_objs_dict, past_months_values.get('filters')
+def make_abc_xyz_data_set(abc_values_by_nm_ids: pd.DataFrame, xyz_report: pd.DataFrame) -> dict:
+    """
+    The function returns the final result of the ABC XYZ analysis
+    combines the DataFrames of ABC analysis and XYZ analysis.
+    :param abc_values_by_nm_ids: The result of the generate_abc_report_values function,
+    namely the DataFrame containing the financial report by unique nm_id with ABC analysis
+    :param xyz_report: The result of the generate_xyz_report_values function,
+    namely the DataFrame containing the financial report by unique nm_id with ABC analysis
+    :return: Returns the dictionary containing:
+    1. final_abc_xyz_df - dictionary, which contains a ready-made ABC XYZ analysis
+    2. merged_abc_xyz_df - DataFrame, which contains unique nm_id after XYZ analysis is generated.
+    It contains NOT ALL of the user's unique nm_id that is required for rendering in the template
+    """
+    merged_abc_xyz_df: pd.DataFrame = xyz_report.merge(abc_values_by_nm_ids)
+    merged_abc_xyz_df['final_group'] = merged_abc_xyz_df.apply(
+        lambda row: row['group_abc'] + row['group'],
+        axis=1
     )
 
-    nm_id_weeks_dict = {
-        nm_id: {week_num: list(values) for week_num, values in weeks_by_years.items()} for nm_id in current_nm_ids_set
+    final_abc_xyz_df = pd.DataFrame()
+    final_abc_xyz_df['values'] = merged_abc_xyz_df.groupby('final_group').agg(
+        {'revenue_by_article': 'sum'}
+    ).round().astype(int)
+
+    return {
+        'final_abc_xyz_df': final_abc_xyz_df.to_dict(),
+        'merged_abc_xyz_df': merged_abc_xyz_df
     }
-
-    revenues_by_weeks_dict = {nm_id: {} for nm_id in current_nm_ids_set}
-    for value in revenues_by_weeks_queryset:
-        revenues_by_weeks_dict[value['nm_id']][value['week_num']] = value['revenue_by_article']
-
-    nm_id_weeks_list = {key: sum((value for value in nm_id_weeks_dict[key].values()), []) for key in nm_id_weeks_dict}
-
-    final_revenues_by_nm_ids: dict = {
-        k: [revenues_by_weeks_dict[k].get(i, 0.0) for i in nm_id_weeks_list[k]] for k in nm_id_weeks_list
-    }
-
-    total_xyz_dict = {}
-
-    for nm_id, revenues_by_week_lst in final_revenues_by_nm_ids.items():
-        new_revenues_by_week_lst = remove_zeros(revenues_by_week_lst)
-
-        if len(new_revenues_by_week_lst) <= 1:
-            continue
-
-        stdev_value = statistics.stdev(new_revenues_by_week_lst)
-        avg_sum = sum(new_revenues_by_week_lst) / len(new_revenues_by_week_lst)
-        coefficient_xyz = (stdev_value / avg_sum) * 100
-        total_xyz_dict[nm_id] = {
-            'coefficient_xyz': coefficient_xyz,
-            'group': 'X' if coefficient_xyz <= 10 else 'Y' if 25 >= coefficient_xyz > 10 else 'Z'
-        }
-
-    return total_xyz_dict
-
-
-def make_abc_xyz_data_set(abc_values_by_nm_ids, xyz_report):
-
-    abc_xyz_data_set = []
-    for abc_dict in abc_values_by_nm_ids:
-        if xyz_report.get(abc_dict.get('nm_id')):
-            temp_dict = dict()
-
-            temp_dict['nm_id'] = abc_dict.get('nm_id')
-            temp_dict['general_group'] = (
-                    abc_dict.get('group_abc') + xyz_report.get(abc_dict.get('nm_id')).get('group')
-            )
-            temp_dict['revenue'] = abc_dict.get('revenue_by_article')
-            abc_xyz_data_set.append(temp_dict)
-        else:
-            continue
-
-    sums = {}
-    for d in abc_xyz_data_set:
-        if d['general_group'] not in sums:
-            sums[d['general_group']] = 0
-        sums[d['general_group']] += d['revenue']
-
-    result = [{'general_group': k, 'revenue': v} for k, v in sums.items()]
-
-    return result
 
 
 def get_abc_xyz_report(
         current_user,
         current_api_key,
-        filter_period_conditions,
+        filter_period_conditions: dict,
         sum_aggregation_objs_dict,
         net_costs_sum_aggregations_objs,
-        total_revenue,
-        total_products_count
-):
-    annotations_objs = get_financials_annotation_objects()
+        total_revenue: float,
+        total_products_count: int
+) -> dict:
+    """
+    The function returns the calculated ABC XYZ analysis data. Calls the functions required for the calculations.
+    :param current_user: request.user
+    :param current_api_key: active WebAPIKey of request.user
+    :param filter_period_conditions: Dictionary containing Q() objects in the value to filter values from the database
+    :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
+    in the value to filter values from the database
+    :param net_costs_sum_aggregations_objs: Dictionary containing Coalesce(Sum()) objects in
+    the value to filter values from the database
+    :param total_revenue: Total revenue generated by
+    reports.services.report_generation_services.get_total_financials_service.get_total_financials()
+    :param total_products_count: Number of items received from SaleObject() model objects as a result of
+    reports.services.report_generation_services.generating_report_db_data_service.get_report_db_inter_data
+    :return: Dictionary containing the calculated values of ABC XYZ analysis
+    """
 
-    calculated_financials_bu_products = list(get_calculated_financials_by_products(
+    annotations_objs: dict = get_financials_annotation_objects()
+
+    calculated_financials_by_products: Union[QuerySet, dict] = get_calculated_financials_by_products(
         current_user, current_api_key, filter_period_conditions,
         sum_aggregation_objs_dict, net_costs_sum_aggregations_objs,
         total_revenue, total_products_count, annotations_objs
-    ))
+    )
 
-    abc_report = generate_abc_report_values(calculated_financials_bu_products)
-    xyz_report = generate_xyz_report_values(sum_aggregation_objs_dict, abc_report.get('current_nm_ids'))
+    abc_report: dict = generate_abc_report_values(calculated_financials_by_products)
 
-    abc_xyz_report = make_abc_xyz_data_set(abc_report.get('abc_values_by_nm_ids'), xyz_report)
+    xyz_report: pd.DataFrame = generate_xyz_report_values(
+        current_user, current_api_key, sum_aggregation_objs_dict, abc_report.get('current_nm_ids')
+    )
+
+    abc_xyz_report: dict = make_abc_xyz_data_set(abc_report.get('abc_values_by_nm_ids'), xyz_report)
+
+    final_nm_ids_values: pd.DataFrame = abc_report.get('abc_values_by_nm_ids').merge(
+        abc_xyz_report.get('merged_abc_xyz_df'), how='left'
+    ).replace(np.nan, None).sort_values('revenue_by_article')
 
     return {
-        "products_values_by_nm_id": abc_report.get('abc_values_by_nm_ids'),
-        "abc_xyz_report": abc_xyz_report,
+        "products_values_by_nm_id": final_nm_ids_values.to_dict('records'),
+        "abc_xyz_report": abc_xyz_report.get('final_abc_xyz_df'),
         "abc_report": abc_report.get('total_abc_dict')
     }

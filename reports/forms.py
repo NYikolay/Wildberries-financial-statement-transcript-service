@@ -22,3 +22,14 @@ class SaleReportForm(forms.ModelForm):
                 'class': 'report_input-item'
             }),
         }
+
+
+class QueryFiltersForm(forms.Form):
+    subject_name = forms.CharField(required=False)
+    brand_name = forms.CharField(required=False)
+    year = forms.ChoiceField(choices=[(str(y), str(y)) for y in range(2020, 2030)], required=False)
+    week_numbers = forms.CharField(required=False)
+
+    def clean_week_numbers(self):
+        week_numbers = self.cleaned_data.get('week_numbers', '')
+        return [int(num) for num in week_numbers.split(',')]

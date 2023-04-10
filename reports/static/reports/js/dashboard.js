@@ -530,14 +530,24 @@ graphDiogWrapper.removeAttribute("data-stock-share")
 
 
 const ctx1 = document.getElementById('abc');
+const abcItems = document.querySelectorAll('.abc__info-item')
 
+let labelsABC = [];
+let revenuesData = [];
+let shareInRevenuesData = [];
+
+abcItems.forEach(item => {
+	labelsABC.push(item.getAttribute('data-abc-group'))
+	revenuesData.push(item.getAttribute('data-abc-revenue'))
+	shareInRevenuesData.push(item.getAttribute('data-abc-share'))
+})
 
 new Chart(ctx1, {
 	type: 'bar',
 	data: {
-		labels: ['A', 'B', 'C'],
+		labels: labelsABC,
 		datasets: [{
-			data: [1427004, 278665, 99338],
+			data: revenuesData,
 			backgroundColor: ["#ff8364", "#dbdbdb", "#c0cee0"],
 			borderWidth: 0,
 			borderRadius: 10,
@@ -547,7 +557,7 @@ new Chart(ctx1, {
 			yAxisID: "bar_data"
 		},
 			{
-				data: [12, 29, 59],
+				data: shareInRevenuesData,
 				borderColor: "#424242",
 				backgroundColor: "#424242",
 				type: 'line',
@@ -559,7 +569,7 @@ new Chart(ctx1, {
 		responsive: true,
 		plugins: {
 			legend: {
-				display: false
+				display: false,
 			},
 			tooltip: {
 				enabled: false
@@ -595,6 +605,11 @@ new Chart(ctx1, {
 				},
 			},
 			x: {
+				ticks: {
+					font: {
+						size: 8,
+					}
+				},
 				grid: {
 					display: false
 				},
