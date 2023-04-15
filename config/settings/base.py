@@ -64,7 +64,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'users.context_processors.user_additional_data_context.current_user_api_key',
                 'users.context_processors.user_additional_data_context.user_last_report_date',
-                'users.context_processors.user_additional_data_context.user_product_article'
+                'users.context_processors.user_additional_data_context.user_product_article',
+                'users.context_processors.user_additional_data_context.general_report_message'
             ],
         },
     },

@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const categoryCheckboxInputs = document.querySelectorAll('#category-filter-checkbox')
     const brandCheckboxInputs = document.querySelectorAll('#brand-filter-checkbox')
     const applyFiltersBtn = document.querySelector('.apply-graphs-filter_btn')
+    const resetFiltersBtn = document.querySelector('.reset-graphs-filter_btn')
 
     const allCategoriesFilterCheckbox = document.getElementById('all-category-checkbox')
     const allBrandsFilterCheckbox = document.getElementById('all-brand-checkbox')
@@ -40,13 +41,25 @@ document.addEventListener("DOMContentLoaded", function() {
         isDropdownActive = !isDropdownActive
     })
 
+    if (periodCheckboxInputsCount !== periodCheckboxInputsCheckedCount) {
+        allPeriodFilterCheckbox.checked = false;
+    }
+
+    if (categoryCheckboxInputsCheckedCount !== categoryCheckboxInputsCount) {
+        allCategoriesFilterCheckbox.checked = false;
+    }
+
+    if (brandCheckboxInputsCheckedCount !== brandCheckboxInputsCount) {
+        allBrandsFilterCheckbox.checked = false;
+    }
+
     function getCheckedInputsCount(inputs) {
         return [...inputs].filter(input => input.checked).length;
     }
 
     function setValidPeriodFilters(inputs) {
         inputs.forEach(input => {
-            if (input.checked) {
+            if (input.checked && !input.disabled) {
                 const subjectNames = JSON.parse(input.getAttribute('data-subject-names'))
                 const brandNames = JSON.parse(input.getAttribute('data-brand-names'))
 
@@ -62,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function setValidBrandFilters(inputs) {
         inputs.forEach(input => {
-            if (input.checked) {
+            if (input.checked || (input.disabled && inputsBlockedByCategoryFilter.has(input))) {
                 const brandNames = JSON.parse(input.getAttribute('data-brand-names'))
                 brandNames.forEach(brandName => {
                     validBrandFilters.add(brandName)
@@ -73,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function setValidCategoryFilters(inputs) {
         inputs.forEach(input => {
-            if (input.checked) {
+            if (input.checked || (input.disabled && inputsBlockedByBrandFilter.has(input))) {
                 const subjectNames = JSON.parse(input.getAttribute('data-subject-names'))
 
                 subjectNames.forEach(subjectName => {
@@ -101,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    function validatePeriodFilterInputs(inputs) {
+    function validateByPeriodFilterInputs(inputs) {
         inputs.forEach(input => {
             const filterType = input.getAttribute('data-filter-type')
             if (
@@ -136,7 +149,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         })
     }
-
 
     function validateCategoryFilterInputs(inputs) {
         inputs.forEach(input => {
@@ -206,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 input.checked ? incrementCheckedCounter('period') : decreaseCheckedCounter('period')
 
                 setValidPeriodFilters(periodCheckboxInputs)
-                validatePeriodFilterInputs(Array.prototype.concat.call(...categoryCheckboxInputs , ...brandCheckboxInputs))
+                validateByPeriodFilterInputs(Array.prototype.concat.call(...categoryCheckboxInputs , ...brandCheckboxInputs))
 
             } else if (input.getAttribute('data-filter-type') === 'category') {
                 input.checked ? incrementCheckedCounter('category') : decreaseCheckedCounter('category')
@@ -224,29 +236,56 @@ document.addEventListener("DOMContentLoaded", function() {
         })
     }
 
-    function addEventListenerForAllCheckboxInput(allCheckboxElem, inputs, filterType, checkboxInputsCheckedCount) {
+    function addEventListenerForAllCheckboxInput(allCheckboxElem, inputs, filterType) {
         allCheckboxElem.addEventListener('change', function(e) {
 
-            [...inputs].forEach(input => input.checked = e.target.checked);
+            [...inputs].forEach(input => {
+                if (!input.disabled) {
+                    input.checked = e.target.checked
+                }
+            });
 
             clearValidFiltersSet()
             if (filterType === 'period') {
                 e.target.checked ? setCheckedCounter('period') : setCheckedCounterToZero('period')
                 setValidPeriodFilters(periodCheckboxInputs)
-                validatePeriodFilterInputs(Array.prototype.concat.call(...categoryCheckboxInputs , ...brandCheckboxInputs))
+                validateByPeriodFilterInputs(Array.prototype.concat.call(...categoryCheckboxInputs , ...brandCheckboxInputs))
 
-            } else if (filterType === 'category') {
+            } else if (filterType === 'category' && inputsBlockedByBrandFilter.size === 0) {
                 e.target.checked ? setCheckedCounter('category') : setCheckedCounterToZero('category')
                 setValidBrandFilters(categoryCheckboxInputs)
                 validateBrandFilterInputs(brandCheckboxInputs)
 
-            } else {
+            } else if (filterType === 'brand' && inputsBlockedByCategoryFilter.size === 0) {
                 e.target.checked ? setCheckedCounter('brand') : setCheckedCounterToZero('brand')
                 setValidCategoryFilters(brandCheckboxInputs)
                 validateCategoryFilterInputs(categoryCheckboxInputs)
 
             }
         })
+    }
+
+    function resetFilters() {
+        [inputsBlockedByPeriodFilter,
+            inputsBlockedByCategoryFilter,
+            inputsBlockedByBrandFilter,
+            validBrandFilters,
+            validCategoryFilters,
+            validPeriodFilters].forEach(collection => collection.clear());
+
+        [allCategoriesFilterCheckbox,
+            allBrandsFilterCheckbox,
+            allPeriodFilterCheckbox,
+            ...categoryCheckboxInputs,
+            ...brandCheckboxInputs,
+            ...periodCheckboxInputs].forEach(input => {
+            input.checked = true;
+            setStylesForValidInput(input);
+        });
+
+        [periodCheckboxInputsCheckedCount,
+            categoryCheckboxInputsCheckedCount,
+            brandCheckboxInputsCheckedCount] = [0, 0, 0];
     }
 
     function handleInputs(inputs) {
@@ -285,10 +324,8 @@ document.addEventListener("DOMContentLoaded", function() {
         inputs.forEach((input) => {
             if (filterType === "subject_name" && input.checked && !input.disabled) {
                 filterArray.push(input.getAttribute("data-filter-category"));
-            } else {
-                if (input.checked && !input.disabled) {
-                    filterArray.push(input.getAttribute("data-filter-brand"));
-                }
+            } else if (input.checked && !input.disabled) {
+                filterArray.push(input.getAttribute("data-filter-brand"));
             }
         })
         if (filterArray.length > 0) {
@@ -298,6 +335,13 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    setValidPeriodFilters(periodCheckboxInputs)
+    validateByPeriodFilterInputs(Array.prototype.concat.call(...categoryCheckboxInputs , ...brandCheckboxInputs))
+    setValidCategoryFilters(brandCheckboxInputs)
+    validateCategoryFilterInputs(categoryCheckboxInputs)
+    setValidBrandFilters(categoryCheckboxInputs)
+    validateBrandFilterInputs(brandCheckboxInputs)
+
     handleInputs(periodCheckboxInputs)
     handleInputs(categoryCheckboxInputs)
     handleInputs(brandCheckboxInputs)
@@ -306,13 +350,32 @@ document.addEventListener("DOMContentLoaded", function() {
     addEventListenerForAllCheckboxInput(allPeriodFilterCheckbox, periodCheckboxInputs, 'period', periodCheckboxInputsCheckedCount)
 
     applyFiltersBtn.addEventListener('click', function () {
-        const periodQueryString = periodCheckboxInputsCheckedCount ? generatePeriodQueryString(generatePeriodFilterDataObject(periodCheckboxInputs)) : ''
+        let periodQueryString = periodCheckboxInputsCheckedCount ? generatePeriodQueryString(generatePeriodFilterDataObject(periodCheckboxInputs)) : ''
         const categoryQueryString = categoryCheckboxInputsCheckedCount ? generateQueryString(categoryCheckboxInputs, 'subject_name') : ''
         const brandQueryString = brandCheckboxInputsCheckedCount ? generateQueryString(brandCheckboxInputs, 'brand_name') : ''
-        console.log(periodQueryString)
-        console.log(categoryQueryString)
-        console.log(brandQueryString)
-        window.location.href = `?${periodQueryString}${categoryQueryString}${brandQueryString}`
+        if (periodCheckboxInputsCheckedCount === periodCheckboxInputsCount) {
+            periodQueryString = ''
+        }
+        // const url = '/check_filters/'
+        // fetch(url, {
+        //     method: "GET",
+        //     headers: {
+        //         "X-Requested-With": "XMLHttpRequest",
+        //     }
+        // })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log(data);
+        //     });
+        if (
+            periodCheckboxInputsCheckedCount === periodCheckboxInputsCount
+            && categoryCheckboxInputsCheckedCount === categoryCheckboxInputsCount
+            && brandCheckboxInputsCheckedCount === brandCheckboxInputsCount
+        ) {
+            window.location.href = `?`
+        } else {
+            window.location.href = `?${periodQueryString}${categoryQueryString}${brandQueryString}`
+        }
     })
 
 })

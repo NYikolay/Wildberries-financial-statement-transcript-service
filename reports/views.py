@@ -1,23 +1,20 @@
-import datetime
+
 import logging
 from typing import List
 
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, Subquery, Min, Max, F
+from django.db.models import Q
 from django.http import Http404
 from django.contrib import messages
 
-
 from reports.forms import SaleReportForm
-from reports.models import GeneralInformationObj, InfoTypes
 from reports.services.execute_generating_report_service import get_full_user_report
 from reports.services.get_filters_db_data_service import get_filters_db_data
-from reports.services.handle_graphs_filter_data import get_period_filter_data
-from users.mixins import SubscriptionRequiredMixin
+from reports.services.handle_graphs_filter_data import get_filter_data
 
-from users.models import SaleReport, IncorrectReport, UnloadedReports, SaleObject
+from users.models import SaleReport, IncorrectReport, UnloadedReports
 
 django_logger = logging.getLogger('django_logger')
 
@@ -32,45 +29,37 @@ class DashboardView(LoginRequiredMixin, View):
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return render(request, 'reports/empty_dashboard.html')
 
-        filters_data = get_filters_db_data(current_api_key)
-
         try:
-            current_filter_data: dict = get_period_filter_data(dict(request.GET))
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
                 f'Unable to filter data by period in the report for the user- {request.user.email}',
                 exc_info=err
             )
-            messages.error(request, 'Ошибка фильтрации периода.')
+            messages.error(request, 'Ошибка фильтрации периода')
             return redirect('reports:dashboard')
 
         incorrect_reports_ids = IncorrectReport.objects.filter(
             api_key=current_api_key
         ).values_list('realizationreport_id', flat=True)
+        filters_data = get_filters_db_data(current_api_key)
 
         try:
-            report = get_full_user_report(request.user, current_api_key, current_filter_data.get('new_filter_list'))
+            report = get_full_user_report(request.user, current_api_key, current_filter_data)
         except Exception as err:
             django_logger.critical(
                 f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
-                                    'Пожалуйста, свяжитесь со службой поддержки.')
+                                    'Пожалуйста, свяжитесь со службой поддержки')
             return redirect('users:profile')
 
         context = {
             'report': report,
             'incorrect_reports_ids': incorrect_reports_ids,
             'filters_data': filters_data,
-            'current_filter_data': current_filter_data.get('new_filter_list'),
-            'current_filters_names': current_filter_data.get('current_filters_names'),
-            'filter_names': {
-                'category': 'subject_name',
-                'brand': 'brand_name',
-                'year': 'year',
-                'week_nums': 'week_nums'
-            },
+            'current_filter_data': current_filter_data,
             'is_unloaded_reports': UnloadedReports.objects.filter(api_key=current_api_key).exists()
         }
         return render(request, 'reports/dashboard.html', context)
@@ -82,7 +71,6 @@ class ReportDetailView(LoginRequiredMixin, View):
     form_class = SaleReportForm
 
     def get(self, request, create_dt):
-        report_message = GeneralInformationObj.objects.filter(info_type=InfoTypes.reports, is_active=True).first()
         reports = SaleReport.objects.filter(
             api_key__is_current=True,
             api_key__user=request.user,
@@ -111,7 +99,6 @@ class ReportDetailView(LoginRequiredMixin, View):
             'reports': reports,
             'blank_reports_list': blank_reports_list,
             'forms': [self.form_class(instance=report) for report in reports],
-            'report_message': report_message
         }
         return render(request, 'reports/report_detail.html', context)
 

@@ -26,7 +26,6 @@
     display: flex;
     width: 735px;
     flex-direction: column;
-    align-items: center;
     gap: 18px;
     border-radius: 7px;
     background-color: #f4f4f4;
@@ -269,6 +268,15 @@
 
 .graphs-filter_label:hover {opacity: .8;}
 
+.filter-errors__text {
+    text-align: center;
+    font-size: 8px;
+    display: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #ff8364;
+}
+
 .apply-graphs-filter_btn {
     text-align: center;
     font-size: 8px;
@@ -279,6 +287,17 @@
     font-weight: bold;
     margin-top: 20px;
     border-radius: 30px;
+}
+
+
+.reset-graphs-filter_btn {
+    font-size: 8px;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.reset-graphs-filter_btn:hover {
+    text-decoration: none;
 }
 
 /*GRAPHS FILTERING END */

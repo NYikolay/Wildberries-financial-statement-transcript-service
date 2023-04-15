@@ -91,6 +91,7 @@ function createProductBlocks(condition) {
                         <div class="product-info__wrapper">
                             <p class="product__name">${newProductsArray[condition][i].product_name}</p>
                             <p class="product__barcode">Артикул: ${newProductsArray[condition][i].nm_id}</p>
+                            <p class="product__barcode">Баркод: ${newProductsArray[condition][i].barcode}</p>
                         </div> 
                     `
         productsData.appendChild(productWrapper)

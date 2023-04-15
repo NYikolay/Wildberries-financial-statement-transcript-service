@@ -6,7 +6,7 @@ from users.models import (User, WBApiKey, SaleObject,
                           ClientUniqueProduct, NetCost, SaleReport, TaxRate,
                           IncorrectReport, UnloadedReports, UserSubscription, UserDiscount, Order)
 
-admin.site.register(SaleObject)
+
 admin.site.register(NetCost)
 admin.site.register(TaxRate)
 admin.site.register(IncorrectReport)
@@ -18,6 +18,12 @@ admin.site.register(UserDiscount)
 class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'date_joined')
     list_display = ('email', 'date_joined')
+
+
+@admin.register(SaleObject)
+class SaleObjectAdmin(admin.ModelAdmin):
+    list_display = ('id', '__str__')
+    search_fields = ('nm_id', 'id')
 
 
 @admin.register(Order)

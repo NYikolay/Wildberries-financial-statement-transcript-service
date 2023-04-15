@@ -21,7 +21,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
     A list containing a dictionary with year (List[int]) and week_nums (List[int]) as keys.
     :return: Dictionary with calculated data
     """
-    filter_period_conditions = generate_period_filter_conditions(period_filter_data)
+    filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
     general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
 
     report_intermediate_data = get_report_db_inter_data(
@@ -54,7 +54,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
         'is_exists_tax_values': report_intermediate_data.get('is_exists_tax_values'),
         'brands_share_in_revenue_dict': json.dumps(brands_share_in_revenue_dict, ensure_ascii=False),
         'stocks_share_in_revenue_dict': json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False),
-        'products_values_by_nm_id': json.dumps(abc_xyz.get('products_values_by_nm_id')),
+        'products_calculated_values': json.dumps(abc_xyz.get('products_calculated_values')),
         'abc_report': abc_xyz.get('abc_report'),
         'abc_xyz_report': abc_xyz.get('abc_xyz_report'),
     }

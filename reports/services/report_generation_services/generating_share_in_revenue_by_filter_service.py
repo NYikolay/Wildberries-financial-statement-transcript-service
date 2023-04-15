@@ -16,8 +16,6 @@ def get_revenue_by_filter(
 
     revenue_by_filter_list = SaleObject.objects.filter(
         period_filter_data.get('period_q_obj'),
-        period_filter_data.get('category_q_obj'),
-        period_filter_data.get('brand_q_obj'),
         owner=current_user,
         api_key=current_api_key,
         brand_name__isnull=False

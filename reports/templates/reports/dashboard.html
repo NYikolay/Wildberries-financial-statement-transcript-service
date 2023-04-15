@@ -31,70 +31,22 @@
                                     <label class="graphs-filter_label">
                                         <input
                                                 type="checkbox"
+                                                {% if current_filter_data %}
+                                                {% for filter_dict in current_filter_data %}
+                                                {% if filter_period.year == filter_dict.year and filter_period.week_num in filter_dict.week_nums %}
                                                 checked
+                                                {% endif %}
+                                                {% endfor %}
+                                                {% else %}
+                                                checked
+                                                {% endif %}
                                                 class="filter_checkbox"
                                                 id="period-checkbox"
                                                 data-filter-type="period"
                                                 data-filter-week="{{ filter_period.week_num }}"
-                                                data-subject-names="{{ filter_period.subject_names|tojson }}"
-                                                data-brand-names="{{ filter_period.brand_names|tojson }}"
                                                 data-filter-year="{{ filter_period.year }}">
                                         <span></span>
                                         <p>{{ filter_period.week_num }} неделя ({{ filter_period.date_from|date:'d.m.Y'}}-{{filter_period.date_to|date:'d.m.Y'}})</p>
-                                    </label>
-                                    {% endfor %}
-                                </div>
-                                <div class="filter-dropdown_item" id="category-filter-wrapper" data-title="{{ filters_data.ara2 }}">
-                                    <h3>Категории</h3>
-                                    <label class="graphs-filter_label">
-                                        <input
-                                                type="checkbox"
-                                                checked
-                                                class="filter_checkbox"
-                                                id="all-category-checkbox">
-                                        <span></span>
-                                        <p>Всё</p>
-                                    </label>
-                                    {% for category in filters_data.filter_categories %}
-                                    <label class="graphs-filter_label">
-                                        <input
-                                                type="checkbox"
-                                                class="filter_checkbox"
-                                                checked
-                                                data-filter-type="category"
-                                                id="category-filter-checkbox"
-                                                data-period-names="{{ category.week_nums|tojson }}"
-                                                data-brand-names="{{ category.brand_names|tojson }}"
-                                                data-filter-category="{{ category.subject_name }}">
-                                        <span></span>
-                                        <p>{{ category.subject_name }}</p>
-                                    </label>
-                                    {% endfor %}
-                                </div>
-                                <div class="filter-dropdown_item" id="brand-filter-wrapper" data-title="{{ filters_data.ara3 }}">
-                                    <h3>Бренд</h3>
-                                    <label class="graphs-filter_label">
-                                        <input
-                                                type="checkbox"
-                                                checked
-                                                class="filter_checkbox"
-                                                id="all-brand-checkbox">
-                                        <span></span>
-                                        <p>Всё</p>
-                                    </label>
-                                    {% for brand in filters_data.filter_brands %}
-                                    <label class="graphs-filter_label">
-                                        <input
-                                                type="checkbox"
-                                                checked
-                                                class="filter_checkbox"
-                                                data-filter-type="brand"
-                                                id="brand-filter-checkbox"
-                                                data-period_names="{{ brand.week_nums|tojson }}"
-                                                data-subject-names="{{ brand.subject_names|tojson }}"
-                                                data-filter-brand="{{ brand.brand_name }}">
-                                        <span></span>
-                                        <p>{{ brand.brand_name }}</p>
                                     </label>
                                     {% endfor %}
                                 </div>
@@ -102,7 +54,6 @@
                                     <img src="{% static 'images/back_cross.svg'%}" alt="" style="height: 10px; width: 10px;">
                                 </button>
                             </div>
-                            <!--                            <p style="font-size: 8px; color: red; text-align: center">Выбранные фильтры отсутствуют</p>-->
                             <button type="button" class="apply-graphs-filter_btn">Применить</button>
                         </div>
                     </div>
@@ -414,7 +365,7 @@
                         </div>
                     </div>
                     <div class="abc-graph__right">
-                        <a href="" class="abc-graph__link" style="color: #ff8364;">как читать гарфик</a>
+                        <a href="https://commery.ru/tpost/am6hs1blk1-kak-chitat-rezultati-abc-xyz-analiza" target="_blank" class="abc-graph__link" style="color: #ff8364;">как читать гарфик</a>
                         {% for abc_report in report.abc_report %}
                         <div class="abc__info-item"
                              data-abc-group="{{ abc_report.group_abc }}"
@@ -437,7 +388,7 @@
             <div class="abc-xyz-table__wrapper">
                 <div class="abc-xyz__top">
                     <p>ABC-XYZ АНАЛИЗ</p>
-                    <a href="" class="abc-graph__link" style="color: #ff8364;">КАК ЧИТАТЬ ГРАФИК</a>
+                    <a href="https://commery.ru/tpost/am6hs1blk1-kak-chitat-rezultati-abc-xyz-analiza" target="_blank" class="abc-graph__link" style="color: #ff8364;">КАК ЧИТАТЬ ГРАФИК</a>
                 </div>
                 <div class="abc-xyz__top__designators">
                     <div style="width: 40px"></div>
@@ -454,7 +405,7 @@
                 <div class="abc-xyz__main">
                     <div class="abc-xyz__left__designators">
                         <div class="left-designators__title">
-                            <img src="{% static 'images/iconizer-7387786.svg' %}" alt="" class="abc-xyz__image">
+                            <img src="{% static 'images/1146181dthn.svg' %}" alt="" class="abc-xyz__image">
                             <p>Объёмы продаж</p>
                         </div>
                         <div class="left-designators__wrapper">
@@ -553,7 +504,7 @@
                 </div>
                 <div class="abc-xyz__footer__info">
                     <h3>Неопределённость</h3>
-                    <img src="{% static 'images/iconizer-7387786.svg' %}" alt="" class="abc-xyz__image">
+                    <img src="{% static 'images/1146181.svg' %}" alt="" class="abc-xyz__image">
                 </div>
                 <div class="abc-xyz__footer">
                     <p>Выручка, руб.</p>
@@ -582,7 +533,7 @@
                 </div>
             </div>
             <div class="abc-xyz__products__report__wrapper">
-                <div class="products_block" id="products-block" data-products="{{ report.products_values_by_nm_id }}">
+                <div class="products_block" id="products-block" data-products="{{ report.products_calculated_values }}">
                     <h3 style="font-size: 8px; color: #9c9a9a; text-transform:uppercase;">в выбранной группе отсутствуют товары</h3>
                 </div>
             </div>
@@ -594,6 +545,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'reports/js/dashboard_products.js' %}"></script>
 <script src="{% static 'reports/js/dashboard.js' %}"></script>
-<script src="{% static 'reports/js/graphs_filtering2.js' %}"></script>
+<script src="{% static 'reports/js/graphs_filtering.js' %}"></script>
 {% endblock %}
 

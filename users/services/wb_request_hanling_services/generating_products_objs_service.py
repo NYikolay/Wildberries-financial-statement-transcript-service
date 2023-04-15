@@ -16,9 +16,9 @@ django_logger = logging.getLogger('django_logger')
 def handle_unique_articles(article_values: dict, api_key):
     return ClientUniqueProduct(
         api_key=api_key,
-        nm_id=article_values.get('nm_id', 0),
+        nm_id=article_values.get('nm_id'),
         brand=article_values.get('brand'),
-        image=article_values.get('img', 'https://None.ru'),
+        image=article_values.get('img', 'https://None.come'),
         product_name=article_values.get('title', 'None')
     )
 

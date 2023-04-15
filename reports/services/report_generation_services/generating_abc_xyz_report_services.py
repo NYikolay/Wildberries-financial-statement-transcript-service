@@ -72,8 +72,8 @@ def generate_abc_report_values(calculated_financials_by_products: QuerySet) -> d
     :param calculated_financials_by_products: QuerySet containing the financial report request.user for each unique item
     :return: Returns the dictionary. Containing:
     1. total_abc_dict - Final ABC report for processing in the template
-    2. current_nm_ids - A list containing the unique nm_id of the user
-    3. abc_values_by_nm_ids - Supplemented financial report by unique nm_id request.user.
+    2. current_barcodes - A list containing the unique nm_ids by barcodes of the user
+    3. calculated_abc_values_by_products - Supplemented financial report by unique nm_id request.user.
     Added increasing_proportion, group_abc
     """
 
@@ -91,22 +91,32 @@ def generate_abc_report_values(calculated_financials_by_products: QuerySet) -> d
     calculated_values_by_products['group_abc'] = calculated_values_by_products.apply(
         get_abc_group, axis=1)
 
+    source_abc_df = pd.DataFrame(
+        [{'group_abc': 'A', 'revenue_by_article': 0, 'share_in_number': 0},
+         {'group_abc': 'B', 'revenue_by_article': 0, 'share_in_number': 0},
+         {'group_abc': 'C', 'revenue_by_article': 0, 'share_in_number': 0}]
+    )
     # Aggregates data from DataFrame calculated_values_by_products with grouping by group_abc column and
     # creates a new DataFrame total_abc_df containing group_abc, revenue_by_article, share_in_number
-    total_abc_df: pd.DataFrame = calculated_values_by_products.groupby('group_abc').agg({
+    calculated_abc_df: pd.DataFrame = calculated_values_by_products.groupby('group_abc').agg({
         'revenue_by_article': 'sum',
         'share_in_number': 'sum'
     }).reset_index()[['group_abc', 'revenue_by_article', 'share_in_number']]
 
+    total_abc_df = pd.merge(source_abc_df, calculated_abc_df, on='group_abc', how='outer')
+    total_abc_df.drop(['revenue_by_article_x', 'share_in_number_x'], axis=1, inplace=True)
+    total_abc_df.fillna(0, inplace=True)
+    total_abc_df.rename(
+        columns={'revenue_by_article_y': 'revenue_by_article', 'share_in_number_y': 'share_in_number'}, inplace=True)
     total_abc_df['revenue_by_article'] = total_abc_df['revenue_by_article'].round().astype(int)
     total_abc_df['share_in_number'] = total_abc_df['share_in_number'].round().astype(int)
 
-    current_nm_ids: List[int] = calculated_values_by_products.nm_id.unique().tolist()
+    current_barcodes: List[int] = calculated_values_by_products.barcode.unique().tolist()
 
     return {
         "total_abc_dict": total_abc_df.to_dict('records'),
-        "current_nm_ids": current_nm_ids,
-        "abc_values_by_nm_ids": calculated_values_by_products
+        "current_barcodes": current_barcodes,
+        "calculated_abc_values_by_products": calculated_values_by_products
     }
 
 
@@ -114,55 +124,55 @@ def generate_xyz_report_values(
         current_user,
         current_api_key,
         sum_aggregation_objs_dict,
-        current_nm_ids_set
+        current_barcodes
 ) -> pd.DataFrame:
     """
-    The function generates an XYZ report based on the current_nm_ids_set
+    The function generates an XYZ report based on the current_barcodes
     :param current_user: request.user
     :param current_api_key: active WebAPIKey of request.user
     :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
     in the value to filter values from the database
-    :param current_nm_ids_set: A list containing the unique nm_id of the current user from the SaleObject table
+    :param current_barcodes: A list containing the unique barcode by nm_id of the current user from the SaleObject table
     :return: Returns the final XYZ report, which has the DataFrame data type
     """
 
     past_months_values: dict = get_past_months_filters()
     weeks_by_years: pd.DataFrame = past_months_values.get('weeks_by_years')
     revenues_by_weeks: pd.DataFrame = pd.DataFrame(get_nm_ids_revenues_by_weeks(
-        current_user, current_api_key, current_nm_ids_set, sum_aggregation_objs_dict, past_months_values.get('filters')
+        current_user, current_api_key, current_barcodes, sum_aggregation_objs_dict, past_months_values.get('filters')
     ))
 
     index = pd.MultiIndex.from_product(
         [
-            revenues_by_weeks['nm_id'].unique(),
+            revenues_by_weeks['barcode'].unique(),
             weeks_by_years['year'].unique(),
             weeks_by_years['week_num'].unique()
         ],
-        names=['nm_id', 'year', 'week_num'])
+        names=['barcode', 'year', 'week_num'])
 
     new_revenues_by_weeks_df: pd.DataFrame = pd.DataFrame(index=index).reset_index()
 
     # Combines new_revenues_by_weeks_df and revenues_by_weeks DataFrames. The result is a DataFrame where each unique
-    # nm_id contains a row with the number of week and year for the last 12 months
+    # barcode by nm_id contains a row with the number of week and year for the last 12 months
     # (revenues of those weeks that do not have the original new_revenues_by_weeks_df is 0.0)
     new_revenues_by_weeks_df: pd.DataFrame = new_revenues_by_weeks_df.merge(
-        revenues_by_weeks, how='left', on=['nm_id', 'year', 'week_num']
-    ).sort_values(['nm_id', 'year', 'week_num']).fillna(0.0)
+        revenues_by_weeks, how='left', on=['barcode', 'year', 'week_num']
+    ).sort_values(['barcode', 'year', 'week_num']).fillna(0.0)
 
-    groups = new_revenues_by_weeks_df.groupby('nm_id', as_index=False)
+    groups = new_revenues_by_weeks_df.groupby('barcode', as_index=False)
 
-    # At this point, the logic of trimming zeros at the edges for each unique nm_id works.
+    # At this point, the logic of trimming zeros at the edges for each unique barcode by nm_id works.
     # Conditionally if represented as a list. Source [0.0, 0.0, 123, 0.0, 1123, 0.0] --> result [123, 0.0, 1123]
     validated_revenues_by_weeks: pd.DataFrame = pd.concat(
         [remove_zeros(group) for _, group in groups], ignore_index=True)
 
     # The following 3 lines calculate the mean and standard deviation of the revenue_by_article column
-    mean_std_df = validated_revenues_by_weeks.groupby('nm_id').agg({'revenue_by_article': ['mean', 'std']})
+    mean_std_df = validated_revenues_by_weeks.groupby('barcode').agg({'revenue_by_article': ['mean', 'std']})
     mean_std_df.columns = ['mean_revenue', 'std_revenue']
     mean_std_df = mean_std_df.reset_index()
 
-    std_mean_df = pd.DataFrame(validated_revenues_by_weeks['nm_id'].unique(), columns=['nm_id'])
-    std_mean_df = pd.merge(std_mean_df, mean_std_df, on='nm_id', how='left')
+    std_mean_df = pd.DataFrame(validated_revenues_by_weeks['barcode'].unique(), columns=['barcode'])
+    std_mean_df = pd.merge(std_mean_df, mean_std_df, on='barcode', how='left')
 
     std_mean_df['coefficient_xyz'] = std_mean_df.apply(
         lambda row: (row['std_revenue'] / row['mean_revenue']) * 100, axis=1)
@@ -176,11 +186,11 @@ def generate_xyz_report_values(
     return total_xyz_df
 
 
-def make_abc_xyz_data_set(abc_values_by_nm_ids: pd.DataFrame, xyz_report: pd.DataFrame) -> dict:
+def make_abc_xyz_data_set(calculated_abc_values_by_products: pd.DataFrame, xyz_report: pd.DataFrame) -> dict:
     """
     The function returns the final result of the ABC XYZ analysis
     combines the DataFrames of ABC analysis and XYZ analysis.
-    :param abc_values_by_nm_ids: The result of the generate_abc_report_values function,
+    :param calculated_abc_values_by_products: The result of the generate_abc_report_values function,
     namely the DataFrame containing the financial report by unique nm_id with ABC analysis
     :param xyz_report: The result of the generate_xyz_report_values function,
     namely the DataFrame containing the financial report by unique nm_id with ABC analysis
@@ -189,7 +199,7 @@ def make_abc_xyz_data_set(abc_values_by_nm_ids: pd.DataFrame, xyz_report: pd.Dat
     2. merged_abc_xyz_df - DataFrame, which contains unique nm_id after XYZ analysis is generated.
     It contains NOT ALL of the user's unique nm_id that is required for rendering in the template
     """
-    merged_abc_xyz_df: pd.DataFrame = xyz_report.merge(abc_values_by_nm_ids)
+    merged_abc_xyz_df: pd.DataFrame = xyz_report.merge(calculated_abc_values_by_products)
     merged_abc_xyz_df['final_group'] = merged_abc_xyz_df.apply(
         lambda row: row['group_abc'] + row['group'],
         axis=1
@@ -219,7 +229,10 @@ def get_abc_xyz_report(
     The function returns the calculated ABC XYZ analysis data. Calls the functions required for the calculations.
     :param current_user: request.user
     :param current_api_key: active WebAPIKey of request.user
-    :param filter_period_conditions: Dictionary containing Q() objects in the value to filter values from the database
+    :param filter_period_conditions: Dictionary containing Q() objects in the value to filter values from the database:
+    1. period
+    2. subject_name
+    3. brand_name
     :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
     in the value to filter values from the database
     :param net_costs_sum_aggregations_objs: Dictionary containing Coalesce(Sum()) objects in
@@ -242,17 +255,17 @@ def get_abc_xyz_report(
     abc_report: dict = generate_abc_report_values(calculated_financials_by_products)
 
     xyz_report: pd.DataFrame = generate_xyz_report_values(
-        current_user, current_api_key, sum_aggregation_objs_dict, abc_report.get('current_nm_ids')
+        current_user, current_api_key, sum_aggregation_objs_dict, abc_report.get('current_barcodes')
     )
 
-    abc_xyz_report: dict = make_abc_xyz_data_set(abc_report.get('abc_values_by_nm_ids'), xyz_report)
+    abc_xyz_report: dict = make_abc_xyz_data_set(abc_report.get('calculated_abc_values_by_products'), xyz_report)
 
-    final_nm_ids_values: pd.DataFrame = abc_report.get('abc_values_by_nm_ids').merge(
+    final_products_values: pd.DataFrame = abc_report.get('calculated_abc_values_by_products').merge(
         abc_xyz_report.get('merged_abc_xyz_df'), how='left'
     ).replace(np.nan, None).sort_values('revenue_by_article')
 
     return {
-        "products_values_by_nm_id": final_nm_ids_values.to_dict('records'),
+        "products_calculated_values": final_products_values.to_dict('records'),
         "abc_xyz_report": abc_xyz_report.get('final_abc_xyz_df'),
         "abc_report": abc_report.get('total_abc_dict')
     }

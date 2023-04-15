@@ -23,7 +23,10 @@ def get_calculated_financials_by_products(
     SaleObject model and calculate a financial report for each unique product of a particular user
     :param current_user: request.user
     :param current_api_key: active WebAPIKey of request.user
-    :param filter_period_conditions: Dictionary containing Q() objects in the value to filter values from the database
+    :param filter_period_conditions: Dictionary containing Q() objects in the value to filter values from the database:
+    1. period
+    2. subject_name
+    3. brand_name
     :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
     in the value to filter values from the database
     :param net_costs_sum_aggregations_objs: ictionary containing Coalesce(Sum()) objects in
@@ -40,8 +43,6 @@ def get_calculated_financials_by_products(
 
     calculated_financials = SaleObject.objects.filter(
         filter_period_conditions.get('period_q_obj'),
-        filter_period_conditions.get('category_q_obj'),
-        filter_period_conditions.get('brand_q_obj'),
         owner=current_user,
         api_key=current_api_key,
         nm_id__isnull=False
@@ -52,7 +53,7 @@ def get_calculated_financials_by_products(
                 cost_date__lte=OuterRef('order_dt')
             ).order_by('-cost_date').values('amount')[:1]
         ),
-    ).order_by('brand_name', 'nm_id').values('nm_id').annotate(
+    ).order_by('brand_name', 'barcode').values('barcode').annotate(
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
         image=F('product__image'),
@@ -70,7 +71,7 @@ def get_calculated_financials_by_products(
         total_revenue=Value(total_revenue, output_field=FloatField()),
         total_products_count=Value(total_products_count, output_field=FloatField()),
         **annotations_objs,
-    ).values('nm_id', 'image', 'product_name',
+    ).values('nm_id', 'barcode', 'image', 'product_name',
              'revenue_by_article', 'share_in_revenue',
              'product_marginality', 'share_in_number')
 
@@ -80,7 +81,7 @@ def get_calculated_financials_by_products(
 def get_nm_ids_revenues_by_weeks(
         current_user,
         current_api_key,
-        current_nm_ids_set,
+        current_barcodes,
         sum_aggregation_objs_dict,
         filters) -> QuerySet:
     """
@@ -88,7 +89,7 @@ def get_nm_ids_revenues_by_weeks(
     WARNING, the filtering by weeks for the last 12 months is used.
     :param current_user: request.user
     :param current_api_key: active WebAPIKey of request.user
-    :param current_nm_ids_set: A list containing the unique nm_id of the current user from the SaleObject table
+    :param current_barcodes: A list containing the unique barcode by nm_id of the current user from the SaleObject table
     :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
     in the value to filter values from the database
     :param filters: The result of the function get_past_months_filters , contains objects
@@ -100,7 +101,7 @@ def get_nm_ids_revenues_by_weeks(
         filters.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
-        nm_id__in=current_nm_ids_set
+        barcode__in=current_barcodes
     ).order_by('week_num').values('week_num', 'year').annotate(
         **sum_aggregation_objs_dict,
         revenue_by_article=ExpressionWrapper(
@@ -109,7 +110,7 @@ def get_nm_ids_revenues_by_weeks(
                 'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
                 'retail_partial_compensation_marriage_sum') + F('retail_advance_payment_goods_without_payment_sum'),
             output_field=FloatField()),
-    ).order_by('-nm_id').values('nm_id', 'year', 'week_num', 'revenue_by_article')
+    ).order_by('-barcode').values('barcode', 'nm_id', 'year', 'week_num', 'revenue_by_article')
 
     return revenues_queryset
 
@@ -117,7 +118,7 @@ def get_nm_ids_revenues_by_weeks(
 def get_report_db_inter_data(
         current_user,
         current_api_key,
-        filter_period_conditions,
+        filter_period_conditions: dict,
         general_dict_aggregation_objs: dict
 ):
     """
@@ -134,12 +135,10 @@ def get_report_db_inter_data(
 
     products_count_by_period = SaleObject.objects.filter(
         filter_period_conditions.get('period_q_obj'),
-        filter_period_conditions.get('category_q_obj'),
-        filter_period_conditions.get('brand_q_obj'),
         owner=current_user,
         api_key=current_api_key,
         nm_id__isnull=False
-    ).distinct('nm_id').count()
+    ).values('id').distinct('barcode').count()
 
     tax_rates_objects = TaxRate.objects.filter(
         api_key=current_api_key
@@ -181,8 +180,6 @@ def get_report_db_inter_data(
 
     sale_objects_by_weeks = SaleObject.objects.filter(
         filter_period_conditions.get('period_q_obj'),
-        filter_period_conditions.get('category_q_obj'),
-        filter_period_conditions.get('brand_q_obj'),
         owner=current_user,
         api_key=current_api_key,
     ).annotate(
