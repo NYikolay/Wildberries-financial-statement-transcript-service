@@ -1,6 +1,7 @@
 from django import forms
 
 from users.models import NetCost, SaleReport
+from django.core.exceptions import ValidationError
 
 
 class SaleReportForm(forms.ModelForm):
@@ -22,3 +23,4 @@ class SaleReportForm(forms.ModelForm):
                 'class': 'report_input-item'
             }),
         }
+

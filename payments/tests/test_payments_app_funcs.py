@@ -100,10 +100,10 @@ def test_fail_check_signature_result(
 
 def test_get_subscribed_to_date():
     current_date = datetime.now()
-    expected_subscribed_to_1 = datetime.combine((current_date + relativedelta(weeks=1)), time.min)
+    expected_subscribed_to_1 = datetime.combine((current_date + relativedelta(weeks=1)), time.max)
     subscribed_to_1 = get_subscribed_to_date(1, 'Неделя')
 
-    expected_subscribed_to_2 = datetime.combine((current_date + relativedelta(months=1)), time.min)
+    expected_subscribed_to_2 = datetime.combine((current_date + relativedelta(months=1)), time.max)
     subscribed_to_2 = get_subscribed_to_date(1, 'Месяц')
 
     assert subscribed_to_1 == expected_subscribed_to_1

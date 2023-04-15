@@ -1,51 +1,16 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const checkboxInputs = document.querySelectorAll('#period-checkbox')
     const graphsWrapperBtn = document.getElementById('graphs-dropbtn')
     const dropdownContent = document.querySelector('.filter-dropdown_content')
+    const closeDropDown = document.getElementById('close-dropdown-btn')
+
+    const periodCheckboxInputs = document.querySelectorAll('#period-checkbox')
     const applyFiltersBtn = document.querySelector('.apply-graphs-filter_btn')
-    const allTimeCheckbox = document.getElementById('all-checkbox')
-    const checkboxInputsCount = checkboxInputs.length
-    let checkboxInputsCheckedCount = getCheckedInputsCount(checkboxInputs)
-    let isDropdownActive = false;
 
-    if (checkboxInputsCount !== checkboxInputsCheckedCount) {
-        allTimeCheckbox.checked = false;
-    }
+    const allPeriodFilterCheckbox = document.getElementById('all-checkbox')
+    const periodCheckboxInputsCount = periodCheckboxInputs.length
+    let periodCheckboxInputsCheckedCount = getCheckedInputsCount(periodCheckboxInputs)
 
-    function getCheckedInputsCount(inputs) {
-        let inputsCheckedCounter = 0
-        inputs.forEach(input => {
-            if (input.checked) {
-                inputsCheckedCounter += 1
-            }
-        })
-        return inputsCheckedCounter
-    }
-
-    function generateFilterDataObject(inputs) {
-        const intermediateFilterData = {}
-
-        inputs.forEach(input => {
-            if (input.checked) {
-                intermediateFilterData[input.getAttribute("data-filter-year")] = []
-            }
-        })
-        inputs.forEach(input => {
-            if (input.checked) {
-                intermediateFilterData[input.getAttribute("data-filter-year")].push(input.getAttribute("data-filter-week"))
-            }
-        })
-
-        return intermediateFilterData
-    }
-
-    function generateFilterQueryString(filterData) {
-        let queryString = '';
-        for (const key in filterData) {
-            queryString += `${key}=${filterData[key]}&`;
-        }
-        return queryString.slice(0, -1);
-    }
+    let isDropdownActive = false
 
 
     graphsWrapperBtn.addEventListener('click', function() {
@@ -53,26 +18,98 @@ document.addEventListener("DOMContentLoaded", function() {
         isDropdownActive = !isDropdownActive
     })
 
-    allTimeCheckbox.addEventListener('change', function(e) {
-        [...checkboxInputs].forEach(input => input.checked = e.target.checked);
-        checkboxInputsCheckedCount = e.target.checked ? checkboxInputs.length : 0;
+    closeDropDown.addEventListener('click', function () {
+        dropdownContent.style.display = ''
+        isDropdownActive = !isDropdownActive
     })
 
-    checkboxInputs.forEach(input => {
-        input.addEventListener('change', function(e) {
-            if (e.target.checked) {
-                checkboxInputsCheckedCount += 1
-                allTimeCheckbox.checked = checkboxInputsCount === checkboxInputsCheckedCount
-            } else {
-                checkboxInputsCheckedCount -= 1
-                allTimeCheckbox.checked = checkboxInputsCount === checkboxInputsCheckedCount
+    if (periodCheckboxInputsCount !== periodCheckboxInputsCheckedCount) {
+        allPeriodFilterCheckbox.checked = false;
+    }
+
+    function getCheckedInputsCount(inputs) {
+        return [...inputs].filter(input => input.checked).length;
+    }
+
+    let incrementCheckedCounter = (counterType) => {
+        if (counterType === 'period') {
+            periodCheckboxInputsCheckedCount++
+            allPeriodFilterCheckbox.checked = periodCheckboxInputsCount === periodCheckboxInputsCheckedCount
+        }
+    }
+    let decreaseCheckedCounter = (counterType) => {
+        if (counterType === 'period') {
+            periodCheckboxInputsCheckedCount--
+            allPeriodFilterCheckbox.checked = periodCheckboxInputsCount === periodCheckboxInputsCheckedCount
+        }
+    }
+
+    let setCheckedCounterToZero = (counterType) => {
+        if (counterType === 'period') {periodCheckboxInputsCheckedCount = 0}
+    }
+
+    let setCheckedCounter = (counterType) => {
+        if (counterType === 'period') {periodCheckboxInputsCheckedCount = periodCheckboxInputsCount}
+    }
+
+
+    function addEventListenerToInput(input) {
+        input.addEventListener('change', function(event) {
+            if (input.getAttribute('data-filter-type') === 'period') {
+                input.checked ? incrementCheckedCounter('period') : decreaseCheckedCounter('period')
             }
         })
-    })
+    }
+
+    function addEventListenerForAllCheckboxInput(allCheckboxElem, inputs, filterType) {
+        allCheckboxElem.addEventListener('change', function(e) {
+
+            [...inputs].forEach(input => { input.checked = e.target.checked});
+
+            if (filterType === 'period') {
+                e.target.checked ? setCheckedCounter('period') : setCheckedCounterToZero('period')
+            }
+        })
+    }
+
+    function handleInputs(inputs) {
+        inputs.forEach(input => {
+            addEventListenerToInput(input)
+        })
+    }
+
+    function generatePeriodFilterDataObject(inputs) {
+        const intermediateFilterData = {};
+        inputs.forEach((input) => {
+            if (input.checked && !input.disabled) {
+                const filterYear = input.getAttribute("data-filter-year");
+                const filterWeek = input.getAttribute("data-filter-week");
+                if (!intermediateFilterData[filterYear]) {
+                    intermediateFilterData[filterYear] = [filterWeek];
+                } else {
+                    intermediateFilterData[filterYear].push(filterWeek);
+                }
+            }
+        });
+        return intermediateFilterData;
+    }
+
+
+    function generatePeriodQueryString(filterData) {
+        let queryString = '';
+        for (const key in filterData) {
+            queryString += `${key}=${filterData[key]}&`;
+        }
+        return queryString.slice(0, -1);
+    }
+
+    handleInputs(periodCheckboxInputs)
+    addEventListenerForAllCheckboxInput(allPeriodFilterCheckbox, periodCheckboxInputs, 'period', periodCheckboxInputsCheckedCount)
 
     applyFiltersBtn.addEventListener('click', function () {
-        const filterData = generateFilterDataObject(checkboxInputs)
-        const queryString = Object.keys(filterData).length === 0 ? '' : `?${generateFilterQueryString(filterData)}`
-        window.location.href = '/' + queryString
+        let periodQueryString = periodCheckboxInputsCheckedCount ? generatePeriodQueryString(generatePeriodFilterDataObject(periodCheckboxInputs)) : ''
+
+        window.location.href = `?${periodQueryString}`
     })
+
 })

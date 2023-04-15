@@ -1,3 +1,4 @@
+from reports.models import InfoTypes, GeneralInformationObj
 from users.models import WBApiKey, ClientUniqueProduct, SaleReport
 
 
@@ -5,6 +6,12 @@ def current_user_api_key(request):
     if request.user.is_authenticated:
         return {'current_api_key': request.user.keys.filter(is_current=True).first()}
     return {}
+
+
+def general_report_message(request):
+    message = GeneralInformationObj.objects.filter(info_type=InfoTypes.reports, is_active=True).first()
+
+    return {'report_message': message}
 
 
 def user_last_report_date(request):

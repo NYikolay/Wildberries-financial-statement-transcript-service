@@ -15,7 +15,7 @@ def get_revenue_by_filter(
     sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict')
 
     revenue_by_filter_list = SaleObject.objects.filter(
-        period_filter_data,
+        period_filter_data.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
         brand_name__isnull=False

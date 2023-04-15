@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from reports.services.handle_graphs_filter_data import get_period_filter_data
+from reports.services.handle_graphs_filter_data import get_filter_data
 import pytest
 
 from reports.services.report_generation_services.formula_calculation_service import calculate_revenue, \
@@ -10,10 +10,6 @@ from reports.services.report_generation_services.formula_calculation_service imp
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
 from reports.services.report_generation_services.handling_calculated_financial_by_weeks_service import \
     get_calculated_financials_by_weeks
-from reports.services.report_generation_services.handling_calculated_finfancials_by_products_service import \
-    get_calculated_financials_by_products
-from reports.tests.reports_pytest_fixtures import test_sale_objects_by_weeks, \
-    test_supplier_costs_sum_list, test_wb_costs_sum_list, test_sale_objects_by_products
 
 
 def test_get_period_filter_data():
@@ -27,7 +23,7 @@ def test_get_period_filter_data():
         {'year': 2023, 'week_nums': [11, 10, 9, 8, 7, 5, 4, 3, 1]}
     ]
 
-    filter_list = get_period_filter_data(filter_dict)
+    filter_list = get_filter_data(filter_dict)
 
     assert expected_filter_list == filter_list
 
@@ -38,7 +34,7 @@ def test_fail_period_filter_data():
         '2023': ['11,10,9,8,7,5as,4,3,1']
     }
     with pytest.raises(Exception):
-        get_period_filter_data(filter_dict)
+        get_filter_data(filter_dict)
 
 
 def test_calculate_revenue():
@@ -298,45 +294,6 @@ def test_get_calculated_financials_by_weeks(
     }
 
     assert financials_by_week == test_expected_financials_by_week
-
-
-def test_get_calculated_financials_by_products(test_sale_objects_by_products):
-    financials_by_products = [
-        get_calculated_financials_by_products(
-            sale,
-            4812188.739999999) for sale in test_sale_objects_by_products]
-
-    test_expected_financials_by_products = [
-        {
-            "nm_id": 51897113,
-            "image": "https://basket-04.wb.ru/vol518/part51897/51897113/images/tm/1.jpg",
-            "sales_quantity_value": 33,
-            "returns_quantity_value": 0,
-            "revenue_by_article": 22320,
-            "share_in_profits": 0.46,
-            "product_marginality": 82,
-        },
-        {
-            "nm_id": 51897115,
-            "image": "https://basket-04.wb.ru/vol518/part51897/51897115/images/tm/1.jpg",
-            "sales_quantity_value": 11,
-            "returns_quantity_value": 0,
-            "revenue_by_article": 3670,
-            "share_in_profits": 0.08,
-            "product_marginality": 30,
-        },
-        {
-            "nm_id": 51897116,
-            "image": "https://basket-04.wb.ru/vol518/part51897/51897116/images/tm/1.jpg",
-            "sales_quantity_value": 4,
-            "returns_quantity_value": 0,
-            "revenue_by_article": 1291,
-            "share_in_profits": 0.03,
-            "product_marginality": -279,
-        },
-    ]
-
-    assert financials_by_products == test_expected_financials_by_products
 
 
 

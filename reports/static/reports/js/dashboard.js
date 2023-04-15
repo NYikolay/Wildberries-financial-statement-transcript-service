@@ -462,7 +462,7 @@ function createDiogram(data, position) {
 	for(var i = 0; i < diog_labeles.length; i++) {
 		diog_legend_block[i].children[1].textContent = diog_labeles[i];
 	}
-	// Удаление лиших цветов
+
 	let colors = [
 		'#ff562b',
 		'#ff815c',
@@ -478,7 +478,7 @@ function createDiogram(data, position) {
 		colors = colors.slice(0, count_key);
 	}
 	let spans = diog_content.parentElement.parentElement.children[1].children;
-	for (var i = 0; i < 9; i++) {
+	for (let i = 0; i < 9; i++) {
 		if (i >= diog_data.length) {
 			spans[i].classList.add('hidden');
 		}
@@ -494,31 +494,27 @@ function createDiogram(data, position) {
 			}
 			]},
 		options: {
-
-
-			legend: {
-				display: false
-			},
-
-			tooltips: {
-				mode: 'nearest',
-				caretSize: 0,
-				callbacks: {
-					title: function(tooltipItem, data) {
-						diog_current_title = data['labels'][tooltipItem[0]['index']];
-					},
-					label: function(tooltipItem, data) {
-						return diog_current_title;
-					},
+			plugins: {
+				legend: {
+					display: false
 				},
-				titleFontColor: '#0066ff',
-				bodyFontSize: 8,
-				displayColors: false,
-				backgroundColor: '#424242',
-
-
-
-			}
+				tooltip: {
+					mode: 'nearest',
+					caretSize: 0,
+					callbacks: {
+						title : () => null,
+						label: function(tooltipItem) {
+							return diog_labeles[tooltipItem.dataIndex];
+						},
+					},
+					bodyFont: {
+						size: 8
+					},
+					titleColor: '#0066ff',
+					displayColors: false,
+					backgroundColor: '#424242',
+				}
+			},
 		}
 	});
 }
@@ -531,3 +527,109 @@ createDiogram(stockShareInRevenueData, 'right');
 graphWrapper.removeAttribute("data-report")
 graphDiogWrapper.removeAttribute("data-brands-share")
 graphDiogWrapper.removeAttribute("data-stock-share")
+
+
+const ctx1 = document.getElementById('abc');
+const abcItems = document.querySelectorAll('.abc__info-item')
+
+let labelsABC = [];
+let revenuesData = [];
+let shareInRevenuesData = [];
+
+abcItems.forEach(item => {
+	labelsABC.push(item.getAttribute('data-abc-group'))
+	revenuesData.push(item.getAttribute('data-abc-revenue'))
+	shareInRevenuesData.push(item.getAttribute('data-abc-share'))
+})
+
+new Chart(ctx1, {
+	type: 'bar',
+	data: {
+		labels: labelsABC,
+		datasets: [{
+			data: revenuesData,
+			backgroundColor: ["#ff8364", "#dbdbdb", "#c0cee0"],
+			borderWidth: 0,
+			borderRadius: 10,
+			categoryPercentage: 0.8,
+			barPercentage: 1.0,
+			order: 1,
+			yAxisID: "bar_data"
+		},
+			{
+				data: shareInRevenuesData,
+				borderColor: "#424242",
+				backgroundColor: "#424242",
+				type: 'line',
+				order: 0,
+				yAxisID: "linear_data"
+			}]
+	},
+	options: {
+		responsive: true,
+		plugins: {
+			legend: {
+				display: false,
+			},
+			tooltip: {
+				enabled: false
+			}
+		},
+		scales: {
+			bar_data: {
+				beginAtZero: true,
+				type: 'linear',
+				position: 'left',
+				grid: {
+					display: false
+				},
+				ticks: {
+					display: false
+				},
+				border: {
+					display: false
+				},
+			},
+			linear_data: {
+				beginAtZero: true,
+				type: 'linear',
+				position: 'right',
+				grid: {
+					display: false
+				},
+				ticks: {
+					display: false
+				},
+				border: {
+					display: false
+				},
+			},
+			x: {
+				ticks: {
+					font: {
+						size: 8,
+					}
+				},
+				grid: {
+					display: false
+				},
+				border: {
+					color: "#dbdbdb",
+					width: 2
+				},
+
+			},
+			y: {
+				ticks: {
+					display: false
+				},
+				border: {
+					display: false
+				},
+				grid: {
+					display: false,
+				}
+			},
+		}
+	}
+});

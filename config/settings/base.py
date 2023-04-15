@@ -3,8 +3,6 @@ import environ
 
 from pathlib import Path
 
-from pythonjsonlogger.jsonlogger import JsonFormatter
-
 from config.json_logging_formatters import CustomJsonFormatter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -66,7 +64,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'users.context_processors.user_additional_data_context.current_user_api_key',
                 'users.context_processors.user_additional_data_context.user_last_report_date',
-                'users.context_processors.user_additional_data_context.user_product_article'
+                'users.context_processors.user_additional_data_context.user_product_article',
+                'users.context_processors.user_additional_data_context.general_report_message'
             ],
         },
     },
@@ -85,7 +84,7 @@ DATABASES = {
         'USER': env("DB_USER"),
         'PASSWORD': env("DB_PASSWORD"),
         'HOST': env("DB_HOST"),
-        'PORT': 5432
+        'PORT': env("DB_PORT")
     }
 }
 

@@ -27,7 +27,6 @@
     display: flex;
     width: 735px;
     flex-direction: column;
-    align-items: center;
     gap: 18px;
     border-radius: 7px;
     background-color: #f4f4f4;
