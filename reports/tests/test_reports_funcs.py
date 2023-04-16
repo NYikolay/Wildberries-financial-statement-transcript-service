@@ -10,6 +10,8 @@ from reports.services.report_generation_services.formula_calculation_service imp
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
 from reports.services.report_generation_services.handling_calculated_financial_by_weeks_service import \
     get_calculated_financials_by_weeks
+from reports.tests.reports_pytest_fixtures import test_sale_objects_by_weeks, test_supplier_costs_sum_list, \
+    test_wb_costs_sum_list
 
 
 def test_get_period_filter_data():
