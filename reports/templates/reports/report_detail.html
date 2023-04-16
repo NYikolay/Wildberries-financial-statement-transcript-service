@@ -35,6 +35,9 @@
                 </p>
                 {% endif %}
             </div>
+            <div class="products-file-popup_wrapper">
+                <button class="file-info-popup_btn" type="button">Установить себестоимость через файл</button>
+            </div>
         </div>
         <div class="reports_middle-wrapper">
             <div class="reports_left-filters" id="reports-left-filters">
@@ -115,6 +118,29 @@
         </div>
     </div>
 </div>
+<div class="file_load_form-wrapper">
+    <div class="file_load_form-container">
+        <h1>Установка данных отчёта</h1>
+        <div class="file_load_form_wrapper-inner">
+            <div class="file_load-right">
+                <p>ЗАГРУЗИТЬ ЗАПОЛНЕННЫЙ EXCEL-ФАЙЛ</p>
+                <form action="{% url 'reports:set_report_add_data' %}" method="post" enctype="multipart/form-data" class="file_load-form">
+                    {% csrf_token %}
+                    <div class="file_input-wrapper">
+                        {{ file_load_form.as_p }}
+                        <label for="id_report_data_file" class="input-file_button">
+                            <span class="input-file-button_text">Выбрать файл</span>
+                        </label>
+                        <p class="file_status-text">Файл не выбран</p>
+                    </div>
+                    <button type="submit" class="file_load_send-btn">Загрузить excel</button>
+                </form>
+            </div>
+        </div>
+        <button type="button" class="file_load_cancel-btn">Отменить</button>
+    </div>
+</div>
 <script src="{% static 'reports/js/reports.js' %}"></script>
 <script src="{% static 'reports/js/reports_loader.js' %}"></script>
+<script src="{% static 'users/js/products_file_form.js' %}"></script>
 {% endblock %}
