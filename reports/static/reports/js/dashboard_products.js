@@ -97,6 +97,7 @@ function createProductBlocks(condition) {
         productsData.appendChild(productWrapper)
         productsData.removeAttribute('data-products')
     }
+
     if (!counter) {
         productsData.innerHTML =
             `<h3 style="font-size: 8px; color: #9c9a9a; text-transform:uppercase;">в выбранной группе отсутствуют товары</h3>`

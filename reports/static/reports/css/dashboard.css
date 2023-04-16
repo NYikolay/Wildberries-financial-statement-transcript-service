@@ -1220,7 +1220,8 @@
     content: '1';
     border: none;
     text-align: center;
-    font-size: 12px;
+    font-size: 8px;
+    padding-top: 2px;
 }
 
 /* --- TOOLTIP --- */

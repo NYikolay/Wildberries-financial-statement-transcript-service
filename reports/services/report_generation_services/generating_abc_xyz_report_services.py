@@ -262,7 +262,7 @@ def get_abc_xyz_report(
 
     final_products_values: pd.DataFrame = abc_report.get('calculated_abc_values_by_products').merge(
         abc_xyz_report.get('merged_abc_xyz_df'), how='left'
-    ).replace(np.nan, None).sort_values('revenue_by_article')
+    ).replace(np.nan, None).sort_values('revenue_by_article', ascending=False)
 
     return {
         "products_calculated_values": final_products_values.to_dict('records'),
