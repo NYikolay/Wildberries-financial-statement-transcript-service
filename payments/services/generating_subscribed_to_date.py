@@ -19,4 +19,4 @@ def get_subscribed_to_date(duration: int, duration_desc: str):
         subscribed_to = current_date
         return subscribed_to
 
-    return datetime.combine(subscribed_to, time.min)
+    return datetime.combine(subscribed_to, time.max)

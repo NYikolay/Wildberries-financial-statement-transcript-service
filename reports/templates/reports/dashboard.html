@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %} Сводный отчёт - Commery{% endblock %}
+{% load dashboard_filters %}
 {% block content %}
 <div class="container">
     <div class="main_content-wrapper">
@@ -9,45 +10,50 @@
                 <div class="graphs-bar-filter_wrapper">
                     <div class="filter-dropdown_wrapper">
                         <button class="graphs-dropbtn" id="graphs-dropbtn">
-                            <img src="{% static 'images/2278049_2.svg' %}" alt="" style="height: 15px; width: 15px;">
-                            {% if not current_filter_data %}
-                            Период: все время
-                            {% else %}
-                            Период: пользовательский
-                            {% endif %}
+                            <img src="{% static 'images/10179242.svg' %}" alt="" style="height: 15px; width: 15px;">
+                            ФИЛЬТРЫ
                             <img src="{% static 'images/iconizer-32195.svg' %}" alt="" style="height: 8px; width: 8px;">
                         </button>
                         <div class="filter-dropdown_content">
-                            <label class="graphs-filter_label">
-                                <input
-                                        type="checkbox"
-                                        checked
-                                        class="filter_checkbox"
-                                        id="all-checkbox">
-                                <span></span>
-                                <p>Всё время</p>
-                            </label>
-                            {% for filter_date in filter_dates_data %}
-                            <label class="graphs-filter_label">
-                                <input
-                                        type="checkbox"
-                                        {% if current_filter_data %}
-                                        {% for filter_dict in current_filter_data %}
-                                        {% if filter_date.year == filter_dict.year and filter_date.week_num in filter_dict.week_nums %}
-                                        checked
-                                        {% endif %}
-                                        {% endfor %}
-                                        {% else %}
-                                        checked
-                                        {% endif %}
-                                        class="filter_checkbox"
-                                        id="period-checkbox"
-                                        data-filter-week="{{ filter_date.week_num }}"
-                                        data-filter-year="{{ filter_date.year }}">
-                                <span></span>
-                                <p>{{ filter_date.week_num }} неделя ({{ filter_date.date_from|date:'d.m.Y'}}-{{filter_date.date_to|date:'d.m.Y'}})</p>
-                            </label>
-                            {% endfor %}
+                            <div class="filter-dropdown-items__wrapper">
+                                <div class="filter-dropdown_item" id="period-filter-wrapper" data-title="{{ filters_data.ara1 }}">
+                                    <h3>Период</h3>
+                                    <label class="graphs-filter_label">
+                                        <input
+                                                type="checkbox"
+                                                checked
+                                                class="filter_checkbox"
+                                                id="all-checkbox">
+                                        <span></span>
+                                        <p>Всё</p>
+                                    </label>
+                                    {% for filter_period in filters_data.filter_period_queryset %}
+                                    <label class="graphs-filter_label">
+                                        <input
+                                                type="checkbox"
+                                                {% if current_filter_data %}
+                                                {% for filter_dict in current_filter_data %}
+                                                {% if filter_period.year == filter_dict.year and filter_period.week_num in filter_dict.week_nums %}
+                                                checked
+                                                {% endif %}
+                                                {% endfor %}
+                                                {% else %}
+                                                checked
+                                                {% endif %}
+                                                class="filter_checkbox"
+                                                id="period-checkbox"
+                                                data-filter-type="period"
+                                                data-filter-week="{{ filter_period.week_num }}"
+                                                data-filter-year="{{ filter_period.year }}">
+                                        <span></span>
+                                        <p>{{ filter_period.week_num }} неделя ({{ filter_period.date_from|date:'d.m.Y'}}-{{filter_period.date_to|date:'d.m.Y'}})</p>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" style="align-self: flex-start; height: 10px; width: 10px;" id="close-dropdown-btn">
+                                    <img src="{% static 'images/back_cross.svg'%}" alt="" style="height: 10px; width: 10px;">
+                                </button>
+                            </div>
                             <button type="button" class="apply-graphs-filter_btn">Применить</button>
                         </div>
                     </div>
@@ -223,9 +229,7 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
         <div class="report_block">
             <div class="report_title-block">
                 <h1 class="report_title">Нарастающий итог</h1>
@@ -341,48 +345,203 @@
                 {% endif %}
             </div>
         </div>
-        <div class="products_list-block">
-            <div class="products_block-filters">
-                <div class="plug"></div>
-                <div class="products_filter-item">
-                    <div class="text-wrapper">
-                        <p>Продажи</p>
+        <div class="abc-xyz__block">
+            <div class="abc-xyz__graphs-wrapper">
+                <div class="abc-graph__wrapper">
+                    <div class="abc-graph__left">
+                        <p>ABC КЛАССИФИКАЦИЯ ТОВАРОВ</p>
+                        <canvas id="abc" width="190px" height="240px"></canvas>
+                        <div class="abc-graph__left__description">
+                            <div class="group-revenue__wrapper">
+                                <div style="width: 16px; height: 10px; background-color: #ff8364"></div>
+                                <div style="width: 16px; height: 10px; background-color: #dbdbdb"></div>
+                                <div style="width: 16px; height: 10px; background-color: #c0cee0"></div>
+                                <p>Выручка группы</p>
+                            </div>
+                            <div class="scu-count__wrapper">
+                                <div class="sku-count__line"></div>
+                                <p>Количество scu в группе</p>
+                            </div>
+                        </div>
                     </div>
-                    <button type="button" id="sales_sort" onclick="salesSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
-                </div>
-                <div class="products_filter-item">
-                    <div class="text-wrapper">
-                        <p>Возвраты</p>
+                    <div class="abc-graph__right">
+                        <a href="https://commery.ru/tpost/am6hs1blk1-kak-chitat-rezultati-abc-xyz-analiza" target="_blank" class="abc-graph__link" style="color: #ff8364;">как читать гарфик</a>
+                        {% for abc_report in report.abc_report %}
+                        <div class="abc__info-item"
+                             data-abc-group="{{ abc_report.group_abc }}"
+                             data-abc-revenue="{{ abc_report.revenue_by_article }}"
+                             data-abc-share="{{ abc_report.share_in_number }}"
+                             {% if abc_report.group_abc == 'A' %} style="border-color: #ff8364; margin-top: 10px;" {% endif %}
+                        {% if abc_report.group_abc == 'B' %}style="color: #ccc4c4" {% endif %}
+                        {% if abc_report.group_abc == 'C' %}style="border-color: #c0cee0" {% endif %}
+                        >
+                        <h3 class="abc-info__revenue"
+                            {% if abc_report.group_abc == 'A' %} style="color: #ff8364" {% endif %}
+                        {% if abc_report.group_abc == 'B' %} style="color: #ccc4c4" {% endif %}
+                        {% if abc_report.group_abc == 'C' %} style="color: #c0cee0" {% endif %}
+                        >{{ abc_report.revenue_by_article|floatformat:"-3g" }}</h3>
+                        <h3 class="abc-info__scu">{{ abc_report.share_in_number }}%</h3>
                     </div>
-                    <button type="button" id="returns_sort" onclick="returnsSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
-                </div>
-                <div class="products_filter-item">
-                    <div class="text-wrapper">
-                        <p>Выручка</p>
-                    </div>
-                    <button type="button" id="revenue_sort" onclick="revenueSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
-                </div>
-                <div class="products_filter-item">
-                    <div class="text-wrapper">
-                        <p>Доля в выручке</p>
-                    </div>
-                    <button type="button" id="share_sort" onclick="shareSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
-                </div>
-                <div class="products_filter-item">
-                    <div class="text-wrapper">
-                        <p>Маржинальность</p>
-                    </div>
-                    <button type="button" id="marginality_sort" onclick="marginalitySort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt=""></button>
+                    {% endfor %}
                 </div>
             </div>
-            <div class="products_block" data-title="{{ report.report_by_products }}" id="products_block">
-
+            <div class="abc-xyz-table__wrapper">
+                <div class="abc-xyz__top">
+                    <p>ABC-XYZ АНАЛИЗ</p>
+                    <a href="https://commery.ru/tpost/am6hs1blk1-kak-chitat-rezultati-abc-xyz-analiza" target="_blank" class="abc-graph__link" style="color: #ff8364;">КАК ЧИТАТЬ ГРАФИК</a>
+                </div>
+                <div class="abc-xyz__top__designators">
+                    <div style="width: 40px"></div>
+                    <div class="top-designators__item">
+                        <p>X</p>
+                    </div>
+                    <div class="top-designators__item">
+                        <p>Y</p>
+                    </div>
+                    <div class="top-designators__item">
+                        <p>Z</p>
+                    </div>
+                </div>
+                <div class="abc-xyz__main">
+                    <div class="abc-xyz__left__designators">
+                        <div class="left-designators__title">
+                            <img src="{% static 'images/1146181dthn.svg' %}" alt="" class="abc-xyz__image">
+                            <p>Объёмы продаж</p>
+                        </div>
+                        <div class="left-designators__wrapper">
+                            <div class="left-designator__item">
+                                <p>A</p>
+                            </div>
+                            <div class="left-designator__item">
+                                <p>B</p>
+                            </div>
+                            <div class="left-designator__item">
+                                <p>C</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="abc-xyz__content__wrapper">
+                        <div class="abc-xyz__content__info__item">
+                            <h3>ВЫСОКИЕ <br> СТАБИЛЬНЫЕ <br>  ПРОДАЖИ</h3>
+                            <p>{{ report.abc_xyz_report.values.AX|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #ffd8cc">
+                            <h3>Высокие продажи, незначительные колебания спроса</h3>
+                            <p>{{ report.abc_xyz_report.values.AY|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #f2f2f2">
+                            <h3>ВЫСОКИЕ ПРОДАЖИ, ЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                            <p>{{ report.abc_xyz_report.values.AZ|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #ffd8cc">
+                            <h3>СРЕДНИЕ <br> СТАБИЛЬНЫЕ <br> ПРОДАЖИ</h3>
+                            <p>{{ report.abc_xyz_report.values.BX|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #f2f2f2">
+                            <h3>СРЕДНИЕ ПРОДАЖИ, НЕЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                            <p>{{ report.abc_xyz_report.values.BY|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #dfe5ed">
+                            <h3>СРЕДНИЕ ПРОДАЖИ, ЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                            <p>{{ report.abc_xyz_report.values.BZ|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #f2f2f2">
+                            <h3>НИЗКИЕ <br> СТАБИЛЬНЫЕ <br> ПРОДАЖИ</h3>
+                            <p>{{ report.abc_xyz_report.values.CX|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #dfe5ed">
+                            <h3>НИЗКИЕ ПРОДАЖИ, НЕЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                            <p>{{ report.abc_xyz_report.values.CY|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="cross"></div>
+                                <div class="cross"></div>
+                            </div>
+                        </div>
+                        <div class="abc-xyz__content__info__item" style="background-color: #c0cee0">
+                            <h3>НИЗКИЕ ПРОДАЖИ, ЗНАЧИТЕЛЬНЫЕ КОЛЕБАНИЯ СПРОСА</h3>
+                            <p>{{ report.abc_xyz_report.values.CZ|default:0|floatformat:"-3g" }}</p>
+                            <div class="item__evaluation">
+                                <div class="minus"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="abc-xyz__footer__info">
+                    <h3>Неопределённость</h3>
+                    <img src="{% static 'images/1146181.svg' %}" alt="" class="abc-xyz__image">
+                </div>
+                <div class="abc-xyz__footer">
+                    <p>Выручка, руб.</p>
+                    <span><div class="cross"></div>Рекомендации по управлению остатками</span>
+                </div>
+            </div>
+        </div>
+        <div class="abc-xyz__products__wrapper">
+            <h3>Список товаров групп</h3>
+            <div class="abc-xyz__products__filters__wrapper">
+                <div class="abc-xyz__top__filters">
+                    <button type="button" class="abc-xyz__filter__item abc-xyz__filter__item-active" data-active="true" data-group="A">A</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="B">B</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="C">C</button>
+                </div>
+                <div class="abc-xyz__bottom__filters">
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="AX">AX</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="AY">AY</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="BX">BX</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="AZ">AZ</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="BY">BY</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="CX">CX</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="BZ">BZ</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="CY">CY</button>
+                    <button type="button" class="abc-xyz__filter__item" data-active="false" data-group="CZ">CZ</button>
+                </div>
+            </div>
+            <div class="abc-xyz__products__report__wrapper">
+                <div class="products_block" id="products-block" data-products="{{ report.products_calculated_values }}">
+                </div>
             </div>
         </div>
     </div>
 </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'reports/js/dashboard_products.js' %}"></script>
 <script src="{% static 'reports/js/dashboard.js' %}"></script>
 <script src="{% static 'reports/js/graphs_filtering.js' %}"></script>

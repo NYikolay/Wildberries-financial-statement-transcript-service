@@ -41,6 +41,14 @@
                 </form>
                 {% endif %}
             </div>
+            {% if report_message and current_api_key %}
+            <div class="reports_warning-text">
+                <img class="warning_img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">
+                <p>
+                    {{ report_message.info_message }}
+                </p>
+            </div>
+            {% endif %}
         </div>
         <div class="empty_reports_possibilities-wrapper">
             <div class="empty_reports_possibilities-item">
