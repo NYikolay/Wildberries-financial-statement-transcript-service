@@ -2,7 +2,7 @@ from django.db.models import (
     Sum, Q, FloatField,
     F, Subquery,
     OuterRef, Value,
-    Case, When, Min, Max, ExpressionWrapper, QuerySet)
+    Case, When, Min, Max, ExpressionWrapper, QuerySet, Count)
 from django.db.models.functions import Coalesce
 
 from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
@@ -138,7 +138,7 @@ def get_report_db_inter_data(
         owner=current_user,
         api_key=current_api_key,
         nm_id__isnull=False
-    ).values('id').distinct('barcode').count()
+    ).values('barcode').annotate(count=Count('id')).count()
 
     tax_rates_objects = TaxRate.objects.filter(
         api_key=current_api_key
