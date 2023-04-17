@@ -175,9 +175,14 @@ def generate_xyz_report_values(
     std_mean_df = pd.merge(std_mean_df, mean_std_df, on='barcode', how='left')
 
     std_mean_df['coefficient_xyz'] = std_mean_df.apply(
-        lambda row: (row['std_revenue'] / row['mean_revenue']) * 100, axis=1)
+        lambda row: 1000 if row['mean_revenue'] == 0 else (row['std_revenue'] / row['mean_revenue']) * 100,
+        axis=1
+    )
+
     std_mean_df['group'] = std_mean_df.apply(
-        lambda row: 'X' if row['coefficient_xyz'] <= 10 else 'Y' if 25 >= row['coefficient_xyz'] > 10 else 'Z', axis=1)
+        lambda row: 'X' if 0 <= row['coefficient_xyz'] <= 10 else 'Y' if 25 >= row['coefficient_xyz'] > 10 else 'Z',
+        axis=1
+    )
 
     # Removes all values where the std_revenue column has the value NaN.
     # Since goods with no standard deviation are not used in XYZ

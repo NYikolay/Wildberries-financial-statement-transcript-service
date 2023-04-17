@@ -718,7 +718,7 @@ class EditProductView(LoginRequiredMixin, View):
 
         messages.error(
             request,
-            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10')
+            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 13')
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 

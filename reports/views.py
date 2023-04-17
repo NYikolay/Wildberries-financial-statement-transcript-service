@@ -9,11 +9,12 @@ from django.db.models import Q
 from django.http import Http404
 from django.contrib import messages
 
-from reports.forms import SaleReportForm
+from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom
 from reports.services.execute_generating_report_service import get_full_user_report
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
+from reports.services.handle_report_additional_data_filte_service import create_reports_additional_data
 
 from users.models import SaleReport, IncorrectReport, UnloadedReports
 
@@ -100,6 +101,7 @@ class ReportDetailView(LoginRequiredMixin, View):
             'reports': reports,
             'blank_reports_list': blank_reports_list,
             'forms': [self.form_class(instance=report) for report in reports],
+            'file_load_form': LoadReportAdditionalDataFrom()
         }
         return render(request, 'reports/report_detail.html', context)
 
@@ -135,7 +137,7 @@ class ReportDetailView(LoginRequiredMixin, View):
 
         messages.error(
             request,
-            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10')
+            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 13')
 
         context = {
             'create_dt_list': SaleReport.objects.filter(
@@ -145,6 +147,49 @@ class ReportDetailView(LoginRequiredMixin, View):
             'forms': reports_forms,
         }
         return render(request, 'reports/report_detail.html', context)
+
+
+class LoadReportAdditionalDataView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    form_class = LoadReportAdditionalDataFrom
+
+    def post(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+        form = self.form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            try:
+                file_handling_status = create_reports_additional_data(
+                    request.FILES['report_data_file'], current_api_key
+                )
+            except Exception as err:
+                django_logger.info(
+                    f'Error setting report values via file for a user - {request.user.email}',
+                    exc_info=err
+                )
+                messages.error(
+                    request,
+                    'Не удалось обработать файл. Пожалуйста, убедитесь в корректности данных внутри файла'
+                )
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+            if file_handling_status:
+                messages.success(
+                    request,
+                    'Значения успешно обновлены'
+                )
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+            else:
+                messages.error(
+                    request,
+                    'Ошибка валидации файла. Пожалуйста, убедитесь в корректности данных внутри файла'
+                )
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+        messages.error(
+            request,
+            'Не удалось загрузить файл. Пожалуйста, убедитесь, что расширение загружаемого файла - .xlsx'
+        )
+        return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 class EmptyReportsView(LoginRequiredMixin, View):
