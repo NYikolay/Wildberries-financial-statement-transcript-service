@@ -352,13 +352,20 @@ input::-webkit-inner-spin-button {
     height: 15px;
 }
 
+.reports__right-content__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 85%;
+}
+
 .reports_right-content {
     background-color: white;
     border-radius: 10px;
     padding-top: 26px;
     padding-left: 20px;
     padding-bottom: 60px;
-    width: 85%;
+    flex:1 1 auto;
 }
 
 .reports_right-top {

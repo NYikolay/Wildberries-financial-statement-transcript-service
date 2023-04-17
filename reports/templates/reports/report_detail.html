@@ -35,9 +35,6 @@
                 </p>
                 {% endif %}
             </div>
-            <div class="products-file-popup_wrapper">
-                <button class="file-info-popup_btn" type="button">Установить себестоимость через файл</button>
-            </div>
         </div>
         <div class="reports_middle-wrapper">
             <div class="reports_left-filters" id="reports-left-filters">
@@ -58,72 +55,83 @@
                 </a>
                 {% endfor %}
             </div>
-            <div class="reports_right-content">
-                <div class="reports_right-top">
-                    <div class="reports_period-date">
-                        <p class="reports_bold-text">{{ reports.0.date_from|date:'d.m.Y' }}</p>
-                        <p class="reports_small-text">Дата начала периода</p>
-                    </div>
-                    <div class="reports_period-date">
-                        <p class="reports_bold-text">{{ reports.0.date_to|date:'d.m.Y' }}</p>
-                        <p class="reports_small-text">Дата окончания периода</p>
-                    </div>
+            <div class="reports__right-content__wrapper">
+                <div class="products-file-popup_wrapper" style="align-self: flex-start">
+                    <button class="file-info-popup_btn" type="button">Загрузить прочие удержания, стоимость хранения и платной приемки через файл</button>
                 </div>
-                <form class="reports_data-form" action="{% url 'reports:report_detail' reports.0.create_dt|date:'Y-m-d' %}" method="post">
-                    {% csrf_token %}
-                    <div class="reports_data-block">
-                        {% for form, report in forms|zip:reports %}
-                        <div class="reports_data-item">
-                            <div class="report_number-data">
-                                <p class="reports_bold-text">
-                                    {{ report.realizationreport_id }} <a target="_blank" class="wb_report_link" style="color: #ff8364;" href="https://seller.wildberries.ru/suppliers-mutual-settlements/reports-implementations/reports-weekly/report/{{ report.realizationreport_id }}">взять значения из отчёта wildberries</a>
-                                </p>
-                                <p class="reports_small-text">№ ОТЧЕТА</p>
+                <div class="reports_right-content">
+                    <div class="reports_right-top">
+                        <div class="reports_period-date">
+                            <p class="reports_bold-text">{{ reports.0.date_from|date:'d.m.Y' }}</p>
+                            <p class="reports_small-text">Дата начала периода</p>
+                        </div>
+                        <div class="reports_period-date">
+                            <p class="reports_bold-text">{{ reports.0.date_to|date:'d.m.Y' }}</p>
+                            <p class="reports_small-text">Дата окончания периода</p>
+                        </div>
+                    </div>
+                    <form class="reports_data-form" action="{% url 'reports:report_detail' reports.0.create_dt|date:'Y-m-d' %}" method="post">
+                        {% csrf_token %}
+                        <div class="reports_data-block">
+                            {% for form, report in forms|zip:reports %}
+                            <div class="reports_data-item">
+                                <div class="report_number-data">
+                                    <p class="reports_bold-text">
+                                        {{ report.realizationreport_id }} <a target="_blank" class="wb_report_link" style="color: #ff8364;" href="https://seller.wildberries.ru/suppliers-mutual-settlements/reports-implementations/reports-weekly/report/{{ report.realizationreport_id }}">взять значения из отчёта wildberries</a>
+                                    </p>
+                                    <p class="reports_small-text">№ ОТЧЕТА</p>
+                                </div>
+                                <div class="report_inputs">
+                                    <div class="report_input-wrapper">
+                                        {{ form.storage_cost }}
+                                        <p class="reports_small-text">Стоимость хранения</p>
+                                    </div>
+                                    <div class="report_input-wrapper">
+                                        {{ form.cost_paid_acceptance }}
+                                        <p class="reports_small-text">СТОИМОСТЬ ПЛАТНОЙ ПРИЕМКИ</p>
+                                    </div>
+                                    <div class="report_input-wrapper">
+                                        {{ form.other_deductions }}
+                                        <p class="reports_small-text">ПРОЧИЕ УДЕРЖАНИЯ</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="report_inputs">
-                                <div class="report_input-wrapper">
-                                    {{ form.storage_cost }}
-                                    <p class="reports_small-text">Стоимость хранения</p>
-                                </div>
-                                <div class="report_input-wrapper">
-                                    {{ form.cost_paid_acceptance }}
-                                    <p class="reports_small-text">СТОИМОСТЬ ПЛАТНОЙ ПРИЕМКИ</p>
-                                </div>
-                                <div class="report_input-wrapper">
-                                    {{ form.other_deductions }}
-                                    <p class="reports_small-text">ПРОЧИЕ УДЕРЖАНИЯ</p>
+                            {% endfor %}
+                            <div class="reports_data-item">
+                                <div class="supplier_costs-wrapper">
+                                    <div class="report_input-wrapper">
+                                        {{ forms.0.supplier_costs }}
+                                        <p class="reports_small-text">Расходы поставщика</p>
+                                    </div>
+                                    <div class="help_text-wrapper">
+                                        <img class="q_img" src="{% static 'images/attention (2).svg' %}" alt="">
+                                        <p class="reports_small-text" style="line-height: 12px; margin-left: 8px;">укажите сумму расходов поставщика по продажам за период отчета и она будет учтена при расчете прибыли от продаж (расходы не должны быть учтены в себестоимости)</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        {% endfor %}
-                        <div class="reports_data-item">
-                            <div class="supplier_costs-wrapper">
-                                <div class="report_input-wrapper">
-                                    {{ forms.0.supplier_costs }}
-                                    <p class="reports_small-text">Расходы поставщика</p>
-                                </div>
-                                <div class="help_text-wrapper">
-                                    <img class="q_img" src="{% static 'images/attention (2).svg' %}" alt="">
-                                    <p class="reports_small-text" style="line-height: 12px; margin-left: 8px;">укажите сумму расходов поставщика по продажам за период отчета и она будет учтена при расчете прибыли от продаж (расходы не должны быть учтены в себестоимости)</p>
-                                </div>
-                            </div>
+                        <div class="form_buttons-wrapper">
+                            <button type="button" class="clear_data" id="clear_data_id">Сбросить</button>
+                            <button type="submit" class="send_data">Сохранить</button>
                         </div>
-                    </div>
-                    <div class="form_buttons-wrapper">
-                        <button type="button" class="clear_data" id="clear_data_id">Сбросить</button>
-                        <button type="submit" class="send_data">Сохранить</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <div class="file_load_form-wrapper">
     <div class="file_load_form-container">
-        <h1>Установка данных отчёта</h1>
+        <h1>Загрузка еженедельных расходов</h1>
         <div class="file_load_form_wrapper-inner">
+            <div class="file_load-left">
+                <h1>Шаг 1</h1>
+                <p style="text-transform: uppercase"><a href="https://seller.wildberries.ru/suppliers-mutual-settlements/reports-implementations/reports-weekly" target="_blank" style="color: #ff8364; text-decoration: underline">
+                    Скачать</a> из WB реестр еженедельных финансовых отчетов</p>
+            </div>
             <div class="file_load-right">
-                <p>ЗАГРУЗИТЬ ЗАПОЛНЕННЫЙ EXCEL-ФАЙЛ</p>
+                <h1>Шаг 2</h1>
+                <p>ЗАГРУЗИТЬ EXCEL-ФАЙЛ</p>
                 <form action="{% url 'reports:set_report_add_data' %}" method="post" enctype="multipart/form-data" class="file_load-form">
                     {% csrf_token %}
                     <div class="file_input-wrapper">

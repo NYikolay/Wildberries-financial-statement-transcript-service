@@ -137,7 +137,7 @@ class ReportDetailView(LoginRequiredMixin, View):
 
         messages.error(
             request,
-            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 10')
+            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 13')
 
         context = {
             'create_dt_list': SaleReport.objects.filter(
@@ -160,22 +160,31 @@ class LoadReportAdditionalDataView(LoginRequiredMixin, View):
 
         if form.is_valid():
             try:
-                create_reports_additional_data(request.FILES['report_data_file'], current_api_key)
+                file_handling_status = create_reports_additional_data(
+                    request.FILES['report_data_file'], current_api_key
+                )
             except Exception as err:
-                django_logger.critical(
+                django_logger.info(
                     f'Error setting report values via file for a user - {request.user.email}',
                     exc_info=err
                 )
                 messages.error(
                     request,
-                    'Не удалось обработать файл. Пожалуйста, убедитесь, что данные верны'
+                    'Не удалось обработать файл. Пожалуйста, убедитесь в корректности данных внутри файла'
                 )
                 return redirect(request.META.get('HTTP_REFERER', '/'))
-            messages.success(
-                request,
-                'Значения успешно обновлены'
-            )
-            return redirect(request.META.get('HTTP_REFERER', '/'))
+            if file_handling_status:
+                messages.success(
+                    request,
+                    'Значения успешно обновлены'
+                )
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+            else:
+                messages.error(
+                    request,
+                    'Ошибка валидации файла. Пожалуйста, убедитесь в корректности данных внутри файла'
+                )
+                return redirect(request.META.get('HTTP_REFERER', '/'))
         messages.error(
             request,
             'Не удалось загрузить файл. Пожалуйста, убедитесь, что расширение загружаемого файла - .xlsx'

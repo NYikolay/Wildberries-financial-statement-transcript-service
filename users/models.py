@@ -226,7 +226,7 @@ class NetCost(models.Model):
         verbose_name='Продукт'
     )
     amount = models.DecimalField(
-        max_digits=10,
+        max_digits=13,
         decimal_places=2,
         blank=True,
         null=True,
@@ -355,28 +355,28 @@ class SaleReport(models.Model):
     date_from = models.DateTimeField('Дата начала отчетного периода')
     date_to = models.DateTimeField('Дата конца отчетного периода')
     storage_cost = models.DecimalField(
-        max_digits=10,
+        max_digits=13,
         decimal_places=2,
         blank=True,
         null=True,
         verbose_name='Стоимость хранения'
     )
     cost_paid_acceptance = models.DecimalField(
-        max_digits=10,
+        max_digits=13,
         decimal_places=2,
         blank=True,
         null=True,
         verbose_name='Стоимость платной приёмки'
     )
     other_deductions = models.DecimalField(
-        max_digits=10,
+        max_digits=13,
         decimal_places=2,
         blank=True,
         null=True,
         verbose_name='Прочие удержания'
     )
     supplier_costs = models.DecimalField(
-        max_digits=10,
+        max_digits=13,
         decimal_places=2,
         blank=True,
         null=True,
