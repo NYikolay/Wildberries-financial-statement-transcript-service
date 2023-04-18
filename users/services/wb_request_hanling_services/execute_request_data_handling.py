@@ -68,6 +68,13 @@ def execute_wildberries_request_data_handling(current_user, date_from: str, date
 
     try:
         with transaction.atomic():
+
+            generate_incorrect_reports(
+                current_user,
+                incorrect_reports.get('incorrect_reports_data_list'),
+                current_api_key
+            )
+
             sale_objects_creating_status = create_sale_objects(
                 current_user,
                 current_api_key,
@@ -80,11 +87,6 @@ def execute_wildberries_request_data_handling(current_user, date_from: str, date
             if not sale_objects_creating_status.get('status'):
                 return sale_objects_creating_status
 
-            generate_incorrect_reports(
-                current_user,
-                incorrect_reports.get('incorrect_reports_data_list'),
-                current_api_key
-            )
             generate_reports(current_user, current_api_key)
 
             UnloadedReports.objects.filter(
