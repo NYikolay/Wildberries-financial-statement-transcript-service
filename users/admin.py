@@ -35,6 +35,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(WBApiKey)
 class WBApiKeyAdmin(admin.ModelAdmin):
+    search_fields = ('user', )
     list_filter = (
         'last_reports_update',
         'is_wb_data_loaded',

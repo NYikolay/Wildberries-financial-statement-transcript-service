@@ -49,8 +49,8 @@ def get_past_months_filters() -> dict:
     }
 
 
-def get_abc_group(row):
-    group = 'A' if row['increasing_proportion'] <= 80 else 'B' if 80 < row['increasing_proportion'] <= 95 else 'C'
+def get_abc_group(row) -> str:
+    group: str = 'A' if row['increasing_proportion'] <= 80 else 'B' if 80 < row['increasing_proportion'] <= 95 else 'C'
     return group
 
 
@@ -61,8 +61,8 @@ def remove_zeros(group):
     return group.iloc[indices[0]:indices[-1]+1] if len(indices) > 0 else pd.DataFrame(columns=group.columns)
 
 
-def get_xyz_group(row):
-    group = 'X' if row['coefficient_xyz'] <= 10 else 'Y' if 25 >= row['coefficient_xyz'] > 10 else 'Z'
+def get_xyz_group(row) -> str:
+    group: str = 'X' if row['coefficient_xyz'] <= 10 else 'Y' if 25 >= row['coefficient_xyz'] > 10 else 'Z'
     return group
 
 
@@ -71,7 +71,7 @@ def generate_abc_report_values(calculated_financials_by_products: QuerySet) -> d
     The function generates ABC report data based on the financial report for unique items request.user
     :param calculated_financials_by_products: QuerySet containing the financial report request.user for each unique item
     :return: Returns the dictionary. Containing:
-    1. total_abc_dict - Final ABC report for processing in the template
+    1. total_abc - Final ABC report for processing in the template
     2. current_barcodes - A list containing the unique nm_ids by barcodes of the user
     3. calculated_abc_values_by_products - Supplemented financial report by unique nm_id request.user.
     Added increasing_proportion, group_abc
@@ -114,7 +114,7 @@ def generate_abc_report_values(calculated_financials_by_products: QuerySet) -> d
     current_barcodes: List[int] = calculated_values_by_products.barcode.unique().tolist()
 
     return {
-        "total_abc_dict": total_abc_df.to_dict('records'),
+        "total_abc": total_abc_df.to_dict('records'),
         "current_barcodes": current_barcodes,
         "calculated_abc_values_by_products": calculated_values_by_products
     }
@@ -251,7 +251,7 @@ def get_abc_xyz_report(
 
     annotations_objs: dict = get_financials_annotation_objects()
 
-    calculated_financials_by_products: Union[QuerySet, dict] = get_calculated_financials_by_products(
+    calculated_financials_by_products: Union[QuerySet, List[dict]] = get_calculated_financials_by_products(
         current_user, current_api_key, filter_period_conditions,
         sum_aggregation_objs_dict, net_costs_sum_aggregations_objs,
         total_revenue, total_products_count, annotations_objs
@@ -272,5 +272,5 @@ def get_abc_xyz_report(
     return {
         "products_calculated_values": final_products_values.to_dict('records'),
         "abc_xyz_report": abc_xyz_report.get('final_abc_xyz_df'),
-        "abc_report": abc_report.get('total_abc_dict')
+        "abc_report": abc_report.get('total_abc')
     }

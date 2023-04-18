@@ -371,7 +371,7 @@ def test_invalid_sales():
             "rrd_id": 11597805863,
             "gi_id": 7997454,
             "subject_name": "Ботинки",
-            "nm_id": 141371096,
+            "nm_id": None,
             "brand_name": "Kadiev",
             "sa_name": "К-5023/17К-5023/17",
             "ts_name": "39",
@@ -429,7 +429,7 @@ def test_invalid_sales():
             "nm_id": 141371096,
             "brand_name": None,
             "sa_name": "К-5023/17К-5023/17",
-            "ts_name": "39",
+            "ts_name": None,
             "barcode": "2036379766665",
             "doc_type_name": "Продажа",
             "quantity": 1,
@@ -473,7 +473,7 @@ def test_invalid_sales():
             "srid": "36143466073767957.0.0"
         },
         {
-            "realizationreport_id": 27982018,
+            "realizationreport_id": None,
             "date_from": "2023-03-06T00:00:00Z",
             "date_to": "2023-03-12T00:00:00Z",
             "create_dt": "2023-03-13T05:51:14Z",

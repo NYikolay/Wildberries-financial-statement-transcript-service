@@ -92,11 +92,12 @@ def get_user_subscriptions_data(request_user) -> list:
 
     current_user_subscription = UserSubscription.objects.filter(
         user=request_user,
-        subscribed_to__gt=datetime.now().replace(tzinfo=pytz.timezone('Europe/Moscow'))
+        subscribed_to__gt=datetime.now()
     ).first()
 
     active_user_discount = UserDiscount.objects.filter(
         user=request_user,
+        expiration_date__gt=datetime.now(),
         is_active=True
     ).first()
 

@@ -14,12 +14,15 @@ django_logger = logging.getLogger('django_logger')
 
 
 def handle_unique_articles(article_values: dict, api_key):
+    product_name = 'Наименование отсутствет на WB' if not article_values.get('title') else article_values.get('title')
+    brand_name = f"Бренд отсутствует на WB" if not article_values.get('brand') else article_values.get('brand')
+
     return ClientUniqueProduct(
         api_key=api_key,
         nm_id=article_values.get('nm_id'),
-        brand=article_values.get('brand'),
-        image=article_values.get('img', 'https://None.come'),
-        product_name=article_values.get('title', 'None')
+        brand=brand_name,
+        image=article_values.get('img'),
+        product_name=product_name
     )
 
 

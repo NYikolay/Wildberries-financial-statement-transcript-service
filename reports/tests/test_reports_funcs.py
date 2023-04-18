@@ -7,11 +7,13 @@ from reports.services.report_generation_services.formula_calculation_service imp
     calculate_sales_quantity, calculate_returns_quantity, calculate_commission, calculate_logistics, \
     calculate_supplier_costs, calculate_tax_value, calculate_net_costs, calculate_marginality, calculate_profit, \
     calculate_profitability, calculate_share_in_revenue
+from reports.services.report_generation_services.generating_abc_xyz_report_services import get_abc_group, get_xyz_group, \
+    generate_abc_report_values
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
 from reports.services.report_generation_services.handling_calculated_financial_by_weeks_service import \
     get_calculated_financials_by_weeks
 from reports.tests.reports_pytest_fixtures import test_sale_objects_by_weeks, test_supplier_costs_sum_list, \
-    test_wb_costs_sum_list
+    test_wb_costs_sum_list, test_calculated_financials_by_products, test_expected_calculated_abc_values
 
 
 def test_get_period_filter_data():
@@ -296,6 +298,56 @@ def test_get_calculated_financials_by_weeks(
     }
 
     assert financials_by_week == test_expected_financials_by_week
+
+
+def test_get_abc_group():
+    raw_data_1 = {'increasing_proportion': 50}
+
+    abc_group_1 = get_abc_group(raw_data_1)
+
+    raw_data_2 = {'increasing_proportion': 85}
+
+    abc_group_2 = get_abc_group(raw_data_2)
+
+    raw_data_3 = {'increasing_proportion': 123}
+
+    abc_group_3 = get_abc_group(raw_data_3)
+
+    assert abc_group_1 == 'A'
+    assert abc_group_2 == 'B'
+    assert abc_group_3 == 'C'
+
+
+def test_get_xyz_group():
+    raw_data_1 = {'coefficient_xyz': 2}
+
+    abc_group_1 = get_xyz_group(raw_data_1)
+
+    raw_data_2 = {'coefficient_xyz': 15}
+
+    abc_group_2 = get_xyz_group(raw_data_2)
+
+    raw_data_3 = {'coefficient_xyz': 54}
+
+    abc_group_3 = get_xyz_group(raw_data_3)
+
+    assert abc_group_1 == 'X'
+    assert abc_group_2 == 'Y'
+    assert abc_group_3 == 'Z'
+
+
+def test_generate_abc_report_values(test_calculated_financials_by_products, test_expected_calculated_abc_values):
+    abc_report = generate_abc_report_values(test_calculated_financials_by_products)
+    expected_total_abc = [
+        {'group_abc': 'A', 'revenue_by_article': 15106, 'share_in_number': 11},
+        {'group_abc': 'B', 'revenue_by_article': 0, 'share_in_number': 0},
+        {'group_abc': 'C', 'revenue_by_article': 0, 'share_in_number': 0}
+    ]
+    expected_barcodes = ['2037382511280', '2037382511570', '2037382511266', '2037382511273', '2037382511297']
+
+    assert expected_total_abc == abc_report['total_abc']
+    assert expected_barcodes == abc_report['current_barcodes']
+    assert test_expected_calculated_abc_values == abc_report['calculated_abc_values_by_products'].to_dict()
 
 
 

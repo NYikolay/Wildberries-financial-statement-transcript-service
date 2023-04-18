@@ -172,7 +172,7 @@ def test_get_calculated_subscription_values_with_additional_data_1(
 ):
     user = create_user()
     subscription_types_objects = create_subscription_types
-    user_discount = create_user_discount(user=user, percent=30)
+    user_discount = create_user_discount(user=user, percent=30, expiration_date=datetime(2024, 3, 12, 12, 59))
 
     user_subscription = create_user_subscription(
         subscription_type=subscription_types_objects[2],
@@ -206,7 +206,7 @@ def test_get_calculated_subscription_values_with_additional_data_2(
 ):
     user = create_user()
     subscription_types_objects = create_subscription_types
-    user_discount = create_user_discount(user=user, percent=50)
+    user_discount = create_user_discount(user=user, percent=50, expiration_date=datetime(2024, 3, 12, 12, 59))
 
     user_subscription = create_user_subscription(
         subscription_type=subscription_types_objects[3],
@@ -456,21 +456,6 @@ def test_get_unique_articles():
     assert expected_articles_output == unique_articles
 
 
-def test_get_unique_articles_without_brand_name():
-    articles_input_data = [
-        {"nm_id": 141371096, "brand_name": "Kadiev"},
-        {"nm_id": 141972556, "brand_name": None},
-    ]
-
-    unique_articles = get_unique_articles(articles_input_data)
-
-    expected_articles_output = [
-        {"nm_id": 141371096, "brand": "Kadiev"},
-    ]
-
-    assert expected_articles_output == unique_articles
-
-
 def test_get_unique_reports():
     report_input_data = [
         {"realizationreport_id": 141371096},
@@ -621,7 +606,7 @@ def test_get_incorrect_reports_lst_with_invalid_sales(test_invalid_sales):
             fail_validation_result.append(True)
 
     assert all(fail_validation_result)
-    assert len(success_validation_result['realizationreport_ids']) == 2
+    assert len(success_validation_result['realizationreport_ids']) == 3
     assert len(success_validation_result['incorrect_reports_data_list']) == \
            len(success_validation_result['realizationreport_ids'])
 

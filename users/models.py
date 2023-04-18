@@ -132,6 +132,7 @@ class UserDiscount(models.Model):
         verbose_name='Пользователь'
     )
     percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
+    expiration_date = models.DateTimeField()
     is_active = models.BooleanField(default=False)
 
     def __str__(self):
