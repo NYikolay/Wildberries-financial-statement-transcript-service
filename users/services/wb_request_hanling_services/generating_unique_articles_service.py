@@ -36,7 +36,6 @@ def get_unique_articles(sales: List[dict]) -> List[dict]:
             articles_data.append({'nm_id': nm_id, 'brand': sale.get('brand_name')})
             nm_ids.add(nm_id)
 
-    print(articles_data)
     # Create a dictionary where the keys are `nm_id` values and the values are sets of corresponding non-null brands.
     grouped_data = {}
     for article in articles_data:
