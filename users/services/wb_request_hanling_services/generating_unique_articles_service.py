@@ -26,7 +26,9 @@ def get_unique_articles(sales: List[dict]) -> List[dict]:
     for sale in sales:
         conditions = [
             sale.get('supplier_oper_name').lower() != 'логистика',
-            sale.get('supplier_oper_name').lower() != 'логистика сторно'
+            sale.get('supplier_oper_name').lower() != 'логистика сторно',
+            sale.get('supplier_oper_name').lower() != 'частичная компенсация брака',
+            sale.get('supplier_oper_name').lower() != 'авансовая оплата за товар без движения'
         ]
 
         nm_id = sale.get('nm_id')

@@ -1,7 +1,6 @@
 from reports.services.report_generation_services.formula_calculation_service import calculate_share_in_revenue
 from reports.services.report_generation_services.generating_sum_aggregation_objs_service import get_aggregate_sum_dicts
 from users.models import SaleObject
-from django.db.models import F, Q
 from typing import List
 from django.db.models import (
     Sum, Q, FloatField,
@@ -20,7 +19,10 @@ def get_revenue_by_filter(
     sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict')
 
     revenue_by_filter_list = SaleObject.objects.filter(
-        ~Q(supplier_oper_name='Логистика') & ~Q(supplier_oper_name='Логистика сторно'),
+        ~Q(supplier_oper_name='Логистика') &
+        ~Q(supplier_oper_name='Логистика сторно') &
+        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         period_filter_data.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,

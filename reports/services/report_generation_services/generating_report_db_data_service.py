@@ -42,7 +42,10 @@ def get_calculated_financials_by_products(
     """
 
     calculated_financials = SaleObject.objects.filter(
-        ~Q(supplier_oper_name='Логистика') & ~Q(supplier_oper_name='Логистика сторно'),
+        ~Q(supplier_oper_name='Логистика') &
+        ~Q(supplier_oper_name='Логистика сторно') &
+        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
@@ -99,7 +102,10 @@ def get_nm_ids_revenues_by_weeks(
     """
 
     revenues_queryset = SaleObject.objects.filter(
-        ~Q(supplier_oper_name='Логистика') & ~Q(supplier_oper_name='Логистика сторно'),
+        ~Q(supplier_oper_name='Логистика') &
+        ~Q(supplier_oper_name='Логистика сторно') &
+        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         filters.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
@@ -136,7 +142,10 @@ def get_report_db_inter_data(
     tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs')
 
     products_count_by_period = SaleObject.objects.filter(
-        ~Q(supplier_oper_name='Логистика') & ~Q(supplier_oper_name='Логистика сторно'),
+        ~Q(supplier_oper_name='Логистика') &
+        ~Q(supplier_oper_name='Логистика сторно') &
+        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
