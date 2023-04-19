@@ -55,7 +55,7 @@ def test_calculate_revenue():
         131.0
     )
 
-    assert round(revenue) == round(460463.2599999999)
+    assert round(revenue) == round(460201.2599999999)
 
 
 def test_calculate_sales_quantity():
@@ -68,7 +68,8 @@ def test_calculate_sales_quantity():
         12.0,
         10.0
     )
-    assert sales_quantity == 285.0
+
+    assert sales_quantity == 265.0
 
 
 def test_calculate_returns_quantity():
@@ -105,7 +106,7 @@ def test_calculate_commission():
         923.120
     )
 
-    assert commission == 44235.5789999984
+    assert commission == 45417.800999998406
 
 
 def test_calculate_logistics():
@@ -134,7 +135,7 @@ def test_calculate_tax_value():
         922.0
     )
 
-    assert tax == 25552.123199999896
+    assert tax == 23708.123199999896
 
 
 def test_calculate_net_costs():
@@ -151,7 +152,7 @@ def test_calculate_net_costs():
         233.0
     )
 
-    assert net_costs_sum == 4270.0
+    assert net_costs_sum == 3804.0
 
 
 def test_calculate_marginality_without_net_costs():

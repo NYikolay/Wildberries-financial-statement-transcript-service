@@ -73,6 +73,7 @@ def get_calculated_financials_by_products(
         total_products_count=Value(total_products_count, output_field=FloatField()),
         **annotations_objs,
     ).values('nm_id', 'barcode', 'image', 'product_name',
+             'brand_name',
              'revenue_by_article', 'share_in_revenue',
              'product_marginality', 'share_in_number')
 
@@ -141,7 +142,7 @@ def get_report_db_inter_data(
         owner=current_user,
         api_key=current_api_key,
         nm_id__isnull=False
-    ).values('barcode').annotate(count=Count('id')).count()
+    ).order_by('barcode').values('barcode').annotate(count=Count('id')).count()
 
     tax_rates_objects = TaxRate.objects.filter(
         api_key=current_api_key

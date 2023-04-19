@@ -436,21 +436,21 @@ def test_create_sale_objects_with_conditions(
 
 def test_get_unique_articles():
     articles_input_data = [
-        {"nm_id": 141371096, "brand_name": "Kadiev"},
-        {"nm_id": 141371096, "brand_name": "Kadiev"},
-        {"nm_id": 141972556, "brand_name": "Kadiev"},
-        {"nm_id": 140930947, "brand_name": "Kadiev"},
-        {"nm_id": 140930947, "brand_name": "Kadiev"},
-        {"nm_id": 140930947, "brand_name": "Kadiev"},
-        {"nm_id": 141371096, "brand_name": "Kadiev"},
+        {"nm_id": 141371096, "brand_name": "Kadiev", "supplier_oper_name": "Продажа"},
+        {"nm_id": 141371096, "brand_name": "Kadiev", "supplier_oper_name": "Продажа"},
+        {"nm_id": 141972556, "brand_name": "Kadiev", "supplier_oper_name": "Логистика"},
+        {"nm_id": 140930947, "brand_name": None, "supplier_oper_name": "Продажа"},
+        {"nm_id": 140930947, "brand_name": "Kadiev", "supplier_oper_name": "Продажа"},
+        {"nm_id": 140930947, "brand_name": "Kadiev", "supplier_oper_name": "Продажа"},
+        {"nm_id": 141371011, "brand_name": None, "supplier_oper_name": "Продажа"},
     ]
 
     unique_articles = get_unique_articles(articles_input_data)
 
     expected_articles_output = [
         {"nm_id": 141371096, "brand": "Kadiev"},
-        {"nm_id": 141972556, "brand": "Kadiev"},
         {"nm_id": 140930947, "brand": "Kadiev"},
+        {"nm_id": 141371011, "brand": None},
     ]
 
     assert expected_articles_output == unique_articles

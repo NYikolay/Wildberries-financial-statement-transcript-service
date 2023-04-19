@@ -28,11 +28,15 @@ def get_unique_articles(sales: List[dict]) -> List[dict]:
             sale.get('supplier_oper_name').lower() != 'логистика',
             sale.get('supplier_oper_name').lower() != 'логистика сторно'
         ]
+
         nm_id = sale.get('nm_id')
-        if all(conditions) and nm_id and nm_id not in nm_ids:
+        article_data = {'nm_id': nm_id, 'brand': sale.get('brand_name')}
+
+        if all(conditions) and nm_id and article_data not in articles_data:
             articles_data.append({'nm_id': nm_id, 'brand': sale.get('brand_name')})
             nm_ids.add(nm_id)
 
+    print(articles_data)
     # Create a dictionary where the keys are `nm_id` values and the values are sets of corresponding non-null brands.
     grouped_data = {}
     for article in articles_data:

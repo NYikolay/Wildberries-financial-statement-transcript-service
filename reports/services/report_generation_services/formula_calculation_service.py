@@ -19,7 +19,7 @@ def calculate_revenue(
     revenue: float = (
             sales_sum - storno_sales_sum + correct_sales_sum - returns_sum +
             storno_returns_sum - correct_returns_sum + marriage_payment_sum + payment_lost_marriage_sum +
-            partial_compensation_marriage_sum + advance_payment_goods_without_payment_sum
+            partial_compensation_marriage_sum - advance_payment_goods_without_payment_sum
     )
 
     return revenue
@@ -37,7 +37,7 @@ def calculate_sales_quantity(
 
     sales_quantity: float = (
             sales_quantity_sum - strono_sales_quantity_sum + correct_sales_quantity_sum +
-            marriage_payment_sum + payment_lost_marriage_sum + partial_compensation_marriage +
+            marriage_payment_sum + payment_lost_marriage_sum + partial_compensation_marriage -
             advance_payment_goods_without_payment
     )
 
@@ -79,11 +79,11 @@ def calculate_commission(
     commission: float = (
             (sales_sum - storno_sales_sum + correct_sales_sum - returns_sum +
              storno_returns_sum - correct_returns_sum + marriage_payment_sum + payment_lost_marriage_sum +
-             partial_compensation_marriage_sum + advance_payment_goods_without_payment_sum) -
+             partial_compensation_marriage_sum - advance_payment_goods_without_payment_sum) -
             (commission_sales_sum - commission_storno_sales_sum + commission_correct_sales_sum -
              commission_returns_sum + commission_storno_returns_sum - commission_correct_returns_sum +
              commission_marriage_payment_sum + commission_payment_lost_marriage_sum +
-             commission_partial_compensation_marriage_sum + commission_advance_payment_goods_without_payment_sum)
+             commission_partial_compensation_marriage_sum - commission_advance_payment_goods_without_payment_sum)
     )
 
     return commission
@@ -112,7 +112,7 @@ def calculate_tax_value(
     tax_value: float = (
             tax_sale_sum - tax_storno_sale_sum + tax_correct_sale_sum -
             tax_return_sum + tax_storno_return_sum - tax_correct_return_sum +
-            tax_marriage_payment_sum + tax_payment_lost_marriage_sum + tax_cost_partial_compensation_marriage_sum +
+            tax_marriage_payment_sum + tax_payment_lost_marriage_sum + tax_cost_partial_compensation_marriage_sum -
             tax_cost_advance_payment_goods_without_payment_sum
     )
 
@@ -136,7 +136,7 @@ def calculate_net_costs(
             netcost_sale_sum - netcost_storno_sale_sum + netcost_correct_sale_sum -
             netcost_return_sum + net_cost_strono_returns_sum - net_cost_correct_return_sum +
             net_cost_marriage_payment_sum + net_cost_payment_lost_marriage_sum +
-            net_cost_partial_compensation_marriage_sum + net_cost_advance_payment_goods_without_payment_sum
+            net_cost_partial_compensation_marriage_sum - net_cost_advance_payment_goods_without_payment_sum
     )
 
     return net_costs
