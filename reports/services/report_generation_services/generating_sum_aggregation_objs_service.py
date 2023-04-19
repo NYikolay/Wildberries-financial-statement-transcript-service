@@ -11,7 +11,7 @@ def get_financials_annotation_objects() -> dict:
         ExpressionWrapper(
             F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
                 'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
-                'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
+                'retail_marriage_payment_sum') - F('retail_payment_lost_marriage_sum') + F(
                 'retail_partial_compensation_marriage_sum') - F('retail_advance_payment_goods_without_payment_sum'),
             output_field=FloatField()
         ), Value(0.0), output_field=FloatField())
@@ -26,7 +26,7 @@ def get_financials_annotation_objects() -> dict:
         ExpressionWrapper(
             F('netcost_sale_sum') - F('netcost_storno_sale_sum') + F('netcost_correct_sale_sum') - F(
                 'netcost_return_sum') + F('net_cost_strono_returns_sum') - F('net_cost_correct_return_sum') + F(
-                'net_cost_marriage_payment_sum') + F('net_cost_payment_lost_marriage_sum') + F(
+                'net_cost_marriage_payment_sum') - F('net_cost_payment_lost_marriage_sum') + F(
                 'net_cost_partial_compensation_marriage_sum') - F('net_cost_advance_payment_goods_without_payment_sum'),
             output_field=FloatField()
         ), Value(0.0), output_field=FloatField())

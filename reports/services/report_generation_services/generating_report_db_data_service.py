@@ -44,7 +44,7 @@ def get_calculated_financials_by_products(
     calculated_financials = SaleObject.objects.filter(
         ~Q(supplier_oper_name='Логистика') &
         ~Q(supplier_oper_name='Логистика сторно') &
-        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Частичная компенсация брака') &
         ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,
@@ -104,7 +104,7 @@ def get_nm_ids_revenues_by_weeks(
     revenues_queryset = SaleObject.objects.filter(
         ~Q(supplier_oper_name='Логистика') &
         ~Q(supplier_oper_name='Логистика сторно') &
-        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Частичная компенсация брака') &
         ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         filters.get('period_q_obj'),
         owner=current_user,
@@ -115,8 +115,8 @@ def get_nm_ids_revenues_by_weeks(
         revenue_by_article=ExpressionWrapper(
             F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
                 'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
-                'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
-                'retail_partial_compensation_marriage_sum') + F('retail_advance_payment_goods_without_payment_sum'),
+                'retail_marriage_payment_sum') - F('retail_payment_lost_marriage_sum') + F(
+                'retail_partial_compensation_marriage_sum') - F('retail_advance_payment_goods_without_payment_sum'),
             output_field=FloatField()),
     ).order_by('-barcode').values('barcode', 'nm_id', 'year', 'week_num', 'revenue_by_article')
 
@@ -144,7 +144,7 @@ def get_report_db_inter_data(
     products_count_by_period = SaleObject.objects.filter(
         ~Q(supplier_oper_name='Логистика') &
         ~Q(supplier_oper_name='Логистика сторно') &
-        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Частичная компенсация брака') &
         ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,

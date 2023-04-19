@@ -21,7 +21,7 @@ def get_revenue_by_filter(
     revenue_by_filter_list = SaleObject.objects.filter(
         ~Q(supplier_oper_name='Логистика') &
         ~Q(supplier_oper_name='Логистика сторно') &
-        ~Q(supplier_oper_name='Частичная компенсация брака'),
+        ~Q(supplier_oper_name='Частичная компенсация брака') &
         ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
         period_filter_data.get('period_q_obj'),
         owner=current_user,
@@ -45,7 +45,7 @@ def get_revenue_by_filter(
             ExpressionWrapper(
                 F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
                     'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
-                    'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
+                    'retail_marriage_payment_sum') - F('retail_payment_lost_marriage_sum') + F(
                     'retail_partial_compensation_marriage_sum') - F('retail_advance_payment_goods_without_payment_sum'),
                 output_field=FloatField()
             ), Value(0.0), output_field=FloatField())
