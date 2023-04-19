@@ -24,7 +24,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(SaleObject)
 class SaleObjectAdmin(admin.ModelAdmin):
     list_display = ('id', '__str__')
-    search_fields = ('nm_id', 'id')
+    search_fields = ('nm_id', 'id', 'supplier_oper_name')
 
 
 @admin.register(Order)
@@ -57,6 +57,7 @@ class WBApiKeyAdmin(admin.ModelAdmin):
 class ClientUniqueProductAdmin(admin.ModelAdmin):
     list_filter = ('brand',)
     list_display = ('product_name', 'api_key', 'nm_id', 'brand')
+    search_fields = ('nm_id', 'product_name', 'brand')
 
 
 @admin.register(SaleReport)

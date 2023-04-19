@@ -42,10 +42,11 @@ def get_calculated_financials_by_products(
     """
 
     calculated_financials = SaleObject.objects.filter(
+        ~Q(supplier_oper_name='Логистика') & ~Q(supplier_oper_name='Логистика сторно'),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
-        nm_id__isnull=False
+        nm_id__isnull=False,
     ).annotate(
         net_cost=Subquery(
             NetCost.objects.filter(
@@ -53,7 +54,7 @@ def get_calculated_financials_by_products(
                 cost_date__lte=OuterRef('order_dt')
             ).order_by('-cost_date').values('amount')[:1]
         ),
-    ).order_by('brand_name', 'barcode').values('barcode').annotate(
+    ).order_by('barcode').values('barcode').annotate(
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
         image=F('product__image'),
@@ -98,10 +99,11 @@ def get_nm_ids_revenues_by_weeks(
     """
 
     revenues_queryset = SaleObject.objects.filter(
+        ~Q(supplier_oper_name='Логистика') & ~Q(supplier_oper_name='Логистика сторно'),
         filters.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
-        barcode__in=current_barcodes
+        barcode__in=current_barcodes,
     ).order_by('week_num').values('week_num', 'year').annotate(
         **sum_aggregation_objs_dict,
         revenue_by_article=ExpressionWrapper(
@@ -134,6 +136,7 @@ def get_report_db_inter_data(
     tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs')
 
     products_count_by_period = SaleObject.objects.filter(
+        ~Q(supplier_oper_name='Логистика') & ~Q(supplier_oper_name='Логистика сторно'),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
