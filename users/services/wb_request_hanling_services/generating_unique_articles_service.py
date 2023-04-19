@@ -25,7 +25,7 @@ def get_unique_articles(sales: List[dict]) -> List[dict]:
     nm_ids = set()
     for sale in sales:
         nm_id = sale.get('nm_id')
-        if nm_id not in nm_ids:
+        if nm_id and nm_id not in nm_ids:
             articles_data.append({'nm_id': nm_id, 'brand': sale.get('brand_name')})
             nm_ids.add(nm_id)
 
