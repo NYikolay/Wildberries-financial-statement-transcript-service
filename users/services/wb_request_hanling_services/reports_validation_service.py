@@ -32,7 +32,7 @@ def check_sale_obj_validation(sale_obj: dict) -> True or dict:
     """
     Checks if certain object values are valid. Validation is performed under several conditions.
     1. None of the object values must be null
-    2. If an object value is null, we check it for an additional condition.
+    2. If an object value is null, we check it for an additional conditions.
     :param sale_obj:
     :return: If the object passed the validation, we return True,
     otherwise we return the dictionary which includes some values of the object
@@ -49,6 +49,7 @@ def check_sale_obj_validation(sale_obj: dict) -> True or dict:
         sale_obj.get('subject_name'),
         sale_obj.get('nm_id'),
         sale_obj.get('brand_name'),
+        sale_obj.get('ts_name'),
         sale_obj.get('barcode'),
         sale_obj.get('doc_type_name'),
         sale_obj.get('order_dt'),
@@ -69,7 +70,7 @@ def check_sale_obj_validation(sale_obj: dict) -> True or dict:
     ]
 
     for value in sale_obj_values:
-        additional_conditions: list = [
+        additional_condition_1 = [
             delivery_rub is not None,
             delivery_rub > 0,
             sale_obj.get('supplier_oper_name') == "Логистика",
@@ -86,9 +87,27 @@ def check_sale_obj_validation(sale_obj: dict) -> True or dict:
             sale_obj.get('retail_price_withdisc_rub') == 0,
             sale_obj.get('ppvz_for_pay') == 0
         ]
+        additional_condition_2 = [
+            sale_obj.get('realizationreport_id') is not None,
+            sale_obj.get('date_from') is not None,
+            sale_obj.get('date_to') is not None,
+            sale_obj.get('create_dt') is not None,
+            sale_obj.get('subject_name') is not None,
+            sale_obj.get('nm_id') is not None,
+            sale_obj.get('ts_name') is not None,
+            sale_obj.get('barcode') is not None,
+            sale_obj.get('doc_type_name') is not None,
+            sale_obj.get('brand_name') is None,
+            sale_obj.get('quantity') is not None,
+            sale_obj.get('retail_amount') is not None,
+            sale_obj.get('supplier_oper_name') is not None,
+            sale_obj.get('retail_price_withdisc_rub') is not None,
+            sale_obj.get('delivery_rub') is not None,
+            sale_obj.get('ppvz_for_pay') is not None
+        ]
 
         if value is None:
-            if all(additional_conditions):
+            if all(additional_condition_1) or all(additional_condition_2):
                 return True
 
             return {

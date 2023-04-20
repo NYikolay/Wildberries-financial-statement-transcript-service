@@ -1616,4 +1616,105 @@ def test_wb_costs_sum_list():
     return data
 
 
+@pytest.fixture
+def test_calculated_financials_by_products():
+    financials_by_products = [
+        {
+            'nm_id': 143449349,
+            'barcode': '2037382511266',
+            'image': 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg',
+            'product_name': 'Женская футболка хлопковая с коротким рукавом реглан',
+            'revenue_by_article': 2722.13,
+            'share_in_revenue': 1.2742567674220782,
+            'product_marginality': 0.0,
+            'share_in_number': 2.127659574468085
+        },
+        {
+            'nm_id': 143449349,
+            'barcode': '2037382511273',
+            'image': 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg',
+            'product_name': 'Женская футболка хлопковая с коротким рукавом реглан',
+            'revenue_by_article': 2324.0,
+            'share_in_revenue': 1.087888060999625,
+            'product_marginality': 0.0,
+            'share_in_number': 2.127659574468085},
+        {
+            'nm_id': 143449349,
+            'barcode': '2037382511280',
+            'image': 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg',
+            'product_name': 'Женская футболка хлопковая с коротким рукавом реглан',
+            'revenue_by_article': 4950.44,
+            'share_in_revenue': 2.31735136518717,
+            'product_marginality': 0.0,
+            'share_in_number': 2.127659574468085
+        },
+        {
+            'nm_id': 143449349,
+            'barcode': '2037382511297',
+            'image': 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg',
+            'product_name': 'Женская футболка хлопковая с коротким рукавом реглан',
+            'revenue_by_article': 2302.0,
+            'share_in_revenue': 1.0775896370142586,
+            'product_marginality': 0.0, 'share_in_number': 2.127659574468085},
+        {
+            'nm_id': 143449354,
+            'barcode': '2037382511570',
+            'image': 'https://basket-10.wb.ru/vol1434/part143449/143449354/images/tm/1.jpg',
+            'product_name': 'Женская футболка хлопковая с коротким рукавом реглан',
+            'revenue_by_article': 2807.88,
+            'share_in_revenue': 1.3143972154559498,
+            'product_marginality': 0.0,
+            'share_in_number': 2.127659574468085
+        }
+    ]
+
+    return financials_by_products
+
+
+@pytest.fixture
+def test_expected_calculated_abc_values():
+    expected_calculated_abc_values = {
+        'nm_id': {2: 143449349, 4: 143449354, 0: 143449349, 1: 143449349, 3: 143449349},
+        'barcode': {2: '2037382511280', 4: '2037382511570', 0: '2037382511266', 1: '2037382511273', 3: '2037382511297'},
+        'image': {
+            2: 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg',
+            4: 'https://basket-10.wb.ru/vol1434/part143449/143449354/images/tm/1.jpg',
+            0: 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg',
+            1: 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg',
+            3: 'https://basket-10.wb.ru/vol1434/part143449/143449349/images/tm/1.jpg'},
+        'product_name': {
+            2: 'Женская футболка хлопковая с коротким рукавом реглан',
+            4: 'Женская футболка хлопковая с коротким рукавом реглан',
+            0: 'Женская футболка хлопковая с коротким рукавом реглан',
+            1: 'Женская футболка хлопковая с коротким рукавом реглан',
+            3: 'Женская футболка хлопковая с коротким рукавом реглан'},
+        'revenue_by_article': {2: 4950.44, 4: 2807.88, 0: 2722.13, 1: 2324.0, 3: 2302.0},
+        'share_in_revenue': {
+            2: 2.31735136518717,
+            4: 1.3143972154559498,
+            0: 1.2742567674220782,
+            1: 1.087888060999625,
+            3: 1.0775896370142586
+        },
+        'product_marginality': {2: 0.0, 4: 0.0, 0: 0.0, 1: 0.0, 3: 0.0},
+        'share_in_number': {
+            2: 2.127659574468085,
+            4: 2.127659574468085,
+            0: 2.127659574468085,
+            1: 2.127659574468085,
+            3: 2.127659574468085
+        },
+        'increasing_proportion': {
+            2: 2.31735136518717,
+            4: 3.6317485806431202,
+            0: 4.906005348065198,
+            1: 5.993893409064824,
+            3: 7.0714830460790825
+        },
+        'group_abc': {2: 'A', 4: 'A', 0: 'A', 1: 'A', 3: 'A'}
+    }
+
+    return expected_calculated_abc_values
+
+
 

@@ -2,7 +2,7 @@ from django.db.models import (
     Sum, Q, FloatField,
     F, Subquery,
     OuterRef, Value,
-    Case, When, Min, Max, ExpressionWrapper, QuerySet, Count)
+    Case, When, Min, Max, QuerySet, Count)
 from django.db.models.functions import Coalesce
 
 from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
@@ -42,18 +42,19 @@ def get_calculated_financials_by_products(
     """
 
     calculated_financials = SaleObject.objects.filter(
+        ~Q(nm_id=99866376),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
-        nm_id__isnull=False
-    ).annotate(
+        nm_id__isnull=False,
+        ).annotate(
         net_cost=Subquery(
             NetCost.objects.filter(
                 product=OuterRef('product'),
                 cost_date__lte=OuterRef('order_dt')
             ).order_by('-cost_date').values('amount')[:1]
         ),
-    ).order_by('brand_name', 'barcode').values('barcode').annotate(
+    ).order_by('barcode').values('barcode').annotate(
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
         image=F('product__image'),
@@ -83,7 +84,8 @@ def get_nm_ids_revenues_by_weeks(
         current_api_key,
         current_barcodes,
         sum_aggregation_objs_dict,
-        filters) -> QuerySet:
+        filters,
+        annotations_objs) -> QuerySet:
     """
     The function sends a query to the database to calculate the XYZ analysis.
     WARNING, the filtering by weeks for the last 12 months is used.
@@ -94,22 +96,21 @@ def get_nm_ids_revenues_by_weeks(
     in the value to filter values from the database
     :param filters: The result of the function get_past_months_filters , contains objects
     Q(year=... | week_num__in=....) for the LAST 12 MONTHS (Always, regardless of user filters)
+    :param annotations_objs: A dictionary containing objects for calculating values when annotating a query to the
+    SaleObject model. Result of
+    reports.services.report_generation_services.generating_sum_aggregation_objs_service.get_financials_annotation_objects
     :return: Returns the calculated revenue values on a weekly basis for each unique nm_id from current_nm_ids_set
     """
 
     revenues_queryset = SaleObject.objects.filter(
+        ~Q(nm_id=99866376),
         filters.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
-        barcode__in=current_barcodes
-    ).order_by('week_num').values('week_num', 'year').annotate(
+        barcode__in=current_barcodes,
+        ).order_by('week_num').values('week_num', 'year').annotate(
         **sum_aggregation_objs_dict,
-        revenue_by_article=ExpressionWrapper(
-            F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
-                'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
-                'retail_marriage_payment_sum') + F('retail_payment_lost_marriage_sum') + F(
-                'retail_partial_compensation_marriage_sum') + F('retail_advance_payment_goods_without_payment_sum'),
-            output_field=FloatField()),
+        revenue_by_article=annotations_objs.get('revenue_by_article')
     ).order_by('-barcode').values('barcode', 'nm_id', 'year', 'week_num', 'revenue_by_article')
 
     return revenues_queryset
@@ -134,11 +135,12 @@ def get_report_db_inter_data(
     tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs')
 
     products_count_by_period = SaleObject.objects.filter(
+        ~Q(nm_id=99866376),
         filter_period_conditions.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
         nm_id__isnull=False
-    ).values('barcode').annotate(count=Count('id')).count()
+    ).order_by('barcode').values('barcode').annotate(count=Count('id')).count()
 
     tax_rates_objects = TaxRate.objects.filter(
         api_key=current_api_key
@@ -170,8 +172,7 @@ def get_report_db_inter_data(
     ).order_by('date_from').values('year', 'week_num').annotate(
         date_to=Max(F('date_to')),
         date_from=Min(F('date_from')),
-        total_wb_costs_sum=
-        Sum(
+        total_wb_costs_sum=Sum(
             Coalesce(F('storage_cost'), 0, output_field=FloatField()) +
             Coalesce(F('cost_paid_acceptance'), 0, output_field=FloatField()) +
             Coalesce(F('other_deductions'), 0, output_field=FloatField())

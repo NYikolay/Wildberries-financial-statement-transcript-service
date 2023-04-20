@@ -41,9 +41,6 @@
                     <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">Склад</a>
                 </li>
                 {% endif %}
-                <li>
-                    <a href="https://job.commery.ru/" class="nav_link" target="_blank" style="color: #ff8364">Подбери команду</a>
-                </li>
                 {% url 'users:companies_list' as url %}
                 <li><a href="{{ url }}" class="nav_link {% if request.path == url or '/profile/' in request.path %} nav_link-active {% endif %}">Настройки</a></li>
                 {% else %}

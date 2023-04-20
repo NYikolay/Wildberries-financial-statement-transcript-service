@@ -1,11 +1,10 @@
-
 import logging
-from typing import List
+from typing import List, Union
 
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.http import Http404
 from django.contrib import messages
 
@@ -41,10 +40,11 @@ class DashboardView(LoginRequiredMixin, View):
             messages.error(request, 'Ошибка фильтрации периода')
             return redirect('reports:dashboard')
 
-        incorrect_reports_ids = IncorrectReport.objects.filter(
+        incorrect_reports_ids: Union[QuerySet, List[int]] = IncorrectReport.objects.filter(
             api_key=current_api_key
         ).values_list('realizationreport_id', flat=True)
-        filters_data = get_filters_db_data(current_api_key)
+
+        filters_data: dict = get_filters_db_data(current_api_key)
 
         try:
             report = get_full_user_report(request.user, current_api_key, current_filter_data)

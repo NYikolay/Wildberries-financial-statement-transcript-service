@@ -17,6 +17,7 @@ def handle_sale_obj(current_user, sale_obj: dict, api_key, current_product_objs)
     """
     wb_office_name = sale_obj.get('office_name')
     office_name = 'Склад WB без названия' if wb_office_name is None else wb_office_name
+    brand_name = f"Бренд отсутствует на WB" if not sale_obj.get('brand_name') else sale_obj.get('brand_name')
     week_num = datetime.strptime(sale_obj.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').isocalendar()[1]
     year = datetime.strptime(sale_obj.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').year
     month_num = datetime.strptime(sale_obj.get('date_from'), '%Y-%m-%dT%H:%M:%SZ').month
@@ -47,7 +48,7 @@ def handle_sale_obj(current_user, sale_obj: dict, api_key, current_product_objs)
         gi_id=sale_obj.get('gi_id'),
         subject_name=sale_obj.get('subject_name'),
         nm_id=sale_obj.get('nm_id'),
-        brand_name=sale_obj.get('brand_name'),
+        brand_name=brand_name,
         sa_name=sale_obj.get('sa_name'),
         ts_name=sale_obj.get('ts_name'),
         barcode=sale_obj.get('barcode'),
