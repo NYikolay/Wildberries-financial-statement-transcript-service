@@ -19,10 +19,7 @@ def get_revenue_by_filter(
     sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict')
 
     revenue_by_filter_list = SaleObject.objects.filter(
-        ~Q(supplier_oper_name='Логистика') &
-        ~Q(supplier_oper_name='Логистика сторно') &
-        ~Q(supplier_oper_name='Частичная компенсация брака') &
-        ~Q(supplier_oper_name='Авансовая оплата за товар без движения'),
+        ~Q(nm_id=99866376),
         period_filter_data.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
@@ -35,18 +32,26 @@ def get_revenue_by_filter(
         retail_storno_returns_sum=sum_aggregation_objs_dict.get('retail_storno_returns_sum'),
         retail_correct_returns_sum=sum_aggregation_objs_dict.get('retail_correct_returns_sum'),
         retail_marriage_payment_sum=sum_aggregation_objs_dict.get('retail_marriage_payment_sum'),
-        retail_payment_lost_marriage_sum=sum_aggregation_objs_dict.get('retail_payment_lost_marriage_sum'),
+        retail_sales_payment_lost_marriage_sum=sum_aggregation_objs_dict.get(
+            'retail_sales_payment_lost_marriage_sum'),
+        retail_returns_payment_lost_marriage_sum=sum_aggregation_objs_dict.get(
+            'retail_returns_payment_lost_marriage_sum'),
         retail_partial_compensation_marriage_sum=sum_aggregation_objs_dict.get(
             'retail_partial_compensation_marriage_sum'),
-        retail_advance_payment_goods_without_payment_sum=sum_aggregation_objs_dict.get(
-            'retail_advance_payment_goods_without_payment_sum')
+        retail_sales_advance_payment_goods_without_payment_sum=sum_aggregation_objs_dict.get(
+            'retail_sales_advance_payment_goods_without_payment_sum'),
+        retail_returns_advance_payment_goods_without_payment_sum=sum_aggregation_objs_dict.get(
+            'retail_returns_advance_payment_goods_without_payment_sum')
     ).annotate(
         total_filter_revenue=Coalesce(
             ExpressionWrapper(
-                F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') - F(
-                    'retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') + F(
-                    'retail_marriage_payment_sum') - F('retail_payment_lost_marriage_sum') + F(
-                    'retail_partial_compensation_marriage_sum') - F('retail_advance_payment_goods_without_payment_sum'),
+                F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') -
+                F('retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') +
+                F('retail_marriage_payment_sum') + F('retail_sales_payment_lost_marriage_sum') -
+                F('retail_returns_payment_lost_marriage_sum') +
+                F('retail_partial_compensation_marriage_sum') +
+                F('retail_sales_advance_payment_goods_without_payment_sum') -
+                F('retail_returns_advance_payment_goods_without_payment_sum'),
                 output_field=FloatField()
             ), Value(0.0), output_field=FloatField())
     ).values(filter_name, 'total_filter_revenue')

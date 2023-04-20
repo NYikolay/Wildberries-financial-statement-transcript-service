@@ -124,7 +124,8 @@ def generate_xyz_report_values(
         current_user,
         current_api_key,
         sum_aggregation_objs_dict,
-        current_barcodes
+        current_barcodes,
+        annotations_objs
 ) -> pd.DataFrame:
     """
     The function generates an XYZ report based on the current_barcodes
@@ -133,13 +134,17 @@ def generate_xyz_report_values(
     :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
     in the value to filter values from the database
     :param current_barcodes: A list containing the unique barcode by nm_id of the current user from the SaleObject table
+    :param annotations_objs: A dictionary containing objects for calculating values when annotating a query to the
+    SaleObject model. Result of
+    reports.services.report_generation_services.generating_sum_aggregation_objs_service.get_financials_annotation_objects
     :return: Returns the final XYZ report, which has the DataFrame data type
     """
 
     past_months_values: dict = get_past_months_filters()
     weeks_by_years: pd.DataFrame = past_months_values.get('weeks_by_years')
     revenues_by_weeks: pd.DataFrame = pd.DataFrame(get_nm_ids_revenues_by_weeks(
-        current_user, current_api_key, current_barcodes, sum_aggregation_objs_dict, past_months_values.get('filters')
+        current_user, current_api_key, current_barcodes,
+        sum_aggregation_objs_dict, past_months_values.get('filters'), annotations_objs
     ))
 
     index = pd.MultiIndex.from_product(
@@ -260,7 +265,7 @@ def get_abc_xyz_report(
     abc_report: dict = generate_abc_report_values(calculated_financials_by_products)
 
     xyz_report: pd.DataFrame = generate_xyz_report_values(
-        current_user, current_api_key, sum_aggregation_objs_dict, abc_report.get('current_barcodes')
+        current_user, current_api_key, sum_aggregation_objs_dict, abc_report.get('current_barcodes'), annotations_objs
     )
 
     abc_xyz_report: dict = make_abc_xyz_data_set(abc_report.get('calculated_abc_values_by_products'), xyz_report)
