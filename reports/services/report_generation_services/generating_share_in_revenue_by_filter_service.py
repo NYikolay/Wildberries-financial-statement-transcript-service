@@ -23,7 +23,8 @@ def get_revenue_by_filter(
         period_filter_data.get('period_q_obj'),
         owner=current_user,
         api_key=current_api_key,
-        brand_name__isnull=False
+        brand_name__isnull=False,
+        nm_id__isnull=False
     ).values(filter_name).annotate(
         retail_sales_sum=sum_aggregation_objs_dict.get('retail_sales_sum'),
         retail_return_sum=sum_aggregation_objs_dict.get('retail_return_sum'),
