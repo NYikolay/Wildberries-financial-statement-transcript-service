@@ -8,7 +8,7 @@ from django.db.models import Q, QuerySet
 from django.http import Http404
 from django.contrib import messages
 
-from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom
+from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
 from reports.services.execute_generating_report_service import get_full_user_report
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
@@ -65,6 +65,17 @@ class DashboardView(LoginRequiredMixin, View):
             'is_unloaded_reports': UnloadedReports.objects.filter(api_key=current_api_key).exists()
         }
         return render(request, 'reports/dashboard.html', context)
+
+
+class ReportByBarcodeView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    form_class = ReportByBarcodeForm
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            ...
 
 
 class ReportDetailView(LoginRequiredMixin, View):

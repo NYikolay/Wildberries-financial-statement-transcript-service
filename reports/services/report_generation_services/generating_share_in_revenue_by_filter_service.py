@@ -12,7 +12,7 @@ from django.db.models.functions import Coalesce
 def get_revenue_by_filter(
         current_user,
         current_api_key,
-        period_filter_data,
+        filter_period_conditions,
         filter_name: str
 ) -> List[dict]:
     general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
@@ -20,7 +20,7 @@ def get_revenue_by_filter(
 
     revenue_by_filter_list = SaleObject.objects.filter(
         ~Q(nm_id=99866376),
-        period_filter_data.get('period_q_obj'),
+        filter_period_conditions,
         owner=current_user,
         api_key=current_api_key,
         brand_name__isnull=False

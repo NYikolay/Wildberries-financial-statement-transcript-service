@@ -15,6 +15,4 @@ def generate_period_filter_conditions(period_filter_data: List[dict]):
     for filter_data in period_filter_data:
         period_q_obj |= Q(year=filter_data.get('year'), week_num__in=filter_data.get('week_nums'))
 
-    return {
-        'period_q_obj': period_q_obj,
-    }
+    return period_q_obj

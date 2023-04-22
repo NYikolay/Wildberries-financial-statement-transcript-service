@@ -39,3 +39,11 @@ class LoadReportAdditionalDataFrom(forms.Form):
         return self.cleaned_data
 
 
+class ReportByBarcodeForm(forms.Form):
+    barcode = forms.IntegerField()
+    revenue_total = forms.FloatField()
+    share_in_revenue = forms.FloatField()
+    abc_group = forms.CharField(max_length=1)
+    xyz_group = forms.CharField(max_length=2)
+
+

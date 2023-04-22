@@ -4,7 +4,7 @@ from typing import List
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
 from reports.services.report_generation_services.generating_abc_xyz_report_services import get_abc_xyz_report
-from reports.services.report_generation_services.generating_report_db_data_service import get_report_db_inter_data
+from reports.services.report_generation_services.generating_report_db_data_services import get_report_db_inter_data
 from reports.services.report_generation_services.generating_share_in_revenue_by_filter_service import \
     get_share_in_revenue
 from reports.services.report_generation_services.generating_sum_aggregation_objs_service import get_aggregate_sum_dicts
@@ -57,6 +57,11 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
         'abc_report': abc_xyz.get('abc_report'),
         'abc_xyz_report': abc_xyz.get('abc_xyz_report'),
     }
+
+
+def get_report_by_barcode(current_user, current_api_key, period_filter_data: List[dict]):
+    filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
+
 
 
 
