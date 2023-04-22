@@ -7,7 +7,7 @@ from fake_headers import Headers
 django_logger = logging.getLogger('django_logger')
 
 
-def send_request_for_card_json(url: str, article: int) -> str:
+def send_request_for_card_json(url: str, article: int) -> dict or str:
     """
     Sends a request for a json file with data about a specific product
     :param url: Url to send a request to Wildberries (using the requests library)
@@ -26,10 +26,16 @@ def send_request_for_card_json(url: str, article: int) -> str:
 
         return f'Товар с артикулом {article}'
 
-    return json.loads(response.text).get('imt_name')
+    json_response = json.loads(response.text)
+    brand_name = json_response.get('selling').get('brand_name')
+    subjects_name = json_response.get('imt_name')
+    return {
+        'brand': brand_name,
+        'title': subjects_name
+    }
 
 
-def handle_article_additional_data(article: int, brand: str, article_obj_list: list) -> None:
+def handle_article_additional_data(article: int, article_obj_list: list) -> None:
     """
     The function defines the algorithm for generating links to the image and the json file with the product data.
     :param article: unique product identifier (nm_id in our database)
@@ -59,11 +65,11 @@ def handle_article_additional_data(article: int, brand: str, article_obj_list: l
     json_data_url: str = f'https:{basket_url}vol{small_article_1}/part{small_article_2}/{article}/info/ru/card.json'
     img_url: str = f'https:{basket_url}vol{small_article_1}/part{small_article_2}/{article}/images/tm/1.jpg'
 
-    product_name: str = send_request_for_card_json(json_data_url, article)
+    product_values: dict = send_request_for_card_json(json_data_url, article)
 
     article_obj_list.append({
-        'title': product_name,
+        'title': product_values.get('title'),
         'img': img_url,
         'nm_id': article,
-        'brand': brand,
+        'brand': product_values.get('brand'),
     })

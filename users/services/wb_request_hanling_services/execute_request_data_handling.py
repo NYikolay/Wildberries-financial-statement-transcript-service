@@ -33,7 +33,7 @@ def execute_wildberries_request_data_handling(current_user, date_from: str, date
         return res_dict
 
     incorrect_reports: dict = get_incorrect_reports_lst(res_dict.get('data'))
-    unique_articles: list = get_unique_articles(res_dict.get('data'))
+    unique_articles: set = get_unique_articles(res_dict.get('data'))
     unique_reports_ids: set = get_unique_reports(res_dict.get('data'))
 
     if SaleReport.objects.filter(realizationreport_id__in=unique_reports_ids).exclude(owner=current_user).exists():
@@ -58,8 +58,7 @@ def execute_wildberries_request_data_handling(current_user, date_from: str, date
             'message': 'Произошла ошибка во время загрузки отчёта. Пожалуйста, обратитесь в службу поддержки.'
         }
 
-    current_product_objs = ClientUniqueProduct.objects.in_bulk(
-        [article_data.get('nm_id') for article_data in unique_articles], field_name='nm_id')
+    current_product_objs = ClientUniqueProduct.objects.in_bulk(unique_articles, field_name='nm_id')
 
     generated_reports_ids = SaleReport.objects.filter(
         owner=current_user,

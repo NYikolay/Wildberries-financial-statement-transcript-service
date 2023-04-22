@@ -26,7 +26,7 @@ def handle_unique_articles(article_values: dict, api_key):
     )
 
 
-def generate_user_products(current_user, unique_articles: list, current_api_key) -> None:
+def generate_user_products(current_user, unique_articles: set, current_api_key) -> None:
     """
     A function that generates and creates instances of the table ClientUniqueProduct in the database.
     Product processing is performed in multi-threaded mode
@@ -46,13 +46,13 @@ def generate_user_products(current_user, unique_articles: list, current_api_key)
         api_key=current_api_key).values_list("nm_id", flat=True)
 
     for article in unique_articles:
-        if article.get('nm_id') in created_unique_products:
+        if article in created_unique_products:
             unique_articles_len_counter -= 1
             continue
 
         thread = Thread(
             target=handle_article_additional_data,
-            args=(article.get('nm_id'), article.get('brand'), unique_articles_values),
+            args=(article, unique_articles_values),
             daemon=True
         )
         thread.start()
