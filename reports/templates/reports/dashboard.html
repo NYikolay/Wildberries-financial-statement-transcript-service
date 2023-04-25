@@ -539,10 +539,83 @@
         </div>
     </div>
 </div>
+<div class="barcode__detail-wrapper">
+    <div class="barcode__detail-header">
+        <img src="	https://basket-09.wb.ru/vol1294/part129494/129494856/images/tm/1.jpg" alt="" class="barcode__detail-image">
+        <div class="barcode__detail-info__wrapper">
+            <p class="barcode__product-name">Носки женские короткие набор белые черные хлопок</p>
+            <div class="barcode__product-info">
+                <p>Артикул: 129494856</p>
+                <p>Баркод: 2023396214002</p>
+            </div>
+        </div>
+    </div>
+    <div class="barcode__detail-content">
+        <div class="barcode__detail-graph__wrapper">
+            <canvas id="barcode-detail-graph"></canvas>
+            <div class="graph__description-wrapper">
+                <div class="barcode__detail-description__item">
+                    <div style="background-color: #DBDBDB"></div>
+                    <p>Выручка</p>
+                </div>
+                <div class="barcode__detail-description__item">
+                    <div style="background-color: #EF8061"></div>
+                    <p>Итого к оплате</p>
+                </div>
+            </div>
+        </div>
+        <div class="barcode__report-wrapper">
+            <div class="barcode__report-left">
+                <div class="barcode__report-left__item">
+                    <h3>100 000 000</h3>
+                    <p>Выручка</p>
+                </div>
+                <div class="barcode__report-left__item">
+                    <h3 style="color: #ff8364">100 000 000</h3>
+                    <p>Итого к оплате</p>
+                </div>
+            </div>
+            <div class="barcode__report-right">
+                <div class="barcode__report-right__item">
+                    <h3>73%</h3>
+                    <p>Маржинальность</p>
+                </div>
+                <div class="barcode__report-right__item">
+                    <h3>125 693</h3>
+                    <p>Комиссия</p>
+                </div>
+                <div class="barcode__report-right__item">
+                    <h3>AY</h3>
+                    <p>Группа ABC-XYZ</p>
+                </div>
+                <div class="barcode__report-right__item">
+                    <h3>450 236</h3>
+                    <p>Логистика</p>
+                </div>
+                <div class="barcode__report-right__item">
+                    <h3>14 856</h3>
+                    <p>Продажи</p>
+                </div>
+                <div class="barcode__report-right__item">
+                    <h3>40 000</h3>
+                    <p>Штрафы</p>
+                </div>
+                <div class="barcode__report-right__item">
+                    <h3>1 000</h3>
+                    <p>Возвраты</p>
+                </div>
+                <div class="barcode__report-right__item">
+                    <h3>-800</h3>
+                    <p>Доплаты</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'reports/js/dashboard_products.js' %}"></script>
+<script src="{% static 'reports/js/barcode_detail.js' %}"></script>
 <script src="{% static 'reports/js/dashboard.js' %}"></script>
 <script src="{% static 'reports/js/graphs_filtering.js' %}"></script>
 {% endblock %}
