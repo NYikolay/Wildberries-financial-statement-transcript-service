@@ -5,11 +5,11 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, QuerySet
-from django.http import Http404
+from django.http import Http404, JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
 
 from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
-from reports.services.execute_generating_report_service import get_full_user_report
+from reports.services.execute_generating_report_service import get_full_user_report, get_report_by_barcode
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
@@ -73,9 +73,29 @@ class ReportByBarcodeView(LoginRequiredMixin, View):
     form_class = ReportByBarcodeForm
 
     def post(self, request):
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         form = self.form_class(request.POST)
-        if form.is_valid():
-            ...
+
+        if is_ajax:
+            if form.is_valid():
+                current_api_key = request.user.keys.filter(is_current=True).first()
+                report_by_barcode = get_report_by_barcode(
+                    request.user, current_api_key, [],
+                    form.cleaned_data['barcode'], form.cleaned_data['nm_id'], form.cleaned_data['revenue_total'])
+
+                data = {
+                    'status': True,
+                    **report_by_barcode,
+                    'barcode': form.cleaned_data['barcode'],
+                    'abc_group': form.cleaned_data['abc_group'],
+                    'xyz_group': form.cleaned_data['xyz_group'],
+                    'nm_id': form.cleaned_data['nm_id'],
+                    'image': form.cleaned_data['image'],
+                    'product_name': form.cleaned_data['product_name']
+                }
+                return JsonResponse(data, status=200)
+            return JsonResponse({'status': False}, status=400)
+        return HttpResponseBadRequest('Invalid request')
 
 
 class ReportDetailView(LoginRequiredMixin, View):

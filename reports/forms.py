@@ -40,6 +40,9 @@ class LoadReportAdditionalDataFrom(forms.Form):
 
 
 class ReportByBarcodeForm(forms.Form):
+    nm_id = forms.IntegerField()
+    image = forms.URLField()
+    product_name = forms.CharField()
     barcode = forms.IntegerField()
     revenue_total = forms.FloatField()
     share_in_revenue = forms.FloatField()

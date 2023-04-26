@@ -1,5 +1,7 @@
 const productsData = document.getElementById('products-block');
 const productsArray = JSON.parse(productsData.getAttribute('data-products'));
+const revenueTotal = productsData.getAttribute('data-total-revenue')
+const csrfToken = Cookies.get('csrftoken');
 
 const newProductsArray = {
     "A": [],
@@ -86,13 +88,24 @@ function createProductBlocks(condition) {
         productWrapper.setAttribute('data-abx-xyz-group', newProductsArray[condition][i].final_group)
         const image =  newProductsArray[condition][i].image === null ? emptyImageUrl  : newProductsArray[condition][i].image
         productWrapper.innerHTML =
-            `                   
+            `           
                         <img class="product_img" data-src="${image}" alt="">
                         <div class="product-info__wrapper">
                             <p class="product__name">${newProductsArray[condition][i].product_name}</p>
                             <p class="product__barcode">Артикул: ${newProductsArray[condition][i].nm_id}</p>
                             <p class="product__barcode">Баркод: ${newProductsArray[condition][i].barcode}</p>
-                            <button type="button" id="barcode-detail-btn" style="font-size: 8px; color: #ff8364; text-transform:uppercase;">Детализация баркода</button>
+                            <form action="" method="post" id="barcode-detail-form">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                            <input type="hidden" name="barcode" value="${newProductsArray[condition][i].barcode}">
+                            <input type="hidden" name="abc_group" value="${newProductsArray[condition][i].group_abc}">
+                            <input type="hidden" name="xyz_group" value="${newProductsArray[condition][i].final_group}">
+                            <input type="hidden" name="share_in_revenue" value="${newProductsArray[condition][i].share_in_revenue}">
+                            <input type="hidden" name="revenue_total" value="${revenueTotal.replace(/\,/g, '.')}">
+                            <input type="hidden" name="nm_id" value="${newProductsArray[condition][i].nm_id}">
+                            <input type="hidden" name="image" value="${image}">
+                            <input type="hidden" name="product_name" value="${newProductsArray[condition][i].product_name}">
+                            <button type="submit" id="barcode-detail-btn" style="font-size: 8px; color: #ff8364; text-transform:uppercase;">Детализация баркода</button>
+                            </form>
                         </div> 
                     `
         productsData.appendChild(productWrapper)

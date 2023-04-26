@@ -116,6 +116,47 @@ def get_nm_ids_revenues_by_weeks(
     return revenues_queryset
 
 
+def get_sale_objects_by_barcode_by_weeks(
+        current_user,
+        current_api_key,
+        filter_period_conditions,
+        sum_aggregation_objs_dict,
+        net_costs_sum_aggregations_objs,
+        barcode,
+        nm_id
+):
+    sale_objects_by_barcode_by_weeks = SaleObject.objects.filter(
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+        barcode=barcode,
+        nm_id=nm_id
+    ).annotate(
+        net_cost=Subquery(
+            NetCost.objects.filter(
+                product=OuterRef('product'),
+                cost_date__lte=OuterRef('order_dt')
+            ).order_by('-cost_date').values('amount')[:1]
+        ),
+    ).order_by('date_from').values('year', 'week_num').annotate(
+        **sum_aggregation_objs_dict,
+        **net_costs_sum_aggregations_objs,
+        date_to=Max(F('date_to')),
+        date_from=Min(F('date_from')),
+        logistic_sum=(
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
+        ),
+        penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
+        additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
+    )
+    return sale_objects_by_barcode_by_weeks
+
+
 def get_sale_objects_by_weeks(
         current_user,
         current_api_key,
