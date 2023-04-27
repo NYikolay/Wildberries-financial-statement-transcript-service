@@ -65,6 +65,14 @@
     </div>
 </div>
 
+{% url 'reports:dashboard' as url %}
+{% if request.path == url %}
+<div class="barcode__detail-wrapper">
+    {% include 'includes/barcode_detail.html' %}
+</div>
+<script src="{% static 'reports/js/barcode_detail.js' %}"></script>
+{% endif %}
+
 <script src="{% static 'js/contact_form.js' %}"></script>
 <script src="{% static 'js/messages.js' %}"></script>
 </body>

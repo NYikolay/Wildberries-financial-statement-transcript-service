@@ -4,6 +4,7 @@ from django.db.models import (
     OuterRef, Value,
     Case, When, Min, Max, QuerySet, Count)
 from django.db.models.functions import Coalesce
+from django.db import connection
 
 from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
 
@@ -43,11 +44,11 @@ def get_calculated_financials_by_products(
 
     calculated_financials = SaleObject.objects.filter(
         ~Q(nm_id=99866376),
-        filter_period_conditions.get('period_q_obj'),
+        filter_period_conditions,
         owner=current_user,
         api_key=current_api_key,
         nm_id__isnull=False,
-        ).annotate(
+    ).annotate(
         net_cost=Subquery(
             NetCost.objects.filter(
                 product=OuterRef('product'),
@@ -57,8 +58,8 @@ def get_calculated_financials_by_products(
     ).order_by('barcode').values('barcode').annotate(
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
-        image=F('product__image'),
-        product_name=F('product__product_name'),
+        image=Min('product__image'),
+        product_name=Min('product__product_name'),
         logistic_sum=(
                 Coalesce(Sum(
                     'delivery_rub',
@@ -84,7 +85,7 @@ def get_nm_ids_revenues_by_weeks(
         current_api_key,
         current_barcodes,
         sum_aggregation_objs_dict,
-        filters,
+        filter_period_conditions,
         annotations_objs) -> QuerySet:
     """
     The function sends a query to the database to calculate the XYZ analysis.
@@ -94,7 +95,7 @@ def get_nm_ids_revenues_by_weeks(
     :param current_barcodes: A list containing the unique barcode by nm_id of the current user from the SaleObject table
     :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
     in the value to filter values from the database
-    :param filters: The result of the function get_past_months_filters , contains objects
+    :param filter_period_conditions: The result of the function get_past_months_filters , contains objects
     Q(year=... | week_num__in=....) for the LAST 12 MONTHS (Always, regardless of user filters)
     :param annotations_objs: A dictionary containing objects for calculating values when annotating a query to the
     SaleObject model. Result of
@@ -104,11 +105,11 @@ def get_nm_ids_revenues_by_weeks(
 
     revenues_queryset = SaleObject.objects.filter(
         ~Q(nm_id=99866376),
-        filters.get('period_q_obj'),
+        filter_period_conditions,
         owner=current_user,
         api_key=current_api_key,
         barcode__in=current_barcodes,
-        ).order_by('week_num').values('week_num', 'year').annotate(
+    ).order_by('week_num').values('week_num', 'year').annotate(
         **sum_aggregation_objs_dict,
         revenue_by_article=annotations_objs.get('revenue_by_article')
     ).order_by('-barcode').values('barcode', 'nm_id', 'year', 'week_num', 'revenue_by_article')
@@ -116,32 +117,55 @@ def get_nm_ids_revenues_by_weeks(
     return revenues_queryset
 
 
-def get_report_db_inter_data(
+def get_sale_objects_by_barcode_by_weeks(
         current_user,
         current_api_key,
-        filter_period_conditions: dict,
-        general_dict_aggregation_objs: dict
+        filter_period_conditions,
+        sum_aggregation_objs_dict,
+        net_costs_sum_aggregations_objs,
+        barcode,
+        nm_id
 ):
-    """
-    The function is responsible for sending queries to the database to obtain information for the report
-    :param current_user: Current authorized user
-    :param current_api_key: The user's current active WBApiKey
-    :param filter_period_conditions: Formed an instance of the Q() class to filter data
-    :param general_dict_aggregation_objs: ...
-    :return: Returns a dictionary containing data from the Reporting Database
-    """
-    sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict')
-    net_costs_sum_aggregations_objs: dict = general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs')
-    tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs')
-
-    products_count_by_period = SaleObject.objects.filter(
-        ~Q(nm_id=99866376),
-        filter_period_conditions.get('period_q_obj'),
+    sale_objects_by_barcode_by_weeks = SaleObject.objects.filter(
+        filter_period_conditions,
         owner=current_user,
         api_key=current_api_key,
-        nm_id__isnull=False
-    ).order_by('barcode').values('barcode').annotate(count=Count('id')).count()
+        barcode=barcode,
+        nm_id=nm_id
+    ).annotate(
+        net_cost=Subquery(
+            NetCost.objects.filter(
+                product=OuterRef('product'),
+                cost_date__lte=OuterRef('order_dt')
+            ).order_by('-cost_date').values('amount')[:1]
+        ),
+    ).order_by('date_from').values('year', 'week_num').annotate(
+        **sum_aggregation_objs_dict,
+        **net_costs_sum_aggregations_objs,
+        date_to=Max(F('date_to')),
+        date_from=Min(F('date_from')),
+        logistic_sum=(
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
+        ),
+        penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
+        additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
+    )
+    return sale_objects_by_barcode_by_weeks
 
+
+def get_sale_objects_by_weeks(
+        current_user,
+        current_api_key,
+        filter_period_conditions,
+        sum_aggregation_objs_dict,
+        tax_rates_sum_aggregation_objs,
+        net_costs_sum_aggregations_objs
+):
     tax_rates_objects = TaxRate.objects.filter(
         api_key=current_api_key
     ).order_by('-commencement_date').only('tax_rate', 'commencement_date')
@@ -152,35 +176,8 @@ def get_report_db_inter_data(
         ) for obj in tax_rates_objects
     ]
 
-    supplier_costs_sum_list = SaleReport.objects.filter(
-        id__in=Subquery(
-            SaleReport.objects.filter(
-                filter_period_conditions.get('period_q_obj'),
-                owner=current_user,
-                api_key=current_api_key,
-            ).distinct('create_dt').values_list('id', flat=True)
-        )).order_by('date_from').values('year', 'week_num').annotate(
-        date_to=Max(F('date_to')),
-        date_from=Min(F('date_from')),
-        supplier_costs_sum=Coalesce(Sum('supplier_costs'), 0, output_field=FloatField())
-    )
-
-    wb_costs_sum_list = SaleReport.objects.filter(
-        filter_period_conditions.get('period_q_obj'),
-        owner=current_user,
-        api_key=current_api_key,
-    ).order_by('date_from').values('year', 'week_num').annotate(
-        date_to=Max(F('date_to')),
-        date_from=Min(F('date_from')),
-        total_wb_costs_sum=Sum(
-            Coalesce(F('storage_cost'), 0, output_field=FloatField()) +
-            Coalesce(F('cost_paid_acceptance'), 0, output_field=FloatField()) +
-            Coalesce(F('other_deductions'), 0, output_field=FloatField())
-        )
-    )
-
-    sale_objects_by_weeks = SaleObject.objects.filter(
-        filter_period_conditions.get('period_q_obj'),
+    sale_objects = SaleObject.objects.filter(
+        filter_period_conditions,
         owner=current_user,
         api_key=current_api_key,
     ).annotate(
@@ -212,8 +209,16 @@ def get_report_db_inter_data(
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
     )
 
+    return sale_objects
+
+
+def get_empty_db_values(
+        current_user,
+        current_api_key,
+        period_q_objs
+):
     is_empty_reports_values = SaleReport.objects.filter(
-        filter_period_conditions.get('period_q_obj'),
+        period_q_objs,
         Q(storage_cost__isnull=True) |
         Q(cost_paid_acceptance__isnull=True) |
         Q(other_deductions__isnull=True) |
@@ -232,11 +237,120 @@ def get_report_db_inter_data(
     ).exists()
 
     return {
-        'sale_objects_by_weeks': sale_objects_by_weeks,
-        'supplier_costs_sum_list': supplier_costs_sum_list,
-        'wb_costs_sum_list': wb_costs_sum_list,
         'is_empty_reports_values': is_empty_reports_values,
         'is_empty_netcosts_values': is_empty_netcosts_values,
         'is_exists_tax_values': is_exists_tax_values,
+    }
+
+
+def get_products_count_by_period(current_user, current_api_key, filter_period_conditions):
+    products_count_by_period = SaleObject.objects.filter(
+        ~Q(nm_id=99866376),
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+        nm_id__isnull=False
+    ).order_by('barcode').values('barcode').annotate(count=Count('id')).count()
+
+    return products_count_by_period
+
+
+def get_supplier_costs_sum(current_user, current_api_key, filter_period_conditions):
+    supplier_costs_sum = SaleReport.objects.filter(
+        id__in=Subquery(
+            SaleReport.objects.filter(
+                filter_period_conditions,
+                owner=current_user,
+                api_key=current_api_key,
+            ).distinct('create_dt').values_list('id', flat=True)
+        )).order_by('date_from').values('year', 'week_num').annotate(
+        date_to=Max(F('date_to')),
+        date_from=Min(F('date_from')),
+        supplier_costs_sum=Coalesce(Sum('supplier_costs'), 0, output_field=FloatField())
+    )
+
+    return supplier_costs_sum
+
+
+def get_wb_costs_sum(current_user, current_api_key, filter_period_conditions):
+    wb_costs_sum = SaleReport.objects.filter(
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+    ).order_by('date_from').values('year', 'week_num').annotate(
+        date_to=Max(F('date_to')),
+        date_from=Min(F('date_from')),
+        total_wb_costs_sum=Sum(
+            Coalesce(F('storage_cost'), 0, output_field=FloatField()) +
+            Coalesce(F('cost_paid_acceptance'), 0, output_field=FloatField()) +
+            Coalesce(F('other_deductions'), 0, output_field=FloatField())
+        )
+    )
+
+    return wb_costs_sum
+
+
+def get_report_db_inter_data(
+        current_user,
+        current_api_key,
+        filter_period_conditions: dict,
+        general_dict_aggregation_objs: dict
+):
+    """
+    The function is responsible for sending queries to the database to obtain information for the report
+    :param current_user: Current authorized user
+    :param current_api_key: The user's current active WBApiKey
+    :param filter_period_conditions: Formed an instance of the Q() class to filter data
+    :param general_dict_aggregation_objs: ...
+    :return: Returns a dictionary containing data from the Reporting Database
+    """
+    sum_aggregation_objs_dict: dict = general_dict_aggregation_objs.get('sum_aggregation_objs_dict')
+    net_costs_sum_aggregations_objs: dict = general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs')
+    tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs')
+
+    with connection.cursor() as cursor:
+        sql = "SET JIT = OFF;"
+        cursor.execute(sql)
+
+    sale_objects_by_weeks = get_sale_objects_by_weeks(
+        current_user,
+        current_api_key,
+        filter_period_conditions,
+        sum_aggregation_objs_dict,
+        tax_rates_sum_aggregation_objs,
+        net_costs_sum_aggregations_objs
+    )
+
+    products_count_by_period = get_products_count_by_period(
+        current_user,
+        current_api_key,
+        filter_period_conditions
+    )
+
+    supplier_costs_sum_list = get_supplier_costs_sum(
+        current_user,
+        current_api_key,
+        filter_period_conditions
+    )
+
+    wb_costs_sum_list = get_wb_costs_sum(
+        current_user,
+        current_api_key,
+        filter_period_conditions
+    )
+
+    empty_user_data_statuses_dict = get_empty_db_values(
+        current_user,
+        current_api_key,
+        filter_period_conditions
+    )
+
+    return {
+        'sale_objects_by_weeks': sale_objects_by_weeks,
+        'supplier_costs_sum_list': supplier_costs_sum_list,
+        'wb_costs_sum_list': wb_costs_sum_list,
+        'is_empty_reports_values': empty_user_data_statuses_dict.get('is_empty_reports_values'),
+        'is_empty_netcosts_values': empty_user_data_statuses_dict.get('is_empty_netcosts_values'),
+        'is_exists_tax_values': empty_user_data_statuses_dict.get('is_exists_tax_values'),
         'products_count_by_period': products_count_by_period,
     }

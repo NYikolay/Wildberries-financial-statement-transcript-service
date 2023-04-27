@@ -6,7 +6,7 @@ from django.db.models import QuerySet
 
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
-from reports.services.report_generation_services.generating_report_db_data_service import \
+from reports.services.report_generation_services.generating_report_db_data_services import \
     get_calculated_financials_by_products, get_nm_ids_revenues_by_weeks
 from reports.services.report_generation_services.generating_sum_aggregation_objs_service import \
     get_financials_annotation_objects

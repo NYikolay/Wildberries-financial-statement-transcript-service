@@ -5,11 +5,11 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, QuerySet
-from django.http import Http404
+from django.http import Http404, JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
 
-from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom
-from reports.services.execute_generating_report_service import get_full_user_report
+from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
+from reports.services.execute_generating_report_service import get_full_user_report, get_report_by_barcode
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
@@ -65,6 +65,44 @@ class DashboardView(LoginRequiredMixin, View):
             'is_unloaded_reports': UnloadedReports.objects.filter(api_key=current_api_key).exists()
         }
         return render(request, 'reports/dashboard.html', context)
+
+
+class ReportByBarcodeView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    form_class = ReportByBarcodeForm
+
+    def post(self, request):
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        form = self.form_class(request.POST)
+
+        if is_ajax:
+            if form.is_valid():
+                current_api_key = request.user.keys.filter(is_current=True).first()
+                try:
+                    report_by_barcode = get_report_by_barcode(
+                        request.user, current_api_key, form.cleaned_data['period_filters'],
+                        form.cleaned_data['barcode'], form.cleaned_data['nm_id'])
+                except Exception as err:
+                    django_logger.critical(
+                        f'It is impossible to calculate statistics in the dashboard by barcode for a user - '
+                        f'{request.user.email}',
+                        exc_info=err
+                    )
+                    return JsonResponse({'status': False}, status=400)
+                data = {
+                    'status': True,
+                    **report_by_barcode,
+                    'barcode': form.cleaned_data['barcode'],
+                    'abc_group': form.cleaned_data['abc_group'],
+                    'xyz_group': form.cleaned_data['xyz_group'],
+                    'nm_id': form.cleaned_data['nm_id'],
+                    'image': form.cleaned_data['image'],
+                    'product_name': form.cleaned_data['product_name']
+                }
+                return JsonResponse(data, status=200)
+            return JsonResponse({'status': False}, status=400)
+        return HttpResponseBadRequest('Invalid request')
 
 
 class ReportDetailView(LoginRequiredMixin, View):

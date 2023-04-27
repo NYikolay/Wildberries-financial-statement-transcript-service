@@ -927,7 +927,10 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    width: 100%;
     gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .product__name {
@@ -935,6 +938,34 @@
     max-width: 200px;
     font-weight: bold;
     text-transform: uppercase;
+}
+
+.barcode__detail-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+    padding-right: 10px;
+}
+
+.arrow-right {
+    border: solid #ff8364;
+    border-width: 0 1px 1px 0;
+    display: inline-block;
+    padding: 2px;
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.barcode__detail-btn {
+    font-size: 8px;
+    color: #ff8364;
+    text-decoration: underline;
+    text-transform: uppercase;
+}
+
+.barcode__detail-btn:hover {
+    text-decoration: none;
 }
 
 .product__barcode {
@@ -1608,4 +1639,245 @@
     }
 }
 
+/*BARCODE DETAIL STYLING START*/
 
+.barcode__detail-wrapper {
+    z-index: 26;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    visibility: hidden;
+    opacity: 0;
+    background-color: rgba(0,0,0,0.5);
+    position: fixed;
+    transition: opacity 0.3s linear, visibility 0.3s linear;
+}
+
+.barcode__detail-wrapper.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.barcode__detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    height: 100%;
+    width: 400px;
+    z-index: 10;
+    padding: 40px 20px;
+    background-color: white;
+    position: fixed;
+    right: 0;
+    top: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s linear, visibility 0.3s linear;
+}
+
+.barcode__detail-container.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.barcode__detail-header {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+}
+
+.barcode__detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.barcode__report-wrapper {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.barcode__detail-graph__wrapper {
+    border: 1px solid #dbdbdb;
+    border-radius: 10px;
+    padding: 10px 40px;
+}
+
+.barcode__detail-info__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.barcode__detail-image {
+    width: 62px;
+    height: 80px;
+}
+
+.barcode__product-name {
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.barcode__product-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.barcode__product-info p {
+    font-size: 12px;
+}
+
+.graph__description-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.barcode__detail-description__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.barcode__detail-description__item div {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.barcode__detail-description__item p {
+    font-size: 8px;
+    color: #9c9a9a;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.barcode__report-left {
+    display: flex;
+    flex: 0 0 170px;
+    flex-direction: column;
+    justify-content: space-evenly;
+    border: 1px solid #dbdbdb;
+    border-radius: 10px;
+    height: 170px;
+}
+
+.barcode__report-left__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+}
+
+.barcode__report-left__item h3 {
+    font-size: 25px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.barcode__report-left__item p {
+    text-transform: uppercase;
+    font-size: 11px;
+    color: #9c9a9a;
+}
+
+.barcode__report-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.barcode__report-right__item {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 51px;
+    align-items: center;
+    gap: 3px;
+}
+
+.barcode__report-right__item h3 {
+    font-size: 17px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.barcode__report-right__item p {
+    text-transform: uppercase;
+    font-size: 8px;
+    color: #9c9a9a;
+}
+
+.loader__wrapper {
+    height: 200px;
+}
+
+.loader,
+.loader:before,
+.loader:after {
+    background: #ff8364;
+    -webkit-animation: load1 1s infinite ease-in-out;
+    animation: load1 1s infinite ease-in-out;
+    width: 1em;
+    height: 4em;
+}
+
+.loader {
+    color: #ff8364;
+    text-indent: -9999em;
+    margin: 88px auto;
+    position: relative;
+    font-size: 11px;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+.loader:before,
+.loader:after {
+    position: absolute;
+    top: 0;
+    content: '';
+}
+.loader:before {
+    left: -1.5em;
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+.loader:after {
+    left: 1.5em;
+}
+@-webkit-keyframes load1 {
+    0%,
+    80%,
+    100% {
+        box-shadow: 0 0;
+        height: 4em;
+    }
+    40% {
+        box-shadow: 0 -2em;
+        height: 5em;
+    }
+}
+@keyframes load1 {
+    0%,
+    80%,
+    100% {
+        box-shadow: 0 0;
+        height: 4em;
+    }
+    40% {
+        box-shadow: 0 -2em;
+        height: 5em;
+    }
+}
+
+/*BARCODE DETAIL STYLING END*/
