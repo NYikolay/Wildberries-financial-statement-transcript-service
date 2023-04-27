@@ -217,6 +217,9 @@ class ClientUniqueProduct(models.Model):
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+        index_together = [
+            ("image", "product_name")
+        ]
 
 
 class NetCost(models.Model):
@@ -330,7 +333,7 @@ class SaleObject(models.Model):
         verbose_name_plural = 'Продажи'
         index_together = [
             ("year", "week_num"),
-            ("brand_name", "nm_id", "product")
+            ("barcode", "nm_id")
         ]
 
     def __str__(self):

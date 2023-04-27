@@ -2,7 +2,7 @@ import json
 
 from reports.services.report_generation_services.formula_calculation_service import calculate_revenue, \
     calculate_sales_quantity, calculate_returns_quantity, calculate_commission, calculate_logistics, \
-    calculate_marginality, calculate_net_costs
+    calculate_marginality, calculate_net_costs, calculate_total_payable
 
 
 def get_calculated_financials_by_barcode_by_weeks(sales_object_figures: dict):
@@ -99,6 +99,14 @@ def get_calculated_financials_by_barcode_by_weeks(sales_object_figures: dict):
 
     marginality: float = calculate_marginality(net_costs, retail_amount_revenue)
 
+    total_payable = calculate_total_payable(
+        revenue,
+        commission,
+        logistics,
+        sales_object_figures.get('penalty_sum'),
+        sales_object_figures.get('additional_payment_sum')
+    )
+
     return {
         'week_num': sales_object_figures.get('week_num'),
         'revenue': retail_amount_revenue,
@@ -108,6 +116,7 @@ def get_calculated_financials_by_barcode_by_weeks(sales_object_figures: dict):
         'marginality': marginality,
         'net_costs_sum': net_costs,
         'commission': commission,
+        'total_payable': total_payable,
         'penalty': sales_object_figures.get('penalty_sum'),
         'additional_payment_sum': sales_object_figures.get('additional_payment_sum')
     }
@@ -121,6 +130,7 @@ def get_total_financials_by_barcode(sale_objects_by_weeks) -> dict:
     logistics_total = []
     net_costs_sum_total = []
     commission_total = []
+    total_payable = []
     reports_by_week = {
         'week_nums': [],
         'revenues': [],
@@ -133,8 +143,9 @@ def get_total_financials_by_barcode(sale_objects_by_weeks) -> dict:
         calculated_financials: dict = get_calculated_financials_by_barcode_by_weeks(sale_objects_by_week)
         reports_by_week['week_nums'].append(calculated_financials.get('week_num'))
         reports_by_week['revenues'].append(calculated_financials.get('revenue'))
-        reports_by_week['total_payable'].append(0)
+        reports_by_week['total_payable'].append(calculated_financials.get('total_payable'))
         revenue_total.append(calculated_financials.get('revenue'))
+        total_payable.append(calculated_financials.get('total_payable'))
         sales_amount_total.append(calculated_financials.get('sales_amount'))
         returns_amount_total.append(calculated_financials.get('returns_amount'))
         logistics_total.append(calculated_financials.get('logistics'))
@@ -147,6 +158,7 @@ def get_total_financials_by_barcode(sale_objects_by_weeks) -> dict:
 
     return {
         'revenue_total': sum(revenue_total),
+        'total_payable': round(sum(total_payable)),
         'sales_amount_total': sum(sales_amount_total),
         'returns_amount_total': sum(returns_amount_total),
         'logistics_total': round(sum(logistics_total)),

@@ -4,6 +4,7 @@ from django.db.models import (
     OuterRef, Value,
     Case, When, Min, Max, QuerySet, Count)
 from django.db.models.functions import Coalesce
+from django.db import connection
 
 from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
 
@@ -57,8 +58,8 @@ def get_calculated_financials_by_products(
     ).order_by('barcode').values('barcode').annotate(
         **sum_aggregation_objs_dict,
         **net_costs_sum_aggregations_objs,
-        image=F('product__image'),
-        product_name=F('product__product_name'),
+        image=Min('product__image'),
+        product_name=Min('product__product_name'),
         logistic_sum=(
                 Coalesce(Sum(
                     'delivery_rub',
@@ -94,7 +95,7 @@ def get_nm_ids_revenues_by_weeks(
     :param current_barcodes: A list containing the unique barcode by nm_id of the current user from the SaleObject table
     :param sum_aggregation_objs_dict: Dictionary containing Coalesce(Sum()) objects
     in the value to filter values from the database
-    :param filters: The result of the function get_past_months_filters , contains objects
+    :param filter_period_conditions: The result of the function get_past_months_filters , contains objects
     Q(year=... | week_num__in=....) for the LAST 12 MONTHS (Always, regardless of user filters)
     :param annotations_objs: A dictionary containing objects for calculating values when annotating a query to the
     SaleObject model. Result of

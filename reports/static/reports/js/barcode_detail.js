@@ -157,7 +157,7 @@ function generateBarcodeDetailHtml(barcode_data) {
                     <p>Выручка</p>
                 </div>
                 <div class="barcode__report-left__item">
-                    <h3 style="color: #ff8364">100 000 000</h3>
+                    <h3 style="color: #ff8364">${barcode_data['total_payable'].toLocaleString('ru')}</h3>
                     <p>Итого к оплате</p>
             </div>
         </div>
@@ -220,7 +220,7 @@ function generateBarcodeDetailFormEventListener(form) {
             const barcode = form.elements['barcode'].value;
             const csrfmiddlewaretoken = form.elements['csrfmiddlewaretoken'].value;
             const share_in_revenue = form.elements['share_in_revenue'].value;
-            const xyz_group = form.elements['xyz_group'].value;
+            const xyz_group = form.elements['xyz_group'].value === 'null' ? '-' : form.elements['xyz_group'].value;
             const revenue_total = form.elements['revenue_total'].value;
             const nm_id = form.elements['nm_id'].value;
             const image = form.elements['image'].value;

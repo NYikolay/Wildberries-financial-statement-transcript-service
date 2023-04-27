@@ -1769,7 +1769,7 @@
     flex-direction: column;
     flex: 1 1 51px;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
 }
 
 .barcode__report-right__item h3 {

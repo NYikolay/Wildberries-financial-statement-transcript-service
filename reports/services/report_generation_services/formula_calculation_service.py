@@ -201,3 +201,16 @@ def calculate_share_in_revenue(
         total_revenue: float
 ):
     return (revenue_by_obj / total_revenue) * 100 if total_revenue > 0 else 0
+
+
+def calculate_total_payable(
+        revenue: float,
+        commission: float,
+        logistics: float,
+        penalty_sum: float,
+        additional_payment_sum: float
+):
+
+    total_payable: float = (revenue - commission - logistics - penalty_sum - additional_payment_sum)
+
+    return total_payable
