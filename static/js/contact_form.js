@@ -50,10 +50,19 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append('user_name', contactName.value);
         formData.append('message', contactMessage.value);
 
-        fetch(evt.target.action, {
-            method: 'POST',
-            body: formData
-        }).then(response => response.json()).then(data => {
+        const request = new Request(evt.target.action,
+            {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput.value,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                mode: 'same-origin',
+                body: formData
+            }
+        );
+
+        fetch(request).then(response => response.json()).then(data => {
             if (data.status === true) {
                 closeContactForm()
                 const messageSuccess = document.createElement('div')

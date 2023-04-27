@@ -98,7 +98,7 @@ class ChangeUserPasswordForm(forms.Form):
     reenter_password = forms.CharField(widget=forms.PasswordInput(), required=True)
 
     def clean(self):
-        if len(self.cleaned_data['new_password']) < 9:
+        if len(self.cleaned_data['new_password']) < 8:
             raise ValidationError(
                 ngettext(
                     "Пароль должен содержать минимум %(min_length)d символов.",

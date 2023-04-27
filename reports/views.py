@@ -9,7 +9,7 @@ from django.http import Http404, JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
 
 from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
-from reports.services.execute_generating_report_service import get_full_user_report, get_report_by_barcode
+from reports.services.execute_generating_reports_services import get_full_user_report, get_detail_report_by_barcode
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
@@ -80,7 +80,7 @@ class ReportByBarcodeView(LoginRequiredMixin, View):
             if form.is_valid():
                 current_api_key = request.user.keys.filter(is_current=True).first()
                 try:
-                    report_by_barcode = get_report_by_barcode(
+                    report_by_barcode = get_detail_report_by_barcode(
                         request.user, current_api_key, form.cleaned_data['period_filters'],
                         form.cleaned_data['barcode'], form.cleaned_data['nm_id'])
                 except Exception as err:

@@ -17,7 +17,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
 from payments.models import SubscriptionTypes
 from payments.services.create_user_subscription_service import create_user_subscription
@@ -255,31 +255,36 @@ class ChangePasswordView(LoginRequiredMixin, View):
     form_class = ChangeUserPasswordForm
 
     def post(self, request):
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
         form = self.form_class(request.POST)
-        if form.is_valid():
-            if not request.user.check_password(form.cleaned_data['old_password']):
+        if is_ajax:
+            if form.is_valid():
+                if not request.user.check_password(form.cleaned_data['old_password']):
+                    return JsonResponse(
+                        {
+                            'status': False,
+                            'message': f'Старый пароль введён неверно.'
+                        }
+                    )
+                user = request.user
+                user.set_password(form.cleaned_data['new_password'])
+                user.save()
+                update_session_auth_hash(request, user)
                 return JsonResponse(
                     {
-                        'status': False,
-                        'message': f'Старый пароль введён неверно.'
-                    }
+                        'status': True,
+                        'message': f'Пароль успешно обновлён.'
+                    },
+                    status=200
                 )
-            user = request.user
-            user.set_password(form.cleaned_data['new_password'])
-            user.save()
-            update_session_auth_hash(request, user)
             return JsonResponse(
                 {
-                    'status': True,
-                    'message': f'Пароль успешно обновлён.'
-                }
+                    'status': False,
+                    'message': f'{form.non_field_errors().as_text()}'
+                },
+                status=400
             )
-        return JsonResponse(
-            {
-                'status': False,
-                'message': f'{form.non_field_errors().as_text()}'
-            }
-        )
+        return HttpResponseBadRequest('Invalid request')
 
 
 class PasswordResetView(View):

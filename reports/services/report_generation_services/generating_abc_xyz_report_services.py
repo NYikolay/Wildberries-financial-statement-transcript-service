@@ -226,7 +226,7 @@ def make_abc_xyz_data_set(calculated_abc_values_by_products: pd.DataFrame, xyz_r
     }
 
 
-def get_abc_xyz_report(
+def get_calculated_financials_by_barcodes(
         current_user,
         current_api_key,
         filter_period_conditions: dict,
@@ -236,7 +236,7 @@ def get_abc_xyz_report(
         total_products_count: int
 ) -> dict:
     """
-    The function returns the calculated ABC XYZ analysis data. Calls the functions required for the calculations.
+    The function returns the calculated financials by barcodes. Calls the functions required for the calculations.
     :param current_user: request.user
     :param current_api_key: active WebAPIKey of request.user
     :param filter_period_conditions: Dictionary containing Q() objects in the value to filter values from the database:

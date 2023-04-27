@@ -100,7 +100,6 @@ function createProductBlocks(condition) {
                             <input type="hidden" name="abc_group" value="${newProductsArray[condition][i].group_abc}">
                             <input type="hidden" name="xyz_group" value="${newProductsArray[condition][i].final_group}">
                             <input type="hidden" name="share_in_revenue" value="${newProductsArray[condition][i].share_in_revenue}">
-                            <input type="hidden" name="revenue_total" value="${revenueTotal.replace(/\,/g, '.')}">
                             <input type="hidden" name="nm_id" value="${newProductsArray[condition][i].nm_id}">
                             <input type="hidden" name="image" value="${image}">
                             <input type="hidden" name="product_name" value="${newProductsArray[condition][i].product_name}">
