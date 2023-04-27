@@ -94,7 +94,7 @@ function createProductBlocks(condition) {
                             <p class="product__name">${newProductsArray[condition][i].product_name}</p>
                             <p class="product__barcode">Артикул: ${newProductsArray[condition][i].nm_id}</p>
                             <p class="product__barcode">Баркод: ${newProductsArray[condition][i].barcode}</p>
-                            <form action="" method="post" id="barcode-detail-form">
+                            <form action="" method="post" class="barcode__detail-form" id="barcode-detail-form">
                             <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
                             <input type="hidden" name="barcode" value="${newProductsArray[condition][i].barcode}">
                             <input type="hidden" name="abc_group" value="${newProductsArray[condition][i].group_abc}">
@@ -104,7 +104,7 @@ function createProductBlocks(condition) {
                             <input type="hidden" name="nm_id" value="${newProductsArray[condition][i].nm_id}">
                             <input type="hidden" name="image" value="${image}">
                             <input type="hidden" name="product_name" value="${newProductsArray[condition][i].product_name}">
-                            <button type="submit" id="barcode-detail-btn" style="font-size: 8px; color: #ff8364; text-transform:uppercase;">Детализация баркода</button>
+                            <button type="submit" class="barcode__detail-btn" id="barcode-detail-btn">Детали <i class="arrow-right"></i></button>
                             </form>
                         </div> 
                     `

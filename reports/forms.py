@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 
 from users.models import NetCost, SaleReport
@@ -40,13 +42,22 @@ class LoadReportAdditionalDataFrom(forms.Form):
 
 
 class ReportByBarcodeForm(forms.Form):
+    period_filters = forms.CharField()
     nm_id = forms.IntegerField()
     image = forms.URLField()
     product_name = forms.CharField()
     barcode = forms.IntegerField()
-    revenue_total = forms.FloatField()
     share_in_revenue = forms.FloatField()
     abc_group = forms.CharField(max_length=1)
     xyz_group = forms.CharField(max_length=2)
+
+    def clean_period_filters(self):
+        jdata = self.cleaned_data['period_filters']
+        try:
+            json_data = json.loads(jdata)
+        except:
+            raise ValidationError("Invalid data in period_filters field")
+
+        return json_data
 
 

@@ -308,6 +308,10 @@ def get_report_db_inter_data(
     net_costs_sum_aggregations_objs: dict = general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs')
     tax_rates_sum_aggregation_objs: dict = general_dict_aggregation_objs.get('tax_rates_sum_aggregation_objs')
 
+    with connection.cursor() as cursor:
+        sql = "SET JIT = OFF;"
+        cursor.execute(sql)
+
     sale_objects_by_weeks = get_sale_objects_by_weeks(
         current_user,
         current_api_key,

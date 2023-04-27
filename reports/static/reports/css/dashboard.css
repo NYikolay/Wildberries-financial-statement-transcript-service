@@ -927,7 +927,10 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    width: 100%;
     gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .product__name {
@@ -935,6 +938,34 @@
     max-width: 200px;
     font-weight: bold;
     text-transform: uppercase;
+}
+
+.barcode__detail-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+    padding-right: 10px;
+}
+
+.arrow-right {
+    border: solid #ff8364;
+    border-width: 0 1px 1px 0;
+    display: inline-block;
+    padding: 2px;
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.barcode__detail-btn {
+    font-size: 8px;
+    color: #ff8364;
+    text-decoration: underline;
+    text-transform: uppercase;
+}
+
+.barcode__detail-btn:hover {
+    text-decoration: none;
 }
 
 .product__barcode {

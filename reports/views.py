@@ -79,10 +79,17 @@ class ReportByBarcodeView(LoginRequiredMixin, View):
         if is_ajax:
             if form.is_valid():
                 current_api_key = request.user.keys.filter(is_current=True).first()
-                report_by_barcode = get_report_by_barcode(
-                    request.user, current_api_key, [],
-                    form.cleaned_data['barcode'], form.cleaned_data['nm_id'], form.cleaned_data['revenue_total'])
-
+                try:
+                    report_by_barcode = get_report_by_barcode(
+                        request.user, current_api_key, form.cleaned_data['period_filters'],
+                        form.cleaned_data['barcode'], form.cleaned_data['nm_id'])
+                except Exception as err:
+                    django_logger.critical(
+                        f'It is impossible to calculate statistics in the dashboard by barcode for a user - '
+                        f'{request.user.email}',
+                        exc_info=err
+                    )
+                    return JsonResponse({'status': False}, status=400)
                 data = {
                     'status': True,
                     **report_by_barcode,

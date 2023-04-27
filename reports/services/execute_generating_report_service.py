@@ -62,7 +62,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
     }
 
 
-def get_report_by_barcode(current_user, current_api_key, period_filter_data: List[dict], barcode, nm_id, revenue_total):
+def get_report_by_barcode(current_user, current_api_key, period_filter_data: List[dict], barcode, nm_id):
     filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
     general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
 

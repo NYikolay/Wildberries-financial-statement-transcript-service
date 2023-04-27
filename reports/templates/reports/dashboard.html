@@ -7,7 +7,7 @@
     <div class="main_content-wrapper">
         <div class="graphs" id="graphs-bar-wrap" data-report="{{ report.reports_by_week }}">
             <div class="graphs-bar-prewrap">
-                <div class="graphs-bar-filter_wrapper">
+                <div class="graphs-bar-filter_wrapper" data-current-filters="{{ current_filter_data|tojson }}">
                     <div class="filter-dropdown_wrapper">
                         <button class="graphs-dropbtn" id="graphs-dropbtn">
                             <img src="{% static 'images/10179242.svg' %}" alt="" style="height: 15px; width: 15px;">

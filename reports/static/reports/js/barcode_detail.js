@@ -1,5 +1,6 @@
 const barcodeDetailContainer = document.querySelector('.barcode__detail-container')
 const barcodeDetailWrapper = document.querySelector('.barcode__detail-wrapper')
+const currentFilterData = document.querySelector('.graphs-bar-filter_wrapper').getAttribute('data-current-filters')
 let barcodeDetailForm = document.querySelectorAll('#barcode-detail-form')
 const barcodeDetailUrl = barcodeDetailContainer.getAttribute('data-url')
 const changeBarcodeFormsBtns = document.querySelectorAll('.abc-xyz__filter__item')
@@ -221,7 +222,6 @@ function generateBarcodeDetailFormEventListener(form) {
             const csrfmiddlewaretoken = form.elements['csrfmiddlewaretoken'].value;
             const share_in_revenue = form.elements['share_in_revenue'].value;
             const xyz_group = form.elements['xyz_group'].value === 'null' ? '-' : form.elements['xyz_group'].value;
-            const revenue_total = form.elements['revenue_total'].value;
             const nm_id = form.elements['nm_id'].value;
             const image = form.elements['image'].value;
             const product_name = form.elements['product_name'].value;
@@ -232,11 +232,10 @@ function generateBarcodeDetailFormEventListener(form) {
             formData.append('barcode', barcode);
             formData.append('share_in_revenue', share_in_revenue);
             formData.append('xyz_group', xyz_group);
-            formData.append('revenue_total', revenue_total);
             formData.append('nm_id', nm_id);
             formData.append('image', image);
             formData.append('product_name', product_name)
-
+            formData.append('period_filters', currentFilterData)
             sendFetchFroBarcodeDetail(barcodeDetailUrl, csrfmiddlewaretoken, formData)
 
         })
