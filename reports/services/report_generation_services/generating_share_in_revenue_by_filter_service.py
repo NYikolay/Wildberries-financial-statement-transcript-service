@@ -1,5 +1,5 @@
 from reports.services.report_generation_services.formula_calculation_service import calculate_share_in_revenue
-from reports.services.report_generation_services.generating_sum_aggregation_objs_service import get_aggregate_sum_dicts
+from reports.services.report_generation_services.generating_sum_aggregation_objs_services import get_aggregate_sum_dicts
 from users.models import SaleObject
 from typing import List
 from django.db.models import (

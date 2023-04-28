@@ -166,6 +166,7 @@
 .right_nav-list {
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .right_nav-list li {
@@ -218,6 +219,7 @@
     padding-top: 16px;
     padding-bottom: 16px;
     display: flex;
+    justify-content: space-between;
     gap: 222px;
 }
 

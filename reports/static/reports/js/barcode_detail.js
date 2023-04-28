@@ -30,14 +30,16 @@ function createBarcodeDetailGraph (barcodeDetailGraphCanvas, graph_data) {
         data: graph_data['revenues'],
         fill: false,
         tension: 0.1,
-        borderColor: '#DBDBDB'
+        borderColor: '#DBDBDB',
+        backgroundColor: '#DBDBDB'
     };
     const dataToPay = {
         label: "Итого к оплате",
         data: graph_data['total_payable'],
         fill: false,
         tension: 0.1,
-        borderColor: '#EF8061'
+        borderColor: '#EF8061',
+        backgroundColor: '#EF8061'
     };
 
     const data = {
@@ -55,9 +57,15 @@ function createBarcodeDetailGraph (barcodeDetailGraphCanvas, graph_data) {
                     display: false,
                 },
                 tooltip: {
+                    titleFont: {
+                        size: 8
+                    },
+                    bodyFont: {
+                        size: 8
+                    },
                     callbacks: {
                         title: function(tooltipItems, data) {
-                            return 'неделя ' + tooltipItems[0].label;
+                            return 'Неделя ' + tooltipItems[0].label;
                         },
                         label: function(tooltipItems, data) {
                             return `${tooltipItems.dataset.label}: ` + `${Math.round(tooltipItems.raw).toLocaleString('ru')}`

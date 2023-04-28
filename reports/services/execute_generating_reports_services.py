@@ -3,13 +3,13 @@ from typing import List
 
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
-from reports.services.report_generation_services.generating_abc_xyz_report_services import \
+from reports.services.report_generation_services.generating_financials_by_barcodes import \
     get_calculated_financials_by_barcodes
 from reports.services.report_generation_services.generating_report_db_data_services import get_report_db_inter_data, \
     get_sale_objects_by_barcode_by_weeks
 from reports.services.report_generation_services.generating_share_in_revenue_by_filter_service import \
     get_share_in_revenue
-from reports.services.report_generation_services.generating_sum_aggregation_objs_service import get_aggregate_sum_dicts
+from reports.services.report_generation_services.generating_sum_aggregation_objs_services import get_aggregate_sum_dicts
 from reports.services.report_generation_services.get_financials_by_barcode_services import \
     get_total_financials_by_barcode
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
