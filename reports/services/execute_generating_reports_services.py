@@ -3,11 +3,15 @@ from typing import List
 
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
-from reports.services.report_generation_services.generating_abc_xyz_report_services import get_abc_xyz_report
-from reports.services.report_generation_services.generating_report_db_data_service import get_report_db_inter_data
+from reports.services.report_generation_services.generating_financials_by_barcodes import \
+    get_calculated_financials_by_barcodes
+from reports.services.report_generation_services.generating_report_db_data_services import get_report_db_inter_data, \
+    get_sale_objects_by_barcode_by_weeks
 from reports.services.report_generation_services.generating_share_in_revenue_by_filter_service import \
     get_share_in_revenue
-from reports.services.report_generation_services.generating_sum_aggregation_objs_service import get_aggregate_sum_dicts
+from reports.services.report_generation_services.generating_sum_aggregation_objs_services import get_aggregate_sum_dicts
+from reports.services.report_generation_services.get_financials_by_barcode_services import \
+    get_total_financials_by_barcode
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
 
 
@@ -38,7 +42,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
     stocks_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'office_name')
 
-    abc_xyz = get_abc_xyz_report(
+    abc_xyz = get_calculated_financials_by_barcodes(
         current_user, current_api_key, filter_period_conditions,
         general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
         general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'),
@@ -57,6 +61,22 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
         'abc_report': abc_xyz.get('abc_report'),
         'abc_xyz_report': abc_xyz.get('abc_xyz_report'),
     }
+
+
+def get_detail_report_by_barcode(current_user, current_api_key, period_filter_data: List[dict], barcode, nm_id):
+    filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
+    general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
+
+    sale_objects_by_weeks = get_sale_objects_by_barcode_by_weeks(
+        current_user, current_api_key, filter_period_conditions,
+        general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
+        general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'), barcode, nm_id)
+
+    totals = get_total_financials_by_barcode(sale_objects_by_weeks)
+
+    return totals
+
+
 
 
 

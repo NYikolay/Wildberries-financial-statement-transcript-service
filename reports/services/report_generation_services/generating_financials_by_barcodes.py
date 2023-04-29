@@ -6,9 +6,9 @@ from django.db.models import QuerySet
 
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
-from reports.services.report_generation_services.generating_report_db_data_service import \
+from reports.services.report_generation_services.generating_report_db_data_services import \
     get_calculated_financials_by_products, get_nm_ids_revenues_by_weeks
-from reports.services.report_generation_services.generating_sum_aggregation_objs_service import \
+from reports.services.report_generation_services.generating_sum_aggregation_objs_services import \
     get_financials_annotation_objects
 
 import pandas as pd
@@ -226,7 +226,7 @@ def make_abc_xyz_data_set(calculated_abc_values_by_products: pd.DataFrame, xyz_r
     }
 
 
-def get_abc_xyz_report(
+def get_calculated_financials_by_barcodes(
         current_user,
         current_api_key,
         filter_period_conditions: dict,
@@ -236,7 +236,7 @@ def get_abc_xyz_report(
         total_products_count: int
 ) -> dict:
     """
-    The function returns the calculated ABC XYZ analysis data. Calls the functions required for the calculations.
+    The function returns the calculated financials by barcodes. Calls the functions required for the calculations.
     :param current_user: request.user
     :param current_api_key: active WebAPIKey of request.user
     :param filter_period_conditions: Dictionary containing Q() objects in the value to filter values from the database:

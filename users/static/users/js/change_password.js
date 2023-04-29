@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener('click', function (e) {
         const target = e.target
-        const itsWrapper = target == changePasswordContainer || changePasswordContainer.contains(target);
-        const itsButton = target == changePasswordButton || changePasswordButton.contains(target);
+        const itsWrapper = target === changePasswordContainer || changePasswordContainer.contains(target);
+        const itsButton = target === changePasswordButton || changePasswordButton.contains(target);
         if (!itsWrapper && !itsButton) {
             passwordChangeWrapper.style.display = 'none';
         }
@@ -39,40 +39,45 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append('new_password', newPassword.value);
         formData.append('reenter_password', reenteredPassword.value);
 
-        fetch(evt.target.action, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === true) {
-                    passwordChangeWrapper.style.display = 'none';
-                    const messageSuccess = document.createElement('div')
-                    messageSuccess.className = 'message_item-success'
-                    messageSuccess.innerHTML =
-                        `
+        const request = new Request(evt.target.action,
+            {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput.value,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                mode: 'same-origin',
+                body: formData
+            }
+        );
+
+        fetch(request).then(response => response.json()).then(data => {
+            if (data.status === true) {
+                passwordChangeWrapper.style.display = 'none';
+                const messageSuccess = document.createElement('div')
+                messageSuccess.className = 'message_item-success'
+                messageSuccess.innerHTML =
+                    `
                         <img class="message-img" src="/static/images/check (1).svg" alt="">
                         <p class="message_text">${data.message}</p>
-                        `
+                    `
+                message.style.transform = "translateX(0)";
+                message.style.right = "30px";
+                message.appendChild(messageSuccess)
 
-                    message.style.transform = "translateX(0)";
-                    message.style.right = "30px";
-                    message.appendChild(messageSuccess)
+                setTimeout(() => {
+                    message.style.transform = "translateX(100%)";
+                    message.style.right = "0";
+                }, 10000)
 
-                    setTimeout(() => {
-                        message.style.transform = "translateX(100%)";
-                        message.style.right = "0";
-                    }, 10000)
-
-                    setTimeout(() => {
-                        message.removeChild(messageSuccess)
-                    }, 15000)
-                } else {
-                    changePasswordErrorsText.innerHTML = data.message
-                }
-            })
-            .catch(error => {
-                changePasswordErrorsText.innerHTML = 'Произошла ошибка во время отправки формы.'
-            });
+                setTimeout(() => {
+                    message.removeChild(messageSuccess)
+                }, 15000)
+            } else {
+                changePasswordErrorsText.innerHTML = data.message
+            }
+        }).catch(error => {
+            changePasswordErrorsText.innerHTML = 'Произошла ошибка во время отправки формы.'
+        });
     })
 })
