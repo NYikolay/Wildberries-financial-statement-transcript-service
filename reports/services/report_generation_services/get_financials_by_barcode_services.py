@@ -55,29 +55,29 @@ def get_calculated_financials_by_barcode_by_weeks(sales_object_figures: dict):
 
     commission: float = calculate_commission(
         sales_object_figures.get('sales_sum'),
-        sales_object_figures.get('сommission_sales_sum'),
+        sales_object_figures.get('commission_sales_sum'),
         sales_object_figures.get('returns_sum'),
-        sales_object_figures.get('сommission_returns_sum'),
+        sales_object_figures.get('commission_returns_sum'),
         sales_object_figures.get('storno_sales_sum'),
-        sales_object_figures.get('сommission_storno_sales_sum'),
+        sales_object_figures.get('commission_storno_sales_sum'),
         sales_object_figures.get('storno_returns_sum'),
-        sales_object_figures.get('сommission_storno_returns_sum'),
+        sales_object_figures.get('commission_storno_returns_sum'),
         sales_object_figures.get('correct_sales_sum'),
-        sales_object_figures.get('сommission_correct_sales_sum'),
+        sales_object_figures.get('commission_correct_sales_sum'),
         sales_object_figures.get('correct_returns_sum'),
-        sales_object_figures.get('сommission_correct_returns_sum'),
+        sales_object_figures.get('commission_correct_returns_sum'),
         sales_object_figures.get('marriage_payment_sum'),
         sales_object_figures.get('sales_payment_lost_marriage_sum'),
         sales_object_figures.get('returns_payment_lost_marriage_sum'),
-        sales_object_figures.get('сommission_marriage_payment_sum'),
-        sales_object_figures.get('сommission_sales_payment_lost_marriage_sum'),
-        sales_object_figures.get('сommission_returns_payment_lost_marriage_sum'),
+        sales_object_figures.get('commission_marriage_payment_sum'),
+        sales_object_figures.get('commission_sales_payment_lost_marriage_sum'),
+        sales_object_figures.get('commission_returns_payment_lost_marriage_sum'),
         sales_object_figures.get('partial_compensation_marriage_sum'),
         sales_object_figures.get('sales_advance_payment_goods_without_payment_sum'),
         sales_object_figures.get('returns_advance_payment_goods_without_payment_sum'),
-        sales_object_figures.get('сommission_partial_compensation_marriage_sum'),
-        sales_object_figures.get('сommission_sales_advance_payment_goods_without_payment_sum'),
-        sales_object_figures.get('сommission_returns_advance_payment_goods_without_payment_sum')
+        sales_object_figures.get('commission_partial_compensation_marriage_sum'),
+        sales_object_figures.get('commission_sales_advance_payment_goods_without_payment_sum'),
+        sales_object_figures.get('commission_returns_advance_payment_goods_without_payment_sum')
     )
 
     net_costs: float = calculate_net_costs(
@@ -123,7 +123,6 @@ def get_calculated_financials_by_barcode_by_weeks(sales_object_figures: dict):
 
 
 def get_total_financials_by_barcode(sale_objects_by_weeks) -> dict:
-
     revenue_total = []
     sales_amount_total = []
     returns_amount_total = []

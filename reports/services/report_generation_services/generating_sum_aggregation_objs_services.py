@@ -1,59 +1,37 @@
-
-from django.db.models import (
-    Sum, Q, FloatField,
-    F, Value,
-    Case, When, ExpressionWrapper)
+from django.db.models import Sum, Q, FloatField
 from django.db.models.functions import Coalesce
+
+from reports.services.report_generation_services.db_annotation_formulas_services import \
+    get_retail_revenue_formula_annotation_obj, get_revenue_formula_annotation_obj, \
+    get_share_in_revenue_formula_annotation_obj, get_sales_quantity_formula_annotation_obj, \
+    get_returns_quantity_formula_annotation_obj, get_commission_formula_annotation_obj, \
+    get_net_costs_formula_annotation_obj, get_marginality_formula_annotation_obj, \
+    get_share_in_number_formula_annotation_obj, get_total_payable_formula_annotation_obj
 
 
 def get_financials_annotation_objects() -> dict:
-    revenue_by_article = Coalesce(
-        ExpressionWrapper(
-            F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') -
-            F('retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') +
-            F('retail_marriage_payment_sum') + F('retail_sales_payment_lost_marriage_sum') -
-            F('retail_returns_payment_lost_marriage_sum') +
-            F('retail_partial_compensation_marriage_sum') +
-            F('retail_sales_advance_payment_goods_without_payment_sum') -
-            F('retail_returns_advance_payment_goods_without_payment_sum'),
-            output_field=FloatField()
-        ), Value(0.0), output_field=FloatField())
-
-    share_in_revenue = Coalesce(Case(
-        When(total_revenue__gt=0, then=((F('revenue_by_article') / F('total_revenue')) * 100)),
-        default=Value(0.0),
-        output_field=FloatField()
-    ), Value(0.0), output_field=FloatField())
-
-    net_costs_sum = Coalesce(
-        ExpressionWrapper(
-            F('net_cost_sale_sum') - F('net_cost_storno_sale_sum') + F('net_cost_correct_sale_sum') -
-            F('net_cost_return_sum') + F('net_cost_strono_returns_sum') - F('net_cost_correct_return_sum') +
-            F('net_cost_marriage_payment_sum') + F('net_cost_sales_payment_lost_marriage_sum') -
-            F('net_cost_returns_payment_lost_marriage_sum') + F('net_cost_partial_compensation_marriage_sum') +
-            F('net_cost_sales_advance_payment_goods_without_payment_sum') -
-            F('net_cost_returns_advance_payment_goods_without_payment_sum'),
-            output_field=FloatField()
-        ), Value(0.0), output_field=FloatField())
-
-    product_marginality = Coalesce(Case(
-        When(net_costs_sum__gt=0, then=(F('revenue_by_article') / F('net_costs_sum')) * 100),
-        default=Value(0.0),
-        output_field=FloatField()
-    ), Value(0.0), output_field=FloatField())
-
-    share_in_number = Coalesce(Case(
-        When(total_products_count__gt=0, then=((1 / F('total_products_count')) * 100)),
-        default=Value(0.0),
-        output_field=FloatField()
-    ), Value(0.0), output_field=FloatField())
+    revenue_by_article = get_retail_revenue_formula_annotation_obj()
+    interim_revenue = get_revenue_formula_annotation_obj()
+    share_in_revenue = get_share_in_revenue_formula_annotation_obj()
+    sales_quantity = get_sales_quantity_formula_annotation_obj()
+    returns_quantity = get_returns_quantity_formula_annotation_obj()
+    commission = get_commission_formula_annotation_obj()
+    net_costs_sum = get_net_costs_formula_annotation_obj()
+    product_marginality = get_marginality_formula_annotation_obj()
+    share_in_number = get_share_in_number_formula_annotation_obj()
+    total_payable = get_total_payable_formula_annotation_obj()
 
     return {
         "revenue_by_article": revenue_by_article,
+        "interim_revenue": interim_revenue,
         "share_in_revenue": share_in_revenue,
         "net_costs_sum": net_costs_sum,
         "product_marginality": product_marginality,
-        "share_in_number": share_in_number
+        "share_in_number": share_in_number,
+        'sales_quantity': sales_quantity,
+        'returns_quantity': returns_quantity,
+        'commission': commission,
+        'total_payable': total_payable,
     }
 
 
@@ -74,18 +52,18 @@ def get_aggregate_sum_dicts() -> dict:
         'partial_compensation_marriage_sum',
         'sales_advance_payment_goods_without_payment_sum',
         'returns_advance_payment_goods_without_payment_sum',
-        'сommission_sales_sum',
-        'сommission_storno_sales_sum',
-        'сommission_correct_sales_sum',
-        'сommission_returns_sum',
-        'сommission_storno_returns_sum',
-        'сommission_correct_returns_sum',
-        'сommission_marriage_payment_sum',
-        'сommission_sales_payment_lost_marriage_sum',
-        'сommission_returns_payment_lost_marriage_sum',
-        'сommission_partial_compensation_marriage_sum',
-        'сommission_sales_advance_payment_goods_without_payment_sum',
-        'сommission_returns_advance_payment_goods_without_payment_sum',
+        'commission_sales_sum',
+        'commission_storno_sales_sum',
+        'commission_correct_sales_sum',
+        'commission_returns_sum',
+        'commission_storno_returns_sum',
+        'commission_correct_returns_sum',
+        'commission_marriage_payment_sum',
+        'commission_sales_payment_lost_marriage_sum',
+        'commission_returns_payment_lost_marriage_sum',
+        'commission_partial_compensation_marriage_sum',
+        'commission_sales_advance_payment_goods_without_payment_sum',
+        'commission_returns_advance_payment_goods_without_payment_sum',
         'sales_quantity_sum',
         'strono_sales_quantity_sum',
         'correct_sales_quantity_sum',

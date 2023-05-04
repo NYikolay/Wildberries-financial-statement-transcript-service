@@ -2,6 +2,11 @@
 {% load static %}
 {% block title %} Сводный отчёт - Commery{% endblock %}
 {% load dashboard_filters %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'reports/css/dashboard.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="main_content-wrapper">
@@ -56,6 +61,14 @@
                             </div>
                             <button type="button" class="apply-graphs-filter_btn">Применить</button>
                         </div>
+                    </div>
+                    <div class="change__report-wrapper">
+                        <p class="current__report-text current__report-text__active">Магазин</p>
+                        <label class="switch">
+                            <input type="checkbox" id="change-report" class="current__report-switch__input" data-target-url="{% url 'reports:barcodes_detail' %}">
+                            <span class="current__report-switch__slider"></span>
+                        </label>
+                        <p class="current__report-text">Товары</p>
                     </div>
                 </div>
                 <div class="graphs-bar-wrap">

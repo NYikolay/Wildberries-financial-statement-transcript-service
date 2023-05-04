@@ -10,8 +10,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const periodCheckboxInputsCount = periodCheckboxInputs.length
     let periodCheckboxInputsCheckedCount = getCheckedInputsCount(periodCheckboxInputs)
 
+    const changeReportInput = document.getElementById('change-report')
+
     let isDropdownActive = false
 
+
+    changeReportInput.addEventListener('change', function () {
+        window.location.href = changeReportInput.getAttribute('data-target-url')
+    })
 
     graphsWrapperBtn.addEventListener('click', function() {
         dropdownContent.style.display = isDropdownActive ? '' : 'block'

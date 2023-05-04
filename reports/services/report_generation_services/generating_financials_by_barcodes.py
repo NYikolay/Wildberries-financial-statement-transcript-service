@@ -7,7 +7,7 @@ from django.db.models import QuerySet
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
 from reports.services.report_generation_services.generating_report_db_data_services import \
-    get_calculated_financials_by_products, get_nm_ids_revenues_by_weeks
+    get_calculated_financials_by_products, get_barcodes_revenues_by_weeks
 from reports.services.report_generation_services.generating_sum_aggregation_objs_services import \
     get_financials_annotation_objects
 
@@ -142,7 +142,7 @@ def generate_xyz_report_values(
 
     past_months_values: dict = get_past_months_filters()
     weeks_by_years: pd.DataFrame = past_months_values.get('weeks_by_years')
-    revenues_by_weeks: pd.DataFrame = pd.DataFrame(get_nm_ids_revenues_by_weeks(
+    revenues_by_weeks: pd.DataFrame = pd.DataFrame(get_barcodes_revenues_by_weeks(
         current_user, current_api_key, current_barcodes,
         sum_aggregation_objs_dict, past_months_values.get('filters'), annotations_objs
     ))
