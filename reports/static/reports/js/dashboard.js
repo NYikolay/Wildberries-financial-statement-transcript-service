@@ -3,6 +3,7 @@ const graphDiogWrapper = document.getElementById("graphs-diog-wrap")
 const brandShareInRevenueData = JSON.parse(graphDiogWrapper.getAttribute("data-brands-share"))
 const stockShareInRevenueData = JSON.parse(graphDiogWrapper.getAttribute("data-stock-share"))
 const reportByWeekData = JSON.parse(graphWrapper.getAttribute('data-report'))
+const changeReportInput = document.getElementById('change-report')
 
 let bars_x = 0;
 let bars_x_offset = 0;

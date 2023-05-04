@@ -1,12 +1,10 @@
+from reports.services.report_generation_services.db_annotation_formulas_services import \
+    get_retail_revenue_formula_annotation_obj
 from reports.services.report_generation_services.formula_calculation_service import calculate_share_in_revenue
 from reports.services.report_generation_services.generating_sum_aggregation_objs_services import get_aggregate_sum_dicts
 from users.models import SaleObject
 from typing import List
-from django.db.models import (
-    Sum, Q, FloatField,
-    F, Value,
-    Case, When, ExpressionWrapper)
-from django.db.models.functions import Coalesce
+from django.db.models import Q
 
 
 def get_revenue_by_filter(
@@ -44,17 +42,7 @@ def get_revenue_by_filter(
         retail_returns_advance_payment_goods_without_payment_sum=sum_aggregation_objs_dict.get(
             'retail_returns_advance_payment_goods_without_payment_sum')
     ).annotate(
-        total_filter_revenue=Coalesce(
-            ExpressionWrapper(
-                F('retail_sales_sum') - F('retail_storno_sales_sum') + F('retail_correct_sales_sum') -
-                F('retail_return_sum') + F('retail_storno_returns_sum') - F('retail_correct_returns_sum') +
-                F('retail_marriage_payment_sum') + F('retail_sales_payment_lost_marriage_sum') -
-                F('retail_returns_payment_lost_marriage_sum') +
-                F('retail_partial_compensation_marriage_sum') +
-                F('retail_sales_advance_payment_goods_without_payment_sum') -
-                F('retail_returns_advance_payment_goods_without_payment_sum'),
-                output_field=FloatField()
-            ), Value(0.0), output_field=FloatField())
+        total_filter_revenue=get_retail_revenue_formula_annotation_obj()
     ).values(filter_name, 'total_filter_revenue')
 
     return revenue_by_filter_list

@@ -2,10 +2,12 @@ from django.db.models import (
     Sum, Q, FloatField,
     F, Subquery,
     OuterRef, Value,
-    Case, When, Min, Max, QuerySet, Count)
+    Case, When, Min, Max, QuerySet, Count, ExpressionWrapper)
 from django.db.models.functions import Coalesce
 from django.db import connection
 
+from reports.services.report_generation_services.db_annotation_formulas_services import \
+    get_retail_revenue_formula_annotation_obj
 from users.models import (SaleObject, ClientUniqueProduct, NetCost, SaleReport, TaxRate)
 
 
@@ -75,12 +77,32 @@ def get_calculated_financials_by_products(
         **annotations_objs,
     ).values('nm_id', 'barcode', 'image', 'product_name',
              'revenue_by_article', 'share_in_revenue',
-             'product_marginality', 'share_in_number')
+             'product_marginality', 'share_in_number',
+             'sales_quantity', 'returns_quantity', 'commission', 'penalty_sum',
+             'additional_payment_sum', 'logistic_sum', 'total_payable')
 
     return calculated_financials
 
 
-def get_nm_ids_revenues_by_weeks(
+def get_total_revenue(
+        current_user,
+        current_api_key,
+        filter_period_conditions,
+        sum_aggregation_objs_dict
+):
+    total_revenue = SaleObject.objects.filter(
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+    ).order_by('date_from').values('year', 'week_num').annotate(
+        **sum_aggregation_objs_dict,
+        revenue=get_retail_revenue_formula_annotation_obj()
+    ).aggregate(total_revenue=Sum('revenue'))
+
+    return total_revenue
+
+
+def get_barcodes_revenues_by_weeks(
         current_user,
         current_api_key,
         current_barcodes,

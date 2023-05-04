@@ -9,7 +9,7 @@
                 {% if request.user.is_authenticated %}
                 {% url 'reports:dashboard' as url %}
                 <li>
-                    <a href="{{ url }}" class="nav_link {% if request.path == url %} nav_link-active {% endif %}">
+                    <a href="{{ url }}" class="nav_link {% if request.path == url or '/barcodes-detail/' in request.path %} nav_link-active {% endif %}">
                         Сводный отчёт
                     </a>
                 </li>

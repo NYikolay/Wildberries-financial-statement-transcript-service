@@ -31,10 +31,8 @@
     <!-- Styles -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
-    <link rel="stylesheet" href="{% static 'reports/css/dashboard.css' %}">
-    <link rel="stylesheet" href="{% static 'reports/css/reports_list.css' %}">
-    <link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
-    <link rel="stylesheet" href="{% static 'users/css/products_list.css' %}">
+    {% block styles %}
+    {% endblock %}
 </head>
 
 <body>

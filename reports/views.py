@@ -9,7 +9,8 @@ from django.http import Http404, JsonResponse, HttpResponseBadRequest
 from django.contrib import messages
 
 from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
-from reports.services.execute_generating_reports_services import get_full_user_report, get_detail_report_by_barcode
+from reports.services.execute_generating_reports_services import get_full_user_report, get_detail_report_by_barcode, \
+    get_report_by_barcodes
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
@@ -65,6 +66,52 @@ class DashboardView(LoginRequiredMixin, View):
             'is_unloaded_reports': UnloadedReports.objects.filter(api_key=current_api_key).exists()
         }
         return render(request, 'reports/dashboard.html', context)
+
+
+class ReportByBarcodesView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+
+        if not current_api_key or not current_api_key.is_wb_data_loaded:
+            return render(request, 'reports/empty_dashboard.html')
+
+        try:
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
+        except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Ошибка фильтрации периода')
+            return redirect('reports:dashboard')
+
+        try:
+            report_by_barcodes = get_report_by_barcodes(
+                request.user,
+                current_api_key,
+                current_filter_data
+            )
+        except Exception as err:
+            django_logger.critical(
+                f'It is impossible to calculate statistics in the barcodes detail for a user - {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Невозможно рассчитать статистику для товаров. '
+                                    'Пожалуйста, свяжитесь со службой поддержки')
+            return redirect('reports:dashboard')
+
+        filters_data: dict = get_filters_db_data(current_api_key)
+
+        context = {
+            'report_by_barcodes': report_by_barcodes,
+            'filters_data': filters_data,
+            'current_filter_data': current_filter_data,
+        }
+
+        return render(request, 'reports/dashboard_by_barcodes.html', context)
 
 
 class ReportByBarcodeView(LoginRequiredMixin, View):

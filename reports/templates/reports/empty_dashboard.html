@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %} Сводный отчёт - Commery{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'reports/css/dashboard.css' %}">
+{% endblock %}
+
 {% block content%}
 <div class="container">
     <div class="empty_dashboard-wrapper">

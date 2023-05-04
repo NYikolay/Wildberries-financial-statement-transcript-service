@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Сводный отчёт - Commery{% endblock %}
+{% load dashboard_filters %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'reports/css/dashboard_by_barcodes.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="barcodes__report-wrapper">
+        <div class="barcodes__report-filters">
+            <div class="filter-dropdown_wrapper">
+                <button class="graphs-dropbtn" id="graphs-dropbtn">
+                    <img src="{% static 'images/10179242.svg' %}" alt="" style="height: 15px; width: 15px;">
+                    ФИЛЬТРЫ
+                    <img src="{% static 'images/iconizer-32195.svg' %}" alt="" style="height: 8px; width: 8px;">
+                </button>
+                <div class="filter-dropdown_content">
+                    <div class="filter-dropdown-items__wrapper">
+                        <div class="filter-dropdown_item" id="period-filter-wrapper" data-title="{{ filters_data.ara1 }}">
+                            <h3>Период</h3>
+                            <label class="graphs-filter_label">
+                                <input
+                                        type="checkbox"
+                                        checked
+                                        class="filter_checkbox"
+                                        id="all-checkbox">
+                                <span></span>
+                                <p>Всё</p>
+                            </label>
+                            {% for filter_period in filters_data.filter_period_queryset %}
+                            <label class="graphs-filter_label">
+                                <input
+                                        type="checkbox"
+                                        {% if current_filter_data %}
+                                        {% for filter_dict in current_filter_data %}
+                                        {% if filter_period.year == filter_dict.year and filter_period.week_num in filter_dict.week_nums %}
+                                        checked
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% else %}
+                                        checked
+                                        {% endif %}
+                                        class="filter_checkbox"
+                                        id="period-checkbox"
+                                        data-filter-type="period"
+                                        data-filter-week="{{ filter_period.week_num }}"
+                                        data-filter-year="{{ filter_period.year }}">
+                                <span></span>
+                                <p>{{ filter_period.week_num }} неделя ({{ filter_period.date_from|date:'d.m.Y'}}-{{filter_period.date_to|date:'d.m.Y'}})</p>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <button type="button" style="align-self: flex-start; height: 10px; width: 10px;" id="close-dropdown-btn">
+                            <img src="{% static 'images/back_cross.svg'%}" alt="" style="height: 10px; width: 10px;">
+                        </button>
+                    </div>
+                    <button type="button" class="apply-graphs-filter_btn">Применить</button>
+                </div>
+            </div>
+            <div class="change__report-wrapper">
+                <p class="current__report-text">Магазин</p>
+                <label class="switch">
+                    <input type="checkbox" id="change-report" checked class="current__report-switch__input" data-target-url="{% url 'reports:dashboard' %}">
+                    <span class="current__report-switch__slider"></span>
+                </label>
+                <p class="current__report-text current__report-text__active">Товары</p>
+            </div>
+        </div>
+        <div class="barcodes__report-header">
+            <div style="width: 62px; height: 64px"></div>
+            <div class="barcodes__header-items">
+                <div class="barcodes__header-item">
+                    <p>Баркод</p>
+                    <button onclick="barcodeSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Маржинальность</p>
+                    <button onclick="marginalitySort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Группа ABC-XYZ</p>
+                    <button onclick="groupSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Выручка</p>
+                    <button onclick="revenueSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Продажи</p>
+                    <button onclick="salesSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Возвраты</p>
+                    <button onclick="returnsSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Комиссия</p>
+                    <button onclick="commissionSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Логистика</p>
+                    <button onclick="logisticSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Штрафы</p>
+                    <button onclick="penaltySort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Доплаты</p>
+                    <button onclick="additionalPaymentSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+                <div class="barcodes__header-item">
+                    <p>Итого к оплате</p>
+                    <button onclick="totalPayableSort()"><img src="{% static 'images/ImageToStl.com_4662255 (1).svg' %}" alt="" class="barcodes__header-img"></button>
+                </div>
+            </div>
+        </div>
+        <div class="barcodes__items-wrapper" id="barcodes-block" data-report="{{ report_by_barcodes }}">
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'reports/js/graphs_filtering.js' %}"></script>
+<script src="{% static 'reports/js/dashboard_by_barcodes.js' %}"></script>
+{% endblock %}

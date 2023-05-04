@@ -647,3 +647,32 @@
     align-items: center;
     margin-top: 20px
 }
+
+.company_edit-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 19px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.cancel_link {
+    font-size: 8px;
+    text-transform: uppercase;
+    text-decoration: underline;
+}
+
+.send_form-button {
+    background-color: #ff8364;
+    color: white;
+    font-weight: bold;
+    font-size: 8px;
+    text-transform: uppercase;
+    border-radius: 30px;
+    padding: 8px 25px;
+    transition: 0.3s;
+}
+
+.send_form-button:hover {
+    background-color: #ff6600;
+}
