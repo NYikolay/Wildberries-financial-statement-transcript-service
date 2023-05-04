@@ -66,9 +66,12 @@ function createBarcodesItems() {
                         <p>${Math.round(reportByBarcodesData[i].product_marginality)}%</p>
                     </div>
                     <div class="barcode__item-data__value">
-                        <p style="background-color: #ffd8cc; border-radius: 50%; padding: 9px">
+                        <span style="width: 30px; height: 30px; border-radius: 50%; background-color: #ffd8cc; text-align: center;">
+                        <p style="line-height: 30px;">
                             ${reportByBarcodesData[i].final_group === null ? '-' : reportByBarcodesData[i].final_group}
                         </p>
+</span>
+                       
                     </div>
                     <div class="barcode__item-data__value">
                         <p>${Math.round(reportByBarcodesData[i].revenue_by_article).toLocaleString('ru')}</p>

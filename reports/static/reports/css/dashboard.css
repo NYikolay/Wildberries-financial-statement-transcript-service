@@ -398,6 +398,7 @@
 .abc-xyz__products__wrapper h3 {
     text-transform: uppercase;
     font-weight: bold;
+    color: #9c9a9a;
     font-size: 8px;
     text-align: center;
 }
@@ -964,7 +965,7 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     max-height: 700px;
 }
 
@@ -996,9 +997,7 @@
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
-    gap: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    gap: 7px;
 }
 
 .product__name {
@@ -1063,7 +1062,6 @@
     background: url("/static/images/Rolling-1s-80px.svg") center / 20px no-repeat;
     width: 60px;
     height: 80px;
-    border-radius: 10px;
     object-fit: cover;
 }
 

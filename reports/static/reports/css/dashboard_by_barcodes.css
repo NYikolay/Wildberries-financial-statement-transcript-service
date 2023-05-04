@@ -12,7 +12,7 @@
 
 .barcodes__report-filters {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     align-items: center;
 }
 
@@ -296,6 +296,16 @@
     flex-direction: column;
     overflow: auto;
     gap: 10px;
+}
+
+.barcodes__items-wrapper::-webkit-scrollbar {
+    width: 3px;
+    background-color: transparent;
+}
+
+.barcodes__items-wrapper::-webkit-scrollbar-thumb {
+    background-color: #a8a8a8;
+    border-radius: 2px;
 }
 
 .barcode__item {
