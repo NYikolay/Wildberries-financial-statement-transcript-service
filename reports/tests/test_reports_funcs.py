@@ -7,7 +7,7 @@ from reports.services.report_generation_services.formula_calculation_service imp
     calculate_sales_quantity, calculate_returns_quantity, calculate_commission, calculate_logistics, \
     calculate_supplier_costs, calculate_tax_value, calculate_net_costs, calculate_marginality, calculate_profit, \
     calculate_profitability, calculate_share_in_revenue
-from reports.services.report_generation_services.generating_abc_xyz_report_services import get_abc_group, get_xyz_group, \
+from reports.services.report_generation_services.generating_financials_by_barcodes import get_abc_group, get_xyz_group, \
     generate_abc_report_values
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
 from reports.services.report_generation_services.handling_calculated_financial_by_weeks_service import \
@@ -52,7 +52,9 @@ def test_calculate_revenue():
         3936.5900000000006,
         709.0,
         120.0,
-        131.0
+        131.0,
+        400,
+        500
     )
 
     assert round(revenue) == round(460201.2599999999)
@@ -66,7 +68,9 @@ def test_calculate_sales_quantity():
         2.0,
         0.0,
         12.0,
-        10.0
+        10.0,
+        5.0,
+        1.0
     )
 
     assert sales_quantity == 265.0
@@ -103,7 +107,11 @@ def test_calculate_commission():
         222.0,
         332.009,
         111.0,
-        923.120
+        923.120,
+        123.0,
+        422.0,
+        11.0,
+        92.0
     )
 
     assert commission == 45417.800999998406
@@ -132,7 +140,9 @@ def test_calculate_tax_value():
         123.31440000000002,
         0.0,
         233.0,
-        922.0
+        922.0,
+        123.0,
+        22.0
     )
 
     assert tax == 23708.123199999896
@@ -149,7 +159,9 @@ def test_calculate_net_costs():
         112.0,
         554.0,
         111.0,
-        233.0
+        233.0,
+        122.0,
+        422.0
     )
 
     assert net_costs_sum == 3804.0
