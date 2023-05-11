@@ -136,10 +136,10 @@ def calculate_tax_value(
 
 
 def calculate_net_costs(
-        netcost_sale_sum: float,
-        netcost_storno_sale_sum: float,
-        netcost_correct_sale_sum: float,
-        netcost_return_sum: float,
+        net_cost_sale_sum: float,
+        net_cost_storno_sale_sum: float,
+        net_cost_correct_sale_sum: float,
+        net_cost_return_sum: float,
         net_cost_strono_returns_sum: float,
         net_cost_correct_return_sum: float,
         net_cost_marriage_payment_sum: float,
@@ -151,8 +151,8 @@ def calculate_net_costs(
 
 ):
     net_costs: float = (
-            netcost_sale_sum - netcost_storno_sale_sum + netcost_correct_sale_sum -
-            netcost_return_sum + net_cost_strono_returns_sum - net_cost_correct_return_sum +
+            net_cost_sale_sum - net_cost_storno_sale_sum + net_cost_correct_sale_sum -
+            net_cost_return_sum + net_cost_strono_returns_sum - net_cost_correct_return_sum +
             net_cost_marriage_payment_sum + net_cost_sales_payment_lost_marriage_sum -
             net_cost_returns_payment_lost_marriage_sum +
             net_cost_partial_compensation_marriage_sum + net_cost_sales_advance_payment_goods_without_payment_sum -

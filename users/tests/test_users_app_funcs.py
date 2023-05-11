@@ -300,16 +300,20 @@ def test_deleting_generate_incorrect_reports(
 def test_generate_user_products(create_user, create_api_key, test_products):
     user = create_user()
     api_key = create_api_key(user=user)
+
+    # A list is used rather than a tuple, since a tuple is disordered and the elements are formed in a chaotic order
+    test_articles_set = [141371096, 141972556, 140930947, 141370942]
+
     with patch(
             'users.services.wb_request_hanling_services.generating_user_products_data_service.send_request_for_card_json',
             side_effect=[
-                'Носки женские короткие набор белые черные хлопок',
-                'Носки женские короткие набор белые черные хлопок',
-                'Носки женские короткие белые 1 пара',
-                'Носки женские короткие набор белые черные хлопок'
+                {"brand": "Hanes Store", "title": "Носки женские короткие набор белые черные хлопок"},
+                {"brand": "Hanes Store", "title": "Носки женские короткие набор белые черные хлопок"},
+                {"brand": "Hanes Store", "title": "Носки женские короткие белые 1 пара"},
+                {"brand": "Hanes Store", "title": "Носки женские короткие набор белые черные хлопок"},
             ]
     ):
-        generate_user_products(user, test_products, api_key)
+        generate_user_products(user, test_articles_set, api_key)
 
     generated_user_products_status = [
         api_key.api_key_products.filter(
@@ -330,6 +334,8 @@ def test_duplicates_generate_user_products(create_user, create_api_key, test_pro
     user = create_user()
     api_key = create_api_key(user=user)
 
+    # A list is used rather than a tuple, since a tuple is disordered and the elements are formed in a chaotic order
+    test_articles_set = {141371096, 141972556, 140930947, 141370942}
     for product in test_products:
         create_client_unique_product(
             api_key=api_key,
@@ -342,13 +348,13 @@ def test_duplicates_generate_user_products(create_user, create_api_key, test_pro
     with patch(
             'users.services.wb_request_hanling_services.generating_user_products_data_service.send_request_for_card_json',
             side_effect=[
-                'Носки женские короткие набор белые черные хлопок',
-                'Носки женские короткие набор белые черные хлопок',
-                'Носки женские короткие белые 1 пара',
-                'Носки женские короткие набор белые черные хлопок'
+                {"brand": "Hanes Store", "title": "Носки женские короткие набор белые черные хлопок"},
+                {"brand": "Hanes Store", "title": "Носки женские короткие набор белые черные хлопок"},
+                {"brand": "Hanes Store", "title": "Носки женские короткие белые 1 пара"},
+                {"brand": "Hanes Store", "title": "Носки женские короткие набор белые черные хлопок"},
             ]
     ):
-        generate_user_products(user, test_products, api_key)
+        generate_user_products(user, test_articles_set, api_key)
 
     assert api_key.api_key_products.count() == 4
 
@@ -442,16 +448,12 @@ def test_get_unique_articles():
         {"nm_id": 140930947, "brand_name": None, "supplier_oper_name": "Продажа"},
         {"nm_id": 140930947, "brand_name": "Kadiev", "supplier_oper_name": "Продажа"},
         {"nm_id": 140930947, "brand_name": "Kadiev", "supplier_oper_name": "Продажа"},
-        {"nm_id": 141371011, "brand_name": None, "supplier_oper_name": "Продажа"},
+        {"nm_id": 99866376, "brand_name": None, "supplier_oper_name": "Продажа"},
     ]
 
     unique_articles = get_unique_articles(articles_input_data)
-
-    expected_articles_output = [
-        {"nm_id": 141371096, "brand": "Kadiev"},
-        {"nm_id": 140930947, "brand": "Kadiev"},
-        {"nm_id": 141371011, "brand": None},
-    ]
+    print(unique_articles)
+    expected_articles_output = {141371096, 140930947, 141972556}
 
     assert expected_articles_output == unique_articles
 

@@ -24,7 +24,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(SaleObject)
 class SaleObjectAdmin(admin.ModelAdmin):
     list_display = ('id', '__str__')
-    search_fields = ('nm_id', 'id', 'supplier_oper_name')
+    search_fields = ('nm_id', 'id', 'barcode', 'supplier_oper_name')
 
 
 @admin.register(Order)

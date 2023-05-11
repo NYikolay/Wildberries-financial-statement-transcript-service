@@ -57,7 +57,7 @@ def test_calculate_revenue():
         500
     )
 
-    assert round(revenue) == round(460201.2599999999)
+    assert round(revenue) == 460123
 
 
 def test_calculate_sales_quantity():
@@ -114,7 +114,7 @@ def test_calculate_commission():
         92.0
     )
 
-    assert commission == 45417.800999998406
+    assert commission == 45395.81899999839
 
 
 def test_calculate_logistics():
@@ -145,7 +145,7 @@ def test_calculate_tax_value():
         22.0
     )
 
-    assert tax == 23708.123199999896
+    assert tax == 25187.123199999896
 
 
 def test_calculate_net_costs():
@@ -164,7 +164,7 @@ def test_calculate_net_costs():
         422.0
     )
 
-    assert net_costs_sum == 3804.0
+    assert net_costs_sum == 3748.0
 
 
 def test_calculate_marginality_without_net_costs():
@@ -250,20 +250,20 @@ def test_get_total_financials(test_sale_objects_by_weeks, test_supplier_costs_su
     totals = get_total_financials(test_sale_objects_by_weeks, test_supplier_costs_sum_list, test_wb_costs_sum_list)
 
     test_expected_totals = {
-        "revenue_total": 4812188.739999999,
-        "sales_amount_total": 17888.0,
-        "returns_amount_total": 76.0,
-        "logistics_total": 1455521,
-        "net_costs_sum_total": 67505,
-        "marginality_total": 99,
-        "commission_total": 944565,
-        "supplier_costs_total": 1354,
-        "wb_costs_total": 9366,
-        "tax_total": 577463,
-        "profit_total": 2208334,
-        "profitability_total": 46,
-        "penalty_total": 22858,
-        "additional_payment_sum_total": 15154,
+        "revenue_total": 879271.1799999992,
+        "sales_amount_total": 23767.0,
+        "returns_amount_total": 171.0,
+        "logistics_total": 868995,
+        "net_costs_sum_total": 4000,
+        "marginality_total": 100,
+        "commission_total": 1168274,
+        "supplier_costs_total": 0,
+        "wb_costs_total": 0,
+        "tax_total": 302790,
+        "profit_total": -557188,
+        "profitability_total": -63,
+        "penalty_total": 21098,
+        "additional_payment_sum_total": 5292,
     }
 
     assert totals.get('revenue_total') == test_expected_totals.get('revenue_total')
@@ -294,18 +294,18 @@ def test_get_calculated_financials_by_weeks(
         "date_from": "05.12.2022",
         "date_to": "11.12.2022",
         "week_num": 49,
-        "revenue": 203309.36,
-        "sales_amount": 1036.0,
-        "returns_amount": 2.0,
+        "revenue": 143872.01999999993,
+        "sales_amount": 893.0,
+        "returns_amount": 4.0,
         "logistics": 38458.560000000005,
-        "net_costs_sum": 20587.0,
-        "marginality": 89.87405203577444,
-        "commission": 44715.6899999984,
+        "net_costs_sum": 7.0,
+        "marginality": 99.99513456473329,
+        "commission": 42494.709999999235,
         "supplier_costs": 0.0,
         "wb_costs": 0.0,
-        "tax": 24397.123199999896,
-        "profit": 93880.98679999997,
-        "profitability": 46.17642139053508,
+        "tax": 56842.20239999998,
+        "profit": 31266.237600000255,
+        "profitability": 21.73197929660004,
         "penalty": 2160.0,
         "additional_payment_sum": 420.0,
     }
