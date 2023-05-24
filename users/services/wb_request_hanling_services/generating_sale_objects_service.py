@@ -28,9 +28,11 @@ def handle_sale_obj(current_user, sale_obj: dict, api_key, current_product_objs)
     create_dt = datetime.strptime(
         sale_obj.get('create_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.timezone('Europe/Moscow'))
     order_dt = datetime.strptime(
-        sale_obj.get('order_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.timezone('Europe/Moscow'))
+        sale_obj.get('order_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(
+        tzinfo=pytz.timezone('Europe/Moscow')) if sale_obj.get('order_dt') else None
     sale_dt = datetime.strptime(
-        sale_obj.get('sale_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.timezone('Europe/Moscow'))
+        sale_obj.get('sale_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(
+        tzinfo=pytz.timezone('Europe/Moscow')) if sale_obj.get('sale_dt') else None
     rr_dt = None if not sale_obj.get('rr_dt') else datetime.strptime(
         sale_obj.get('rr_dt'), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.timezone('Europe/Moscow'))
 

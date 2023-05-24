@@ -83,7 +83,10 @@ def calculate_commission(
         returns_advance_payment_goods_without_payment_sum: float,
         commission_partial_compensation_marriage_sum: float,
         commission_sales_advance_payment_goods_without_payment_sum: float,
-        commission_returns_advance_payment_goods_without_payment_sum: float
+        commission_returns_advance_payment_goods_without_payment_sum: float,
+        commission_reimbursement_of_transportation_costs: float,
+        commission_overstatement_of_logistics_costs: float
+
 ):
 
     commission: float = (
@@ -96,7 +99,8 @@ def calculate_commission(
              commission_marriage_payment_sum + commission_sales_payment_lost_marriage_sum -
              commission_returns_payment_lost_marriage_sum + commission_partial_compensation_marriage_sum +
              commission_sales_advance_payment_goods_without_payment_sum -
-             commission_returns_advance_payment_goods_without_payment_sum)
+             commission_returns_advance_payment_goods_without_payment_sum) -
+            (commission_reimbursement_of_transportation_costs + commission_overstatement_of_logistics_costs)
     )
 
     return commission

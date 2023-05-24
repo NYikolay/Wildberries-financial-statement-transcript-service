@@ -94,7 +94,9 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('returns_advance_payment_goods_without_payment_sum'),
         sales_object_figures.get('commission_partial_compensation_marriage_sum'),
         sales_object_figures.get('commission_sales_advance_payment_goods_without_payment_sum'),
-        sales_object_figures.get('commission_returns_advance_payment_goods_without_payment_sum')
+        sales_object_figures.get('commission_returns_advance_payment_goods_without_payment_sum'),
+        sales_object_figures.get('commission_reimbursement_of_transportation_costs'),
+        sales_object_figures.get('commission_overstatement_of_logistics_costs')
     )
 
     logistics: float = calculate_logistics(sales_object_figures.get('logistic_sum'))

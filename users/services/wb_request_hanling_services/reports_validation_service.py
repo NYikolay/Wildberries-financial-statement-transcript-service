@@ -69,45 +69,61 @@ def check_sale_obj_validation(sale_obj: dict) -> True or dict:
         sale_obj.get('retail_amount')
     ]
 
-    for value in sale_obj_values:
-        additional_condition_1 = [
-            delivery_rub is not None,
-            delivery_rub > 0,
-            sale_obj.get('supplier_oper_name') == "Логистика",
-            sale_obj.get('realizationreport_id') is not None,
-            sale_obj.get('date_from') is not None,
-            sale_obj.get('date_to') is not None,
-            sale_obj.get('create_dt') is not None,
-            sale_obj.get('subject_name') is None,
-            sale_obj.get('nm_id') is None,
-            sale_obj.get('brand_name') is None,
-            sale_obj.get('barcode') is not None,
-            sale_obj.get('doc_type_name') == 'Продажа',
-            sale_obj.get('quantity') == 0,
-            sale_obj.get('retail_price_withdisc_rub') == 0,
-            sale_obj.get('ppvz_for_pay') == 0
-        ]
-        additional_condition_2 = [
-            sale_obj.get('realizationreport_id') is not None,
-            sale_obj.get('date_from') is not None,
-            sale_obj.get('date_to') is not None,
-            sale_obj.get('create_dt') is not None,
-            sale_obj.get('subject_name') is not None,
-            sale_obj.get('nm_id') is not None,
-            sale_obj.get('ts_name') is not None,
-            sale_obj.get('barcode') is not None,
-            sale_obj.get('doc_type_name') is not None,
-            sale_obj.get('brand_name') is None,
-            sale_obj.get('quantity') is not None,
-            sale_obj.get('retail_amount') is not None,
-            sale_obj.get('supplier_oper_name') is not None,
-            sale_obj.get('retail_price_withdisc_rub') is not None,
-            sale_obj.get('delivery_rub') is not None,
-            sale_obj.get('ppvz_for_pay') is not None
-        ]
+    additional_condition_1 = [
+        delivery_rub is not None and delivery_rub > 0,
+        sale_obj.get('supplier_oper_name') == "Логистика",
+        sale_obj.get('realizationreport_id') is not None,
+        sale_obj.get('date_from') is not None,
+        sale_obj.get('date_to') is not None,
+        sale_obj.get('create_dt') is not None,
+        sale_obj.get('subject_name') is None,
+        sale_obj.get('nm_id') is None,
+        sale_obj.get('brand_name') is None,
+        sale_obj.get('barcode') is not None,
+        sale_obj.get('doc_type_name') == 'Продажа',
+        sale_obj.get('quantity') == 0,
+        sale_obj.get('retail_price_withdisc_rub') == 0,
+        sale_obj.get('ppvz_for_pay') == 0
+    ]
+    additional_condition_2 = [
+        sale_obj.get('realizationreport_id') is not None,
+        sale_obj.get('date_from') is not None,
+        sale_obj.get('date_to') is not None,
+        sale_obj.get('create_dt') is not None,
+        sale_obj.get('subject_name') is not None,
+        sale_obj.get('nm_id') is not None,
+        sale_obj.get('ts_name') is not None,
+        sale_obj.get('barcode') is not None,
+        sale_obj.get('doc_type_name') is not None,
+        sale_obj.get('brand_name') is None,
+        sale_obj.get('quantity') is not None,
+        sale_obj.get('retail_amount') is not None,
+        sale_obj.get('supplier_oper_name') is not None,
+        sale_obj.get('retail_price_withdisc_rub') is not None,
+        sale_obj.get('delivery_rub') is not None,
+        sale_obj.get('ppvz_for_pay') is not None
+    ]
 
+    additional_condition_3 = [
+        sale_obj.get('supplier_oper_name') == 'Перевыставление расходов по логистике' or sale_obj.get(
+            'supplier_oper_name') == 'Возмещение издержек по перевозке',
+        sale_obj.get('order_dt') is None,
+        sale_obj.get('sale_dt') is None,
+        sale_obj.get('retail_price_withdisc_rub') is None,
+        sale_obj.get('delivery_amount') is None,
+        sale_obj.get('return_amount') is None,
+        sale_obj.get('delivery_rub') is None,
+        sale_obj.get('product_discount_for_report') is None,
+        sale_obj.get('supplier_promo') is None,
+        sale_obj.get('rid') is None,
+        sale_obj.get('sticker_id') is None,
+        sale_obj.get('site_country') is None,
+        sale_obj.get('srid') is None
+    ]
+
+    for value in sale_obj_values:
         if value is None:
-            if all(additional_condition_1) or all(additional_condition_2):
+            if all(additional_condition_1) or all(additional_condition_2) or all(additional_condition_3):
                 return True
 
             return {
