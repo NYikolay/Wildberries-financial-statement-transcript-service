@@ -109,7 +109,9 @@ def get_commission_formula_annotation_obj():
                     F('commission_partial_compensation_marriage_sum') +
                     F('commission_sales_advance_payment_goods_without_payment_sum') -
                     F('commission_returns_advance_payment_goods_without_payment_sum')
-            ), output_field=FloatField()),
+            ) -
+            (F('commission_reimbursement_of_transportation_costs') + F('commission_overstatement_of_logistics_costs')),
+            output_field=FloatField()),
         Value(0.0),
         output_field=FloatField(),
     )

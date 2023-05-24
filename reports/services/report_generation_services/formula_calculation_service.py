@@ -83,7 +83,10 @@ def calculate_commission(
         returns_advance_payment_goods_without_payment_sum: float,
         commission_partial_compensation_marriage_sum: float,
         commission_sales_advance_payment_goods_without_payment_sum: float,
-        commission_returns_advance_payment_goods_without_payment_sum: float
+        commission_returns_advance_payment_goods_without_payment_sum: float,
+        commission_reimbursement_of_transportation_costs: float,
+        commission_overstatement_of_logistics_costs: float
+
 ):
 
     commission: float = (
@@ -96,7 +99,8 @@ def calculate_commission(
              commission_marriage_payment_sum + commission_sales_payment_lost_marriage_sum -
              commission_returns_payment_lost_marriage_sum + commission_partial_compensation_marriage_sum +
              commission_sales_advance_payment_goods_without_payment_sum -
-             commission_returns_advance_payment_goods_without_payment_sum)
+             commission_returns_advance_payment_goods_without_payment_sum) -
+            (commission_reimbursement_of_transportation_costs + commission_overstatement_of_logistics_costs)
     )
 
     return commission
@@ -136,10 +140,10 @@ def calculate_tax_value(
 
 
 def calculate_net_costs(
-        netcost_sale_sum: float,
-        netcost_storno_sale_sum: float,
-        netcost_correct_sale_sum: float,
-        netcost_return_sum: float,
+        net_cost_sale_sum: float,
+        net_cost_storno_sale_sum: float,
+        net_cost_correct_sale_sum: float,
+        net_cost_return_sum: float,
         net_cost_strono_returns_sum: float,
         net_cost_correct_return_sum: float,
         net_cost_marriage_payment_sum: float,
@@ -151,8 +155,8 @@ def calculate_net_costs(
 
 ):
     net_costs: float = (
-            netcost_sale_sum - netcost_storno_sale_sum + netcost_correct_sale_sum -
-            netcost_return_sum + net_cost_strono_returns_sum - net_cost_correct_return_sum +
+            net_cost_sale_sum - net_cost_storno_sale_sum + net_cost_correct_sale_sum -
+            net_cost_return_sum + net_cost_strono_returns_sum - net_cost_correct_return_sum +
             net_cost_marriage_payment_sum + net_cost_sales_payment_lost_marriage_sum -
             net_cost_returns_payment_lost_marriage_sum +
             net_cost_partial_compensation_marriage_sum + net_cost_sales_advance_payment_goods_without_payment_sum -

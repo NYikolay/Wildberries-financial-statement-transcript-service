@@ -52,6 +52,8 @@ def get_aggregate_sum_dicts() -> dict:
         'partial_compensation_marriage_sum',
         'sales_advance_payment_goods_without_payment_sum',
         'returns_advance_payment_goods_without_payment_sum',
+        'reimbursement_of_transportation_costs',
+        'overstatement_of_logistics_costs',
         'commission_sales_sum',
         'commission_storno_sales_sum',
         'commission_correct_sales_sum',
@@ -64,6 +66,8 @@ def get_aggregate_sum_dicts() -> dict:
         'commission_partial_compensation_marriage_sum',
         'commission_sales_advance_payment_goods_without_payment_sum',
         'commission_returns_advance_payment_goods_without_payment_sum',
+        'commission_reimbursement_of_transportation_costs',
+        'commission_overstatement_of_logistics_costs',
         'sales_quantity_sum',
         'strono_sales_quantity_sum',
         'correct_sales_quantity_sum',
@@ -76,6 +80,8 @@ def get_aggregate_sum_dicts() -> dict:
         'partial_compensation_marriage_quantity_sum',
         'sales_advance_payment_goods_without_payment_quantity_sum',
         'returns_advance_payment_goods_without_payment_quantity_sum',
+        'quantity_reimbursement_of_transportation_costs',
+        'quantity_overstatement_of_logistics_costs',
         'retail_sales_sum',
         'retail_return_sum',
         'retail_storno_sales_sum',
@@ -88,6 +94,8 @@ def get_aggregate_sum_dicts() -> dict:
         'retail_partial_compensation_marriage_sum',
         'retail_sales_advance_payment_goods_without_payment_sum',
         'retail_returns_advance_payment_goods_without_payment_sum',
+        'retail_reimbursement_of_transportation_costs',
+        'retail_overstatement_of_logistics_costs',
     ]
     filter_names = [
         'Продажа',
@@ -102,6 +110,8 @@ def get_aggregate_sum_dicts() -> dict:
         'Частичная компенсация брака',
         'Авансовая оплата за товар без движения',
         'Авансовая оплата за товар без движения',
+        'Возмещение издержек по перевозке',
+        'Перевыставление расходов по логистике',
         'Продажа',
         'Сторно продаж',
         'Корректная продажа',
@@ -114,6 +124,8 @@ def get_aggregate_sum_dicts() -> dict:
         'Частичная компенсация брака',
         'Авансовая оплата за товар без движения',
         'Авансовая оплата за товар без движения',
+        'Возмещение издержек по перевозке',
+        'Перевыставление расходов по логистике',
         'Продажа',
         'Сторно продаж',
         'Корректная продажа',
@@ -126,6 +138,8 @@ def get_aggregate_sum_dicts() -> dict:
         'Частичная компенсация брака',
         'Авансовая оплата за товар без движения',
         'Авансовая оплата за товар без движения',
+        'Возмещение издержек по перевозке',
+        'Перевыставление расходов по логистике',
         'Продажа',
         'Возврат',
         'Сторно продаж',
@@ -138,12 +152,14 @@ def get_aggregate_sum_dicts() -> dict:
         'Частичная компенсация брака',
         'Авансовая оплата за товар без движения',
         'Авансовая оплата за товар без движения',
+        'Возмещение издержек по перевозке',
+        'Перевыставление расходов по логистике',
     ]
     aggregate_fields_names = [
-        *['retail_price_withdisc_rub'] * 12,
-        *['ppvz_for_pay'] * 12,
-        *['quantity'] * 12,
-        *['retail_amount'] * 12
+        *['retail_price_withdisc_rub'] * 14,
+        *['ppvz_for_pay'] * 14,
+        *['quantity'] * 14,
+        *['retail_amount'] * 14
     ]
     net_costs_argument_names = [
         'net_cost_sale_sum',
