@@ -5,6 +5,7 @@ from datetime import date, datetime
 from urllib.parse import urlencode
 
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
@@ -29,6 +30,7 @@ from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
 from users.mixins import SubscriptionRequiredMixin
 from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport
 from users.services.encrypt_api_key_service import get_encrypted_key
+from users.services.generate_email_data import get_email_data
 from users.services.generate_subscriptions_data_service import get_user_subscriptions_data
 from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
 from users.services.generate_last_report_date_service import get_last_report_date
@@ -46,7 +48,7 @@ class RegisterPageView(CreateView):
     form_class = UserRegisterForm
     model = User
     success_url = reverse_lazy('users:email_confirmation_info')
-    template_name = 'users/registration/reg_test.html'
+    template_name = 'users/registration/register.html'
 
     @redirect_authenticated_user
     def dispatch(self, request, *args, **kwargs):
@@ -58,19 +60,16 @@ class RegisterPageView(CreateView):
         user.save()
 
         current_site = get_current_site(self.request)
-        mail_message = render_to_string('users/registration/account_activation.html', {
-            'user': user,
-            'protocol': 'https',
-            'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': account_activation_token.make_token(user),
-        })
-        mail_subject = 'Подтверждение email на COMMERY.RU'
-
-        send_email_verification.delay(mail_message, form.cleaned_data['email'], mail_subject)
+        email_data = get_email_data(user, current_site.domain)
+        send_email_verification.delay(
+            email_data.get('mail_message'),
+            form.cleaned_data['email'],
+            email_data.get('mail_subject')
+        )
 
         self.request.session['new_email'] = form.cleaned_data['email']
         self.request.session['email_message_timestamp'] = time.time()
+
         return super().form_valid(form)
 
 
@@ -84,7 +83,7 @@ class ConfirmRegistrationView(View):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = get_object_or_404(User, pk=uid)
-        except(TypeError, ValueError, OverflowError):
+        except(TypeError, ValueError, OverflowError, ObjectDoesNotExist):
             user = None
 
         if user is not None and account_activation_token.check_token(user, token):
@@ -105,15 +104,10 @@ class ConfirmRegistrationView(View):
                     f'Failed to issue a test subscription to a user - {user.email}.',
                     exc_info=err)
 
-            try:
-                del request.session['new_email']
-                del request.session['email_message_timestamp']
-            except Exception as err:
-                pass
-            messages.success(request, 'Благодарим за подтверждение почты. Вы можете войти в свой аккаунт.')
+            messages.success(request, 'Благодарим за подтверждение почты. Вы можете войти в свой аккаунт')
             return redirect('users:login')
 
-        messages.error(request, 'Ссылка повреждена или более недействительна.')
+        messages.error(request, 'Ссылка повреждена или более недействительна')
         return redirect('users:login')
 
 
@@ -134,48 +128,51 @@ class ConfirmEmailPageView(View):
         return render(request, 'users/registration/confirm_email.html', context=context)
 
     def post(self, request):
-        try:
-            user = User.objects.get(email=request.session.get('new_email'), is_active=False)
-        except:
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        if is_ajax:
+            try:
+                user = User.objects.get(email=request.session.get('new_email'), is_active=False)
+            except Exception as err:
+                return JsonResponse(
+                    {
+                        'status': False,
+                        'message': 'Отсутствует почта для подтверждения'
+                    }, status=400
+                )
+
+            email_timestamp_subtracting = time.time() - request.session.get('email_message_timestamp', 0)
+
+            if email_timestamp_subtracting < 60:
+                return JsonResponse(
+                    {
+                        'status': False,
+                        'message': 'Перед повторным подтверждением необходимо подождать 60 секунд.'
+                    }, status=429
+                )
+
+            current_site = get_current_site(self.request)
+            mail_message = render_to_string('users/registration/account_activation.html', {
+                'user': user,
+                'protocol': 'https',
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+            })
+
+            send_email_verification.delay(mail_message, user.email, 'Подтверждение email на COMMERY.RU')
+
+            self.request.session['email_message_timestamp'] = time.time()
             return JsonResponse(
                 {
-                    'status': False,
-                    'message': 'Отсутствует почта для подтверждения'
-                }
+                    'status': True,
+                    'message': 'На ваш почтовый ящик было повторно отправлено письмо для подтверждения.'
+                }, status=200
             )
-
-        email_timestamp_subtracting = time.time() - request.session.get('email_message_timestamp', None)
-
-        if email_timestamp_subtracting < 60:
-            return JsonResponse(
-                {
-                    'status': False,
-                    'message': 'Перед повторным подтверждением необходимо подождать 60 секунд.'
-                }
-            )
-
-        current_site = get_current_site(self.request)
-        mail_message = render_to_string('users/registration/account_activation.html', {
-            'user': user,
-            'protocol': 'https',
-            'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': account_activation_token.make_token(user),
-        })
-
-        send_email_verification.delay(mail_message, user.email, 'Подтверждение email на COMMERY.RU')
-
-        self.request.session['email_message_timestamp'] = time.time()
-        return JsonResponse(
-            {
-                'status': True,
-                'message': 'На ваш почтовый ящик было повторно отправлено письмо для подтверждения.'
-            }
-        )
+        return HttpResponseBadRequest('Invalid request')
 
 
 class LoginPageView(View):
-    template_name = 'users/authentication/login_test.html'
+    template_name = 'users/authentication/login.html'
     form_class = LoginForm
 
     @redirect_authenticated_user
@@ -192,18 +189,29 @@ class LoginPageView(View):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            user = authenticate(
-                email=form.cleaned_data['email'],
-                password=form.cleaned_data['password']
-            )
-            if user is not None:
-                login(request, user)
-                return redirect('reports:dashboard')
-            context = {
-                'form': form,
-                'user_error': 'Введён неверный пароль или почта.'
-            }
-            return render(request, self.template_name, context=context)
+            user = User.objects.filter(email=form.cleaned_data['email']).first()
+
+            if not user or not user.check_password(form.cleaned_data['password']):
+
+                context = {'form': form, 'user_error': 'Введён неверный пароль или почта'}
+                return render(request, self.template_name, context=context)
+            elif not user.is_active:
+
+                current_site = get_current_site(self.request)
+                email_data = get_email_data(user, current_site.domain)
+                send_email_verification.delay(
+                    email_data.get('mail_message'),
+                    form.cleaned_data['email'],
+                    email_data.get('mail_subject')
+                )
+
+                self.request.session['new_email'] = form.cleaned_data['email']
+                self.request.session['email_message_timestamp'] = time.time()
+
+                return redirect('users:email_confirmation_info')
+
+            login(request, user)
+            return redirect('reports:dashboard')
 
         context = {'form': form}
         return render(request, self.template_name, context=context)

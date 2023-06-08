@@ -1,24 +1,44 @@
-{% extends 'users/authentication/auth_base.html' %}
 {% load static %}
-{% block title %} Регистрация - Commery {% endblock %}
-{% block content %}
-<div class="email_info-wrapper">
-    <h1>Регистрация</h1>
-    <p class="email_info-message">
-        Для использования сервиса необходимо подтвердить свою почту. <br><br>
-        На {{ email }} уже направлено письмо. Перейдите по ссылке в письме для подтверждения почты.
-    </p>
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" href="{% static 'images/logo_commery4.png' %}">
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/messages.css' %}">
+    <link rel="stylesheet" href="{% static 'users/css/email_confirm.css' %}">
+    <title>Сброс пароля - Commery</title>
+</head>
+<body>
+<main class="main">
+    <div class="wrapper">
+        <div class="confirm_logo-wrapper">
+                <img src="{% static 'images/logo_text.png' %}" alt="">
+        </div>
+        <div class="confirm__form-wrapper">
+            <div class="confirm__form-header">
+                <h1>Подтверждение почты</h1>
+                <p>Для использования сервиса необходимо подтвердить свою почту. <br>
+                    На {{ email }} уже направлено письмо. Перейдите по ссылке в письме для подтверждения почты.</p>
+            </div>
+            <form action="{% url 'users:email_confirmation_info' %}" method="post" class="confirm_reset-form" id="resend_email_form_id">
+                {% csrf_token %}
+                <button type="submit" id="resend_email-btn">Отправить письмо повторно</button>
+                <p class="resend_email-counter">Получить новое письмо можно через <span class="counter" style="text-decoration: underline">60</span> секунд</p>
+            </form>
+        </div>
+    </div>
 
-    <form action="{% url 'users:email_confirmation_info' %}" method="post" class="resend_email-form" id="resend_email_form_id">
-        {% csrf_token %}
-        <button type="submit" class="resend_email-btn">Отправить письмо повторно.</button>
-        <p class="resend_email-counter">Получить новое письмо можно через <span class="counter">60</span> секунд</p>
-    </form>
-</div>
+    <div class="messages-wrapper">
+        {% include 'includes/messages.html' %}
+    </div>
 
-<div class="messages-wrapper">
-    {% include 'includes/messages.html' %}
-</div>
+</main>
 
 <script src="{% static 'users/js/email_confirm.js' %}"></script>
-{% endblock %}
+</body>
+</html>
