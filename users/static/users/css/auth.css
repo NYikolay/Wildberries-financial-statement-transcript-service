@@ -114,6 +114,16 @@ input:-webkit-autofill:focus {
     border: 1px solid #ff8364;
 }
 
+.input_footer {
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.input_footer.hidden {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
 .input_footer ul>li {
     font-size: 14px;
     color: #ff5722;

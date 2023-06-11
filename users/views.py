@@ -303,7 +303,7 @@ class PasswordResetView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        return render(request, 'users/profile/password/password_reset_test.html', context={'form': self.form_class()})
+        return render(request, 'users/profile/password/password_reset_form.html', context={'form': self.form_class()})
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -313,7 +313,7 @@ class PasswordResetView(View):
                 user = User.objects.get(email=form.cleaned_data['email'])
             except Exception as err:
                 form.add_error('email', 'Аккаунта с такой почтой не существует')
-                return render(request, 'users/profile/password/password_reset_test.html', context={'form': form})
+                return render(request, 'users/profile/password/password_reset_form.html', context={'form': form})
 
             current_site = get_current_site(self.request)
             reset_message = render_to_string('users/profile/password/password_reset_email.html', {
@@ -328,7 +328,7 @@ class PasswordResetView(View):
             send_email_verification.delay(reset_message, form.cleaned_data['email'], mail_subject)
 
             return redirect('users:password_reset_done')
-        return render(request, 'users/profile/password/password_reset_test.html', context={'form': form})
+        return render(request, 'users/profile/password/password_reset_form.html', context={'form': form})
 
 
 class PasswordResetConfirmView(View):

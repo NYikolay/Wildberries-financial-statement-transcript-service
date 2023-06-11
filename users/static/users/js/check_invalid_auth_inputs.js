@@ -7,7 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 e.target.classList.remove('input_error')
                 const divError = document.querySelector(`[data-id-error=${e.target.getAttribute('data-id')}]`)
                 if (divError) {
-                    divError.remove()
+                    divError.classList.add('hidden');
+
+                    divError.addEventListener('transitionend', function() {
+                        this.remove();
+                    });
                 }
             }
         })
