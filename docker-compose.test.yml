@@ -16,8 +16,8 @@ services:
       - media_volume:/commery_project/media
       - .:/commery_project
       - /var/web_logs:/commery_project/logs
-    expose:
-      - 8000
+    ports:
+      - "8000:8000"
     env_file:
       - .env
   redis:
