@@ -10,6 +10,20 @@
 
 /* FILTERING BLOCK START */
 
+.barcodes__header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.download_link {
+    font-size: 8px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #EF8061;
+    text-decoration: underline;
+}
+
 .barcodes__report-filters {
     display: flex;
     gap: 20px;

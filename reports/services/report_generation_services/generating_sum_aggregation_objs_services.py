@@ -6,7 +6,7 @@ from reports.services.report_generation_services.db_annotation_formulas_services
     get_share_in_revenue_formula_annotation_obj, get_sales_quantity_formula_annotation_obj, \
     get_returns_quantity_formula_annotation_obj, get_commission_formula_annotation_obj, \
     get_net_costs_formula_annotation_obj, get_marginality_formula_annotation_obj, \
-    get_share_in_number_formula_annotation_obj, get_total_payable_formula_annotation_obj
+    get_share_in_number_formula_annotation_obj, get_total_payable_formula_annotation_obj, get_rom_formula_annotation_obj
 
 
 def get_financials_annotation_objects() -> dict:
@@ -20,6 +20,7 @@ def get_financials_annotation_objects() -> dict:
     product_marginality = get_marginality_formula_annotation_obj()
     share_in_number = get_share_in_number_formula_annotation_obj()
     total_payable = get_total_payable_formula_annotation_obj()
+    rom = get_rom_formula_annotation_obj()
 
     return {
         "revenue_by_article": revenue_by_article,
@@ -32,6 +33,7 @@ def get_financials_annotation_objects() -> dict:
         'returns_quantity': returns_quantity,
         'commission': commission,
         'total_payable': total_payable,
+        'rom': rom
     }
 
 

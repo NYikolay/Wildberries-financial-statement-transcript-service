@@ -106,7 +106,7 @@ def get_report_by_barcodes(current_user, current_api_key, period_filter_data: Li
         products_count_by_period
     )
 
-    return json.dumps(report_by_barcodes.get('products_calculated_values'))
+    return report_by_barcodes.get('products_calculated_values')
 
 
 

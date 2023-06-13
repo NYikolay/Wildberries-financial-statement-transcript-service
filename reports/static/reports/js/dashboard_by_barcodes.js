@@ -13,6 +13,7 @@ let penaltySorted = false
 let additionalPaymentSorted = false
 let totalPayableSorted = false
 let barcodeSorted = false
+let isROMSorted = false
 
 let images = document.querySelectorAll('img[data-src]')
 
@@ -54,24 +55,18 @@ function createBarcodesItems() {
         barcodeItemWrapper.setAttribute('data-penalty', reportByBarcodesData[i].penalty_sum)
         barcodeItemWrapper.setAttribute('data-addpay', reportByBarcodesData[i].additional_payment_sum)
         barcodeItemWrapper.setAttribute('data-totalpay', reportByBarcodesData[i].total_payable)
-
+        barcodeItemWrapper.setAttribute('data-rom', reportByBarcodesData[i].rom)
         const image =  reportByBarcodesData[i].image === null ? emptyImageUrl  : reportByBarcodesData[i].image
         barcodeItemWrapper.innerHTML = `
                 <img data-src="${image}" alt="" class="barcode__img">
                 <div class="barcode__item-data-wrapper">
-                    <div class="barcode__item-data__value">
+                    <div class="barcode__item-data__value" style="align-items: flex-start">
                         <p>${reportByBarcodesData[i].barcode}</p>
+                        <p>${reportByBarcodesData[i].nm_id}</p>
+                        <p>${reportByBarcodesData[i].ts_name ? reportByBarcodesData[i].ts_name : '-'}</p>
                     </div>
                     <div class="barcode__item-data__value">
                         <p>${Math.round(reportByBarcodesData[i].product_marginality)}%</p>
-                    </div>
-                    <div class="barcode__item-data__value">
-                        <span style="width: 30px; height: 30px; border-radius: 50%; background-color: #ffd8cc; text-align: center;">
-                        <p style="line-height: 30px;">
-                            ${reportByBarcodesData[i].final_group === null ? '-' : reportByBarcodesData[i].final_group}
-                        </p>
-</span>
-                       
                     </div>
                     <div class="barcode__item-data__value">
                         <p>${Math.round(reportByBarcodesData[i].revenue_by_article).toLocaleString('ru')}</p>
@@ -96,6 +91,9 @@ function createBarcodesItems() {
                     </div>
                     <div class="barcode__item-data__value">
                         <p style="color: #ff8364">${Math.round(reportByBarcodesData[i].total_payable).toLocaleString('ru')}</p>
+                    </div>
+                    <div class="barcode__item-data__value">
+                        <p>${Math.round(reportByBarcodesData[i].rom)}%</p>
                     </div>
                 </div>
     `
@@ -276,5 +274,15 @@ function totalPayableSort() {
     } else {
         sortHigher('totalpay')
         totalPayableSorted = true
+    }
+}
+
+function ROMSort() {
+    if (isROMSorted) {
+        sortLower('rom')
+        isROMSorted = false
+    } else {
+        sortHigher('rom')
+        isROMSorted = true
     }
 }
