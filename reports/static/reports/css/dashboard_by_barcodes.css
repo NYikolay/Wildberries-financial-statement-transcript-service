@@ -20,8 +20,12 @@
     font-size: 8px;
     text-transform: uppercase;
     font-weight: bold;
-    color: #EF8061;
+    color: #EF8061 !important;
     text-decoration: underline;
+}
+
+.download_link:hover {
+    color: #EF8061;
 }
 
 .barcodes__report-filters {

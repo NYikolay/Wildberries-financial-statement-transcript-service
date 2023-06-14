@@ -173,7 +173,7 @@ def get_total_payable_formula_annotation_obj():
 
 def get_rom_formula_annotation_obj():
     rom_annotations_obj = Coalesce(Case(
-        When(net_costs_sum__gt=0, then=(((F('total_payable') - F('net_costs_sum')) / F('total_payable')) * 100)),
+        When(net_costs_sum__gt=0, then=(((F('total_payable') - F('net_costs_sum')) / F('net_costs_sum')) * 100)),
         default=Value(0.0), output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()

@@ -70,7 +70,7 @@
                     <p class="current__report-text current__report-text__active">Товары</p>
                 </div>
             </div>
-            <a href="{% url 'reports:export_barcodes_detail' %}?{% for key, value in request.GET.items %}{{ key }}={{ value }}&{% endfor %}" class="download_link">Скачать отчёт в Excel</a>
+                <a href="{% url 'reports:export_barcodes_detail' %}?{% for key, value in request.GET.items %}{{ key }}={{ value }}&{% endfor %}" class="download_link">Скачать отчёт в Excel</a>
         </div>
         <div class="barcodes__report-header">
             <div style="width: 62px; height: 64px"></div>
