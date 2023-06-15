@@ -1,3 +1,4 @@
+import datetime
 import logging
 from typing import List
 
@@ -31,11 +32,11 @@ def execute_wildberries_request_data_handling(current_user, date_from: str, date
     res_dict: dict = get_wildberries_response_data(date_from, date_to, current_api_key)
     if not res_dict.get('status'):
         return res_dict
-
+    dt = datetime.datetime.now()
     incorrect_reports: dict = get_incorrect_reports_lst(res_dict.get('data'))
     unique_articles: set = get_unique_articles(res_dict.get('data'))
     unique_reports_ids: set = get_unique_reports(res_dict.get('data'))
-
+    print(f'Обработка объектов: {datetime.datetime.now() - dt}')
     if SaleReport.objects.filter(realizationreport_id__in=unique_reports_ids).exclude(owner=current_user).exists():
         django_logger.info(
             f"Attempted piracy, user - {current_user.email} "
