@@ -35,7 +35,7 @@ from users.services.generate_last_report_date_service import get_last_report_dat
 from users.services.handle_uploaded_netcosts_excel_service import handle_uploaded_net_costs
 from users.services.wb_request_hanling_services.execute_request_data_handling import \
     execute_wildberries_request_data_handling
-from users.services.wb_request_hanling_services.test import execute_wildberries_request_data_handling_2
+
 from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
 
@@ -558,7 +558,6 @@ class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
         current_api_key.is_active_import = True
         current_api_key.save()
         last_report_date = get_last_report_date(current_api_key)
-        ara = datetime.now()
         try:
             report_status = execute_wildberries_request_data_handling(
                 request.user,
@@ -577,7 +576,7 @@ class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
 
             messages.error(request, 'Ошибка формирования отчёта. Пожалуйста, обратитесь в службу поддержки.')
             return redirect(request.META.get('HTTP_REFERER', '/'))
-        print(f'Время вполнения: {datetime.now() - ara}')
+
         if report_status.get('status') is True:
             current_api_key.is_wb_data_loaded = True
             current_api_key.is_active_import = False

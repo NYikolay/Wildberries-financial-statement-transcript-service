@@ -19,7 +19,7 @@ from users.services.wb_request_hanling_services.generating_sale_objects_service 
 from users.services.wb_request_hanling_services.generating_unique_articles_service import get_unique_articles
 from users.services.wb_request_hanling_services.generating_unique_reports_service import get_unique_reports
 from users.services.wb_request_hanling_services.generating_user_reports_service import generate_reports
-from users.services.wb_request_hanling_services.reports_validation_service import check_sale_obj_validation, \
+from users.services.wb_request_hanling_services.reports_validation_services import check_sale_obj_validation, \
     get_incorrect_reports_lst
 from users.services.wb_request_hanling_services.wildberries_request_handling_service import \
     get_wildberries_changed_response
