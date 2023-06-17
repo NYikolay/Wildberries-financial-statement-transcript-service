@@ -27,10 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
             resendButton.disabled = false;
             resendButton.style.opacity = '1'
             resendEmailCounterText.classList.add('hidden')
-            resendEmailCounterText.addEventListener('transitionend', function() {
-                this.remove();
-            });
-
         }, 60000);
 
         timerId = setInterval(countdownTimer, 1000);
@@ -55,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: formData
             }
         );
-
+        resendEmailCounterText.classList.remove('hidden')
         fetch(request).then(response => response.json()).then(data => {
             if (data.status === true) {
                 const messageSuccess = document.createElement('div')
