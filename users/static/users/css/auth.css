@@ -9,15 +9,9 @@ input:-webkit-autofill:focus {
     min-height: 100%;
     min-width: 100%;
     display: flex;
-}
-
-
-.auth_wrapper {
-    width: 50%;
-    display: flex;
+    justify-content: center;
     align-items: center;
     align-content: center;
-    justify-content: center;
 }
 
 .auth__container {
