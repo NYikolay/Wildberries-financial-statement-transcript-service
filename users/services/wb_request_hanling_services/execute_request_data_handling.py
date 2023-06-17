@@ -77,7 +77,7 @@ def delete_unloaded_reports(current_api_key, existing_reports_ids: List[int]):
 def execute_wildberries_request_data_handling(current_user, date_from: str, date_to, current_api_key):
     response: pd.DataFrame or dict = get_wildberries_response(current_api_key, date_from, date_to)
 
-    if not response.get('status'):
+    if response.get('status') is False:
         return response
 
     unique_reports_ids: List[int] = get_sorted_unique_report_ids(response).tolist()
