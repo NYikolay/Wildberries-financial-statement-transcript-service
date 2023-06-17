@@ -3,7 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const message = document.querySelector(".messages-wrapper")
     const csrfInput = document.querySelector("[name='csrfmiddlewaretoken']")
     let counter = document.querySelector(".counter")
-    const resendButton = document.querySelector(".resend_email-btn")
+    const resendButton = document.getElementById("resend_email-btn")
+    const resendEmailCounterText = document.querySelector('.resend_email-counter')
     let jsCounter = 60
 
     function countdownTimer() {
@@ -25,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(function () {
             resendButton.disabled = false;
             resendButton.style.opacity = '1'
+            resendEmailCounterText.classList.add('hidden')
         }, 60000);
 
         timerId = setInterval(countdownTimer, 1000);
@@ -38,20 +40,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
         formData.append('csrfmiddlewaretoken', csrfInput.value);
 
-        fetch(e.target.action, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
+        const request = new Request(e.target.action,
+            {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput.value,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                mode: 'same-origin',
+                body: formData
+            }
+        );
+        resendEmailCounterText.classList.remove('hidden')
+        fetch(request).then(response => response.json()).then(data => {
+            if (data.status === true) {
                 const messageSuccess = document.createElement('div')
-                data.status === true ? messageSuccess.className = 'message_item-success' : messageSuccess.className = 'message_item-error'
+                messageSuccess.className = 'message_item-success'
                 messageSuccess.innerHTML =
                     `
                         <img class="message-img" src="/static/images/check (1).svg" alt="">
                         <p class="message_text">${data.message}</p>
                     `
-
                 message.style.transform = "translateX(0)";
                 message.style.right = "30px";
                 message.appendChild(messageSuccess)
@@ -64,18 +73,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 setTimeout(() => {
                     message.removeChild(messageSuccess)
                 }, 15000)
-
                 restartCounter()
-            })
-            .catch(error => {
+            } else {
                 const messageError = document.createElement('div')
                 messageError.className = 'message_item-error'
                 messageError.innerHTML =
                     `
-                        <img class="message-img" src="/static/images/check (1).svg" alt="">
-                        <p class="message_text">Произошла ошибка во время повторной отправки сообщения. Пожалуйста, попробуйте ещё раз или обратитесь в службу поддержки</p>
+                        <img class="message-img" src="/static/images/iconizer-4201973.svg" alt="">
+                        <p class="message_text">${data.message}</p>
                     `
-
                 message.style.transform = "translateX(0)";
                 message.style.right = "30px";
                 message.appendChild(messageError)
@@ -88,10 +94,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 setTimeout(() => {
                     message.removeChild(messageError)
                 }, 15000)
-
                 restartCounter()
-            });
+            }
+        }).catch(error => {
+            const messageError = document.createElement('div')
+            messageError.className = 'message_item-error'
+            messageError.innerHTML =
+                `
+                        <img class="message-img" src="/static/images/iconizer-4201973.svg" alt="">
+                        <p class="message_text">${data.message}</p>
+                    `
+            message.style.transform = "translateX(0)";
+            message.style.right = "30px";
+            message.appendChild(messageError)
 
+            setTimeout(() => {
+                message.style.transform = "translateX(100%)";
+                message.style.right = "0";
+            }, 10000)
+
+            setTimeout(() => {
+                message.removeChild(messageError)
+            }, 15000)
+            restartCounter()
+        })
     });
 
 })

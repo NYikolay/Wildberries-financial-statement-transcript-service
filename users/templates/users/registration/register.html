@@ -1,98 +1,126 @@
-{% extends 'users/authentication/auth_base.html' %}
+{% extends 'users/base/auth_base.html' %}
 {% load static %}
 {% block title %} Регистрация - Commery {% endblock %}
 {% block content %}
-<div class="auth_main-wrapper">
-    <h1 class="auth_main-title">Регистрация</h1>
-    <form action="." method="post" class="register_form">
+<div class="auth_wrapper">
+  <div class="auth__container">
+    <div class="auth__logo-wrapper">
+      <img src="{% static 'images/logo_text.png' %}" alt="">
+    </div>
+    <div class="auth__form-wrapper">
+      <div class="auth__form-wrapper__header">
+        <h1>Регистрация</h1>
+        <p>Пожалуйста, заполните форму ниже</p>
+      </div>
+      <form action="." method="post" class="auth_form">
         {% csrf_token %}
-        <div class="input_items-wrapper">
-            <div class="input-item">
-                <div class="register_required-wrapper">
-                    <input
-                            type="email"
-                            style="{% if form.email.errors%}border: 1px solid #f65731;{% endif %}"
-                            name="{{form.email.html_name}}"
-                            value="{{form.email.value|default_if_none:''}}"
-                            autofocus
-                            required=""
-                            id="{{form.email.id_for_label}}"
-                            placeholder="Введите адрес почты"
-                    >
-                </div>
-                <div class="input_footer">
-                    {{ form.email.errors }}
-                </div>
-            </div>
-            <div class="input-item">
-                <div class="register_required-wrapper">
-                    <input
-                            type="password"
-                            name="{{form.password1.html_name}}"
-                            required=""
-                            autocomplete="off"
-                            id="{{form.password1.id_for_label}}"
-                            placeholder="Введите пароль"
-                    >
-                </div>
-                <div class="input_footer">
-                    {{ form.password1.errors }}
-                </div>
-            </div>
-            <div class="input-item">
-                <div class="register_required-wrapper">
-                    <input
-                            type="password"
-                            name="{{form.password2.html_name}}"
-                            required=""
-                            autocomplete="off"
-                            id="{{form.password2.id_for_label}}"
-                            placeholder="Повторите пароль"
-                    >
-                </div>
-                <div class="input_footer">
-                    {{ form.password2.errors }}
-                </div>
-            </div>
-            <div class="input-item">
-                <div class="register_required-wrapper">
-                    <input
-                            type="tel"
-                            data-tel-input
-                            name="{{form.phone.html_name}}"
-                            autocomplete="off"
-                            maxlength="18"
-                            id="{{form.phone.id_for_label}}"
-                            placeholder="Контактный телефон"
-                    >
-                </div>
-                <div class="input_footer">
-                    {{ form.phone.errors }}
-                </div>
-            </div>
-            <div class="input-item">
-                <input
-                        type="checkbox"
-                        required
-                        oninvalid="this.setCustomValidity('Необходимо согласие с условиями Оферты')"
-                        oninput="this.setCustomValidity('')"
-                        checked="checked"
-                        class="offert_checkbox"
-                        name="{{form.is_accepted_terms_of_offer.html_name}}"
-                        id="{{form.is_accepted_terms_of_offer.id_for_label}}"
-                >
-                <label class="checkbox_label" for="{{form.is_accepted_terms_of_offer.id_for_label}}">Согласен с условиями
-                    <a class="offert_link" target="_blank" href="https://commery.ru/offer">Оферты</a></label>
-                <div class="input_footer">
-                    {{ form.is_accepted_terms_of_offer.errors }}
-                </div>
-            </div>
-            <button class="auth_button" type="submit">Зарегистрироваться</button>
+        <div class="input__item">
+          <input
+                  type="email"
+                  data-id="email"
+                  {% if form.email.errors %} class="input_error" {% endif %}
+                  name="{{form.email.html_name}}"
+                  value="{{form.email.value|default_if_none:''}}"
+                  id="{{form.email.id_for_label}}"
+                  required
+                  placeholder="Введите адрес почты"
+          >
+          {% if form.email.errors %}
+          <div class="input_footer" data-id-error="email">
+            {{ form.email.errors }}
+          </div>
+          {% endif %}
         </div>
-    </form>
-    <p class="input_error" style="margin-top: 20px;">{{ user_error }}</p>
-    <a href="{% url 'users:login' %}" class="auth_link">Войти</a>
+        <div class="input__item">
+          <input
+                  type="password"
+                  data-id="password1"
+                  {% if form.password1.errors %}
+                  class="input_error"
+                  {% elif form.password2.errors %}
+                  class="input_error"
+                  {% endif %}
+                  name="{{form.password1.html_name}}"
+                  id="{{form.password1.id_for_label}}"
+                  required
+                  placeholder="Введите пароль"
+          >
+        </div>
+        {% if form.password1.errors %}
+        <div class="input_footer" data-id-error="password2">
+          {{ form.password1.errors }}
+        </div>
+        {% endif %}
+        <div class="input__item">
+          <input
+                  type="password"
+                  data-id="password2"
+                  {% if form.password2.errors %} class="input_error" {% endif %}
+                  name="{{form.password2.html_name}}"
+                  id="{{form.password2.id_for_label}}"
+                  required
+                  placeholder="Повторите пароль"
+          >
+          {% if form.password2.errors %}
+          <div class="input_footer" data-id-error="password2">
+            {{ form.password2.errors }}
+          </div>
+          {% endif %}
+        </div>
+        <div class="input__item">
+          <input
+                  type="tel"
+                  data-id="phone"
+                  {% if form.phone.errors %} class="input_error" {% endif %}
+                  name="{{form.phone.html_name}}"
+                  id="{{form.phone.id_for_label}}"
+                  data-tel-input
+                  placeholder="Контактный телефон"
+          >
+          {% if form.phone.errors %}
+          <div class="input_footer" data-id-error="phone">
+            {{ form.phone.errors }}
+          </div>
+          {% endif %}
+        </div>
+        <div class="input__item" style="position: relative;">
+          <input
+                  type="checkbox"
+                  data-id="offert"
+                  required
+                  oninvalid="this.setCustomValidity('Необходимо согласие с условиями Оферты')"
+                  oninput="this.setCustomValidity('')"
+                  {% if not form.is_accepted_terms_of_offer.errors %}
+                  checked="checked"
+                  {% endif %}
+                  class="offert_checkbox"
+                  name="{{form.is_accepted_terms_of_offer.html_name}}"
+                  id="{{form.is_accepted_terms_of_offer.id_for_label}}"
+          >
+          <label class="checkbox_label" for="{{form.is_accepted_terms_of_offer.id_for_label}}">Согласен с условиями
+            <a class="offert_link" target="_blank" href="https://commery.ru/offer">Оферты</a></label>
+          {% if form.is_accepted_terms_of_offer.errors %}
+          <div class="input_footer" data-id-error="offert">
+            {{ form.is_accepted_terms_of_offer.errors }}
+          </div>
+          {% endif %}
+        </div>
+        <button type="submit">Зарегистрироваться</button>
+        {% if user_error %}
+        <div class="auth__form-error__wrapper">
+          <img src="{% static 'images/iconizer-4201973.svg' %}" alt="">
+          <p>{{ user_error }}</p>
+        </div>
+        {% endif %}
+      </form>
+    </div>
+    <div class="auth__form-help__wrapper">
+      <h2 class="auth__help-text">Есть аккаунт? <a class="auth__help-link" href="{% url 'users:login' %}">Войти</a></h2>
+      <h2 class="auth__help-text">Возникли трудности? <a class="auth__help-link" target="_blank" href="https://t.me/c/1877551793/156">Поддержка</a></h2>
+    </div>
+  </div>
 </div>
+
 
 <script src="{% static 'users/js/register.js' %}"></script>
 {% endblock %}

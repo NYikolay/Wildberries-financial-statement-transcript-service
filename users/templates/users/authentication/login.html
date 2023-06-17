@@ -1,46 +1,67 @@
-{% extends 'users/authentication/auth_base.html' %}
+{% extends 'users/base/auth_base.html' %}
 {% load static %}
 {% block title %} Авторизация - Commery{% endblock %}
 {% block content %}
-<div class="auth_main-wrapper">
-    <h1 class="auth_main-title">Вход</h1>
-    <form action="." method="post" class="auth_form">
-        {% csrf_token %}
-        <div class="input_items-wrapper">
-            <div class="input-item">
-                <input
-                        type="email"
-                        name="{{form.email.html_name}}"
-                        value="{{form.email.value|default_if_none:''}}"
-                        required=""
-                        id="{{form.email.id_for_label}}"
-                        placeholder="Введите адрес почты"
-                >
-                <p class="input_error" style="text-align: left">{{ form.email.errors }}</p>
-            </div>
-            <div class="input-item">
-                <input
-                        type="password"
-                        name="{{form.password.html_name}}"
-                        required=""
-                        autocomplete="off"
-                        id="{{form.password.id_for_label}}"
-                        placeholder="Введите пароль"
-                >
-                <div class="input_footer">
-                    <p class="input_error" style="text-align: left">{{ form.password.errors }}</p>
-                    <p><a href="{% url 'users:password_reset' %}" style="text-decoration: underline;">Забыли пароль?</a></p>
-                </div>
-            </div>
+<div class="auth_wrapper">
+    <div class="auth__container">
+        <div class="auth__logo-wrapper">
+            <img src="{% static 'images/logo_text.png' %}" alt="">
         </div>
-        <button class="auth_button" type="submit">Войти</button>
-    </form>
-    <p class="input_error" style="margin-top: 20px;">{{ user_error }}</p>
-    <a href="{% url 'users:register' %}" class="auth_link">Зарегистрироваться</a>
-</div>
-
-<div class="messages-wrapper">
-    {% include 'includes/messages.html' %}
+        <div class="auth__form-wrapper">
+            <div class="auth__form-wrapper__header">
+                <h1>Авторизация</h1>
+                <p>Пожалуйста, введите e-mail адрес и пароль</p>
+            </div>
+            <form action="." method="post" class="auth_form">
+                {% csrf_token %}
+                <div class="input__item">
+                    <input
+                            type="email"
+                            data-id="email"
+                            {% if form.email.errors %} class="input_error" {% endif %}
+                            required
+                            name="{{form.email.html_name}}"
+                            value="{{form.email.value|default_if_none:''}}"
+                            id="{{form.email.id_for_label}}"
+                            placeholder="Введите адрес почты"
+                    >
+                    {% if form.email.errors %}
+                    <div class="input_footer" data-id-error="email">
+                        {{ form.email.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="input__item">
+                    <input
+                            type="password"
+                            data-id="password"
+                            {% if form.password.errors %} class="input_error" {% endif %}
+                            name="{{form.password.html_name}}"
+                            id="{{form.password.id_for_label}}"
+                            required
+                            placeholder="Введите пароль"
+                    >
+                    {% if form.password.errors %}
+                    <div class="input_footer" data-id-error="password">
+                        {{ form.password.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <button type="submit">Авторизоваться</button>
+                {% if user_error %}
+                <div class="auth__form-error__wrapper">
+                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="">
+                    <p>{{ user_error }}</p>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+        <div class="auth__form-help__wrapper">
+            <h2 class="auth__help-text">Забыли пароль? <a class="auth__help-link" href="{% url 'users:password_reset' %}">Сбросить пароль</a></h2>
+            <h2 class="auth__help-text">Нет аккаунта? <a class="auth__help-link" href="{% url 'users:register' %}">Зарегистрироваться</a></h2>
+            <h2 class="auth__help-text">Возникли трудности? <a class="auth__help-link" target="_blank" href="https://t.me/c/1877551793/156">Поддержка</a></h2>
+        </div>
+    </div>
 </div>
 
 <script src="{% static 'js/messages.js' %}"></script>
