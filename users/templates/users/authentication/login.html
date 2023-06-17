@@ -10,7 +10,7 @@
         <div class="auth__form-wrapper">
             <div class="auth__form-wrapper__header">
                 <h1>Авторизация</h1>
-                <p>Пожалуйста, введите e-mail адресс и пароль</p>
+                <p>Пожалуйста, введите e-mail адрес и пароль</p>
             </div>
             <form action="." method="post" class="auth_form">
                 {% csrf_token %}
@@ -23,7 +23,7 @@
                             name="{{form.email.html_name}}"
                             value="{{form.email.value|default_if_none:''}}"
                             id="{{form.email.id_for_label}}"
-                            placeholder="Введите адресс почты"
+                            placeholder="Введите адрес почты"
                     >
                     {% if form.email.errors %}
                     <div class="input_footer" data-id-error="email">

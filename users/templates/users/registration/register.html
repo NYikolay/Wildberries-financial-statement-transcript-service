@@ -23,7 +23,7 @@
                   value="{{form.email.value|default_if_none:''}}"
                   id="{{form.email.id_for_label}}"
                   required
-                  placeholder="Введите адресс почты"
+                  placeholder="Введите адрес почты"
           >
           {% if form.email.errors %}
           <div class="input_footer" data-id-error="email">
@@ -105,7 +105,7 @@
           </div>
           {% endif %}
         </div>
-        <button type="submit">Зарегестрироваться</button>
+        <button type="submit">Зарегистрироваться</button>
         {% if user_error %}
         <div class="auth__form-error__wrapper">
           <img src="{% static 'images/iconizer-4201973.svg' %}" alt="">

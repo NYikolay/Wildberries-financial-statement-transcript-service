@@ -60,7 +60,21 @@
     display: flex;
     align-items: center;
     flex-direction: column;
-    gap: 4px;
+    gap: 40px;
+}
+
+.resend_email-counter {
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.resend_email-counter.hidden {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.confirm__form-header p {
+    line-height: 17px;
 }
 
 

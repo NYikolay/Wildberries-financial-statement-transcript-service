@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const csrfInput = document.querySelector("[name='csrfmiddlewaretoken']")
     let counter = document.querySelector(".counter")
     const resendButton = document.getElementById("resend_email-btn")
+    const resendEmailCounterText = document.querySelector('.resend_email-counter')
     let jsCounter = 60
 
     function countdownTimer() {
@@ -25,6 +26,11 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(function () {
             resendButton.disabled = false;
             resendButton.style.opacity = '1'
+            resendEmailCounterText.classList.add('hidden')
+            resendEmailCounterText.addEventListener('transitionend', function() {
+                this.remove();
+            });
+
         }, 60000);
 
         timerId = setInterval(countdownTimer, 1000);
