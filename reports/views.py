@@ -1,16 +1,20 @@
+import datetime
+import json
 import logging
 from typing import List, Union
 
+import pandas as pd
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, QuerySet
-from django.http import Http404, JsonResponse, HttpResponseBadRequest
+from django.http import Http404, JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.contrib import messages
 
 from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
 from reports.services.execute_generating_reports_services import get_full_user_report, get_detail_report_by_barcode, \
     get_report_by_barcodes
+from reports.services.generating_export_dataframe import get_barcodes_detail_dataframe
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
@@ -106,12 +110,44 @@ class ReportByBarcodesView(LoginRequiredMixin, View):
         filters_data: dict = get_filters_db_data(current_api_key)
 
         context = {
-            'report_by_barcodes': report_by_barcodes,
+            'report_by_barcodes': json.dumps(report_by_barcodes),
             'filters_data': filters_data,
             'current_filter_data': current_filter_data,
         }
 
         return render(request, 'reports/dashboard_by_barcodes.html', context)
+
+
+class ExportReportByBarcodesView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+
+        if not current_api_key or not current_api_key.is_wb_data_loaded:
+            return render(request, 'reports/empty_dashboard.html')
+
+        try:
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
+        except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Ошибка фильтрации периода')
+            return redirect('reports:dashboard')
+
+        report_by_barcodes = get_report_by_barcodes(request.user, current_api_key, current_filter_data)
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = \
+            f'attachment; filename="barcodes_detail_report_{datetime.datetime.now().strftime("%d.%m.%Y")}.xlsx"'
+
+        report_by_barcodes_df = get_barcodes_detail_dataframe(report_by_barcodes)
+        report_by_barcodes_df.to_excel(response, index=False)
+
+        return response
 
 
 class ReportByBarcodeView(LoginRequiredMixin, View):

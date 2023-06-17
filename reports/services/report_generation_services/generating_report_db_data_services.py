@@ -75,11 +75,11 @@ def get_calculated_financials_by_products(
         total_revenue=Value(total_revenue, output_field=FloatField()),
         total_products_count=Value(total_products_count, output_field=FloatField()),
         **annotations_objs,
-    ).values('nm_id', 'barcode', 'image', 'product_name',
+    ).values('nm_id', 'barcode', 'ts_name', 'image', 'product_name',
              'revenue_by_article', 'share_in_revenue',
              'product_marginality', 'share_in_number',
              'sales_quantity', 'returns_quantity', 'commission', 'penalty_sum',
-             'additional_payment_sum', 'logistic_sum', 'total_payable')
+             'additional_payment_sum', 'logistic_sum', 'total_payable', 'rom')
 
     return calculated_financials
 
