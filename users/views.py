@@ -35,8 +35,9 @@ from users.services.generate_subscriptions_data_service import get_user_subscrip
 from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
 from users.services.generate_last_report_date_service import get_last_report_date
 from users.services.handle_uploaded_netcosts_excel_service import handle_uploaded_net_costs
-from users.services.wb_request_hanling_services.execute_request_data_handling import \
+from users.services.wb_request_handling_services.execute_request_data_handling import \
     execute_wildberries_request_data_handling
+
 from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
 
@@ -565,7 +566,6 @@ class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
         current_api_key.is_active_import = True
         current_api_key.save()
         last_report_date = get_last_report_date(current_api_key)
-
         try:
             report_status = execute_wildberries_request_data_handling(
                 request.user,

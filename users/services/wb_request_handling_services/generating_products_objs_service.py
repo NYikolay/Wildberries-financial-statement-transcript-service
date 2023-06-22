@@ -6,24 +6,12 @@ from django.db import transaction
 from django.core.exceptions import RequestAborted
 
 from users.models import ClientUniqueProduct
-from users.services.wb_request_hanling_services.generating_user_products_data_service import \
+from users.services.wb_request_handling_services.generating_objects_services import get_unique_product_obj
+from users.services.wb_request_handling_services.generating_user_products_data_service import \
     handle_article_additional_data
 
 
 django_logger = logging.getLogger('django_logger')
-
-
-def handle_unique_articles(article_values: dict, api_key):
-    product_name = 'Наименование отсутствет на WB' if not article_values.get('title') else article_values.get('title')
-    brand_name = f"Бренд отсутствует на WB" if not article_values.get('brand') else article_values.get('brand')
-
-    return ClientUniqueProduct(
-        api_key=api_key,
-        nm_id=article_values.get('nm_id'),
-        brand=brand_name,
-        image=article_values.get('img'),
-        product_name=product_name
-    )
 
 
 def generate_user_products(current_user, unique_articles: set, current_api_key) -> None:
@@ -69,7 +57,7 @@ def generate_user_products(current_user, unique_articles: set, current_api_key) 
             raise RequestAborted
 
     for article_data in unique_articles_values:
-        article_obj_list.append(handle_unique_articles(article_data, current_api_key))
+        article_obj_list.append(get_unique_product_obj(article_data, current_api_key))
 
     with transaction.atomic():
 

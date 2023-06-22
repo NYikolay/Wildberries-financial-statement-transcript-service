@@ -13,6 +13,8 @@ from django.core.validators import RegexValidator
 from payments.models import SubscriptionType
 from users.managers import UserManager
 
+from postgres_copy import CopyManager
+
 cyrillic_exclusion = RegexValidator(r'^[^а-яА-Я]*$', 'Символы кириллицы в API ключе недопустимы')
 
 
@@ -294,7 +296,7 @@ class SaleObject(models.Model):
     supplier_oper_name = models.CharField(max_length=125, verbose_name='Обоснование для оплаты')
     rrd_id = models.BigIntegerField('Номер строки', null=True)
     retail_amount = models.FloatField('Сумма продаж (возвратов)')
-    sale_percent = models.IntegerField('Согласованная скидка', null=True)
+    sale_percent = models.FloatField('Согласованная скидка', null=True)
     commission_percent = models.FloatField('Процент комиссии', null=True)
     rr_dt = models.DateTimeField('Дата операции', null=True)
     shk_id = models.BigIntegerField('Штрих-код', null=True)
@@ -327,6 +329,8 @@ class SaleObject(models.Model):
     kiz = models.TextField('Код маркировки', null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания в базе данных')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления в базе данных')
+
+    objects = CopyManager()
 
     class Meta:
         verbose_name = 'Продажа'
