@@ -5,7 +5,7 @@ import pandas as pd
 from django.db import transaction
 
 from users.models import IncorrectReport
-from users.services.wb_request_hanling_services.generating_objects_services import get_incorrect_report_object
+from users.services.wb_request_handling_services.generating_objects_services import get_incorrect_report_object
 
 django_logger = logging.getLogger('django_logger')
 

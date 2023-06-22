@@ -6,8 +6,8 @@ from django.db import transaction
 from django.core.exceptions import RequestAborted
 
 from users.models import ClientUniqueProduct
-from users.services.wb_request_hanling_services.generating_objects_services import get_unique_product_obj
-from users.services.wb_request_hanling_services.generating_user_products_data_service import \
+from users.services.wb_request_handling_services.generating_objects_services import get_unique_product_obj
+from users.services.wb_request_handling_services.generating_user_products_data_service import \
     handle_article_additional_data
 
 

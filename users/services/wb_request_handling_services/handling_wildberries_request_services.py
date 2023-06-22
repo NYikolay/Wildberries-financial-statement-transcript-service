@@ -2,8 +2,8 @@ from typing import List
 
 from users.models import UnloadedReports
 from users.services.decrypt_api_key_service import get_decrypted_key
-from users.services.wb_request_hanling_services.generating_objects_services import get_unloaded_report_object
-from users.services.wb_request_hanling_services.generating_unique_respose_data_services import \
+from users.services.wb_request_handling_services.generating_objects_services import get_unloaded_report_object
+from users.services.wb_request_handling_services.generating_unique_respose_data_services import \
     get_sorted_unique_report_ids
 
 
@@ -81,7 +81,8 @@ def get_filtered_wildberries_response(current_api_key, response: pd.DataFrame) -
     unique_report_ids = get_sorted_unique_report_ids(response)
 
     for_delete_report_ids: List[int] = [unique_report_ids[-1], unique_report_ids[-1] - 1, unique_report_ids[-1] - 2]
-    create_unloaded_report_objects(current_api_key, for_delete_report_ids)
+    for_unload_report_ids = [report_id for report_id in for_delete_report_ids if report_id in unique_report_ids]
+    create_unloaded_report_objects(current_api_key, for_unload_report_ids)
 
     response = response.query('realizationreport_id not in @for_delete_report_ids')
 

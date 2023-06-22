@@ -6,7 +6,7 @@ from users.models import SaleObject
 
 import pandas as pd
 
-from users.services.wb_request_hanling_services.generating_objects_services import get_sale_object
+from users.services.wb_request_handling_services.generating_objects_services import get_sale_object
 
 
 def in_memory_csv(data: List[dict]):
