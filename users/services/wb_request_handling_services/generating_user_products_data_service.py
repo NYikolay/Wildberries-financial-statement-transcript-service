@@ -7,7 +7,7 @@ from fake_headers import Headers
 django_logger = logging.getLogger('django_logger')
 
 
-def send_request_for_card_json(url: str, article: int) -> dict or str:
+def send_request_for_card_json(url: str, article: int) -> dict:
     """
     Sends a request for a json file with data about a specific product
     :param url: Url to send a request to Wildberries (using the requests library)
@@ -24,7 +24,10 @@ def send_request_for_card_json(url: str, article: int) -> dict or str:
             f'Blocking when loading images or the link generation algorithm is outdated. Article - {article}',
         )
 
-        return f'Товар с артикулом {article}'
+        return {
+            'brand': None,
+            'title': f'Товар с артикулом {article}'
+        }
 
     json_response = json.loads(response.text)
     brand_name = json_response.get('selling').get('brand_name')
