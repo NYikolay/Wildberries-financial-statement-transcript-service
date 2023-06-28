@@ -47,7 +47,6 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'config.middleware.MetricsMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware'
 ]
 
@@ -173,7 +172,6 @@ ROBOKASSA_CULTURE = env("ROBOKASSA_CULTURE")
 
 # DJANGO PROMETHEUS
 PROMETHEUS_EXPORT_MIGRATIONS = False
-PROMETHEUS_IP = env("PROMETHEUS_IP")
 
 # LOGGING
 LOGGING = {

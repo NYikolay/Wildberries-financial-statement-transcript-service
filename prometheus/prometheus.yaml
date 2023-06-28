@@ -12,7 +12,4 @@ scrape_configs:
   - job_name: webapp-scraper
     metrics_path: /metrics
     static_configs:
-      - targets:
-          - 'commery_django:8000'
-        labels:
-          app: web
+      - targets: ['web:8000']
