@@ -91,8 +91,8 @@ services:
   grafana:
     image: grafana/grafana:8.5.2
     container_name: commery_grafana
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     volumes:
       - ./grafana/dashboard.yaml:/etc/grafana/provisioning/datasources/dashboard.yaml
       - grafana_data:/var/lib/grafana
