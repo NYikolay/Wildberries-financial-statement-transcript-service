@@ -3,7 +3,7 @@ import socket
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '720e-80-249-91-162.ngrok-free.app']
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "web"]
 
 CSRF_TRUSTED_ORIGINS = ['https://720e-80-249-91-162.ngrok-free.app']
 
