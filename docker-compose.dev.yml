@@ -75,6 +75,7 @@ services:
       - "3000:3000"
     volumes:
       - ./grafana/dashboard.yaml:/etc/grafana/provisioning/datasources/dashboard.yaml
+      - grafana_data:/var/lib/grafana
     depends_on:
       - loki
       - prometheus
@@ -101,6 +102,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
     command: --config.file=/etc/prometheus/prometheus.yaml
 
 
@@ -108,3 +110,5 @@ volumes:
   static_volume:
   media_volume:
   postgres_data:
+  grafana_data:
+  prometheus_data:
