@@ -5,6 +5,5 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     '45.146.165.193',
-    'web'
 ]
 
