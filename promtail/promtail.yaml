@@ -1,0 +1,37 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: django_logs
+    pipeline_stages:
+      - json:
+          expressions:
+            time: timestamp
+            level: level
+            path: pathname
+            function: funcName
+            line_number: lineno
+            message: message
+          source: message
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: django_logs
+          __path__: "/var/log/django_logs.json"
+          app: web
+      - targets:
+          - localhost
+        labels:
+          job: celery_logs
+          __path__: "/var/log/celery_logs.json"
+          app: web
+
+

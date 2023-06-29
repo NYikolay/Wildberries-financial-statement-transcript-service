@@ -12,6 +12,7 @@ from django.http import Http404, JsonResponse, HttpResponseBadRequest, HttpRespo
 from django.contrib import messages
 
 from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
+from reports.services.check_datetime_format_service import check_datetime_format
 from reports.services.execute_generating_reports_services import get_full_user_report, get_detail_report_by_barcode, \
     get_report_by_barcodes
 from reports.services.generating_export_dataframe import get_barcodes_detail_dataframe
@@ -194,6 +195,9 @@ class ReportDetailView(LoginRequiredMixin, View):
     form_class = SaleReportForm
 
     def get(self, request, create_dt):
+        if not check_datetime_format(create_dt):
+            return redirect('users:profile')
+
         reports = SaleReport.objects.filter(
             api_key__is_current=True,
             api_key__user=request.user,

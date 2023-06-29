@@ -14,6 +14,7 @@ from payments.models import SubscriptionType
 from users.managers import UserManager
 
 from postgres_copy import CopyManager
+from django_prometheus.models import ExportModelOperationsMixin
 
 cyrillic_exclusion = RegexValidator(r'^[^а-яА-Я]*$', 'Символы кириллицы в API ключе недопустимы')
 
@@ -24,7 +25,7 @@ class UserRoles(models.TextChoices):
     moderator = 'Moderator'
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(ExportModelOperationsMixin('user'), AbstractBaseUser, PermissionsMixin):
     email = models.EmailField('Email', unique=True, validators=[validators.validate_email])
     first_name = models.CharField('Имя', max_length=30, blank=True)
     last_name = models.CharField('Фамилия', max_length=30, blank=True)
@@ -151,7 +152,7 @@ class UserDiscount(models.Model):
         ]
 
 
-class WBApiKey(models.Model):
+class WBApiKey(ExportModelOperationsMixin('api_key'), models.Model):
     api_key = models.TextField(
         max_length=900,
         verbose_name='API ключ Wildberries',
@@ -180,7 +181,7 @@ class WBApiKey(models.Model):
         ]
 
 
-class TaxRate(models.Model):
+class TaxRate(ExportModelOperationsMixin('tax_rate'), models.Model):
     api_key = models.ForeignKey(
         WBApiKey,
         on_delete=models.CASCADE,
@@ -224,7 +225,7 @@ class ClientUniqueProduct(models.Model):
         ]
 
 
-class NetCost(models.Model):
+class NetCost(ExportModelOperationsMixin('net_cost'), models.Model):
     product = models.ForeignKey(
         ClientUniqueProduct,
         on_delete=models.CASCADE,
@@ -344,7 +345,7 @@ class SaleObject(models.Model):
         return f'Продажа {self.owner.email}, за отчётный период {self.create_dt}'
 
 
-class SaleReport(models.Model):
+class SaleReport(ExportModelOperationsMixin('sale_report'), models.Model):
     api_key = models.ForeignKey(
         WBApiKey,
         on_delete=models.SET_NULL,

@@ -68,9 +68,50 @@ services:
       - redis
       - db
       - web
+  grafana:
+    image: grafana/grafana:8.5.2
+    container_name: commery_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/datasources/dashboard.yaml
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    depends_on:
+      - loki
+      - prometheus
+  promtail:
+    image: grafana/promtail:2.5.0
+    container_name: commery_promtail
+    volumes:
+      - ./promtail/promtail.yaml:/etc/promtail/promtail.yaml
+      - /var/web_logs:/var/log
+    command: --config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - web
+  loki:
+    image: grafana/loki:2.5.0
+    container_name: commery_loki
+    ports:
+      - "3100:3100"
+    depends_on:
+      - promtail
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    container_name: commery_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yaml
 
 
 volumes:
   static_volume:
   media_volume:
   postgres_data:
+  grafana_data:
+  prometheus_data:

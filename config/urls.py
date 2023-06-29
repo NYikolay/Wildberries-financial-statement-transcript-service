@@ -19,6 +19,7 @@ urlpatterns = [
     path('', include('reports.urls', namespace='reports')),
     path('', include('payments.urls', namespace='payments')),
     path('support/', include('support.urls', namespace='support')),
+    path('', include('django_prometheus.urls')),
 ]
 
 

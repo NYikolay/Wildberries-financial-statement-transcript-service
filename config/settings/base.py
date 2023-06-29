@@ -34,9 +34,11 @@ INSTALLED_APPS = [
     'django_otp',
     'django_celery_beat',
     'django_otp.plugins.otp_totp',
+    'django_prometheus'
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -45,6 +47,7 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -79,7 +82,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django_prometheus.db.backends.postgresql',
         'NAME': env("DB_NAME"),
         'USER': env("DB_USER"),
         'PASSWORD': env("DB_PASSWORD"),
@@ -166,6 +169,9 @@ ROBOKASSA_TARGET_URL = 'https://auth.robokassa.ru/Merchant/Index/'
 ROBOKASSA_TARGET_JSON_URL = 'https://auth.robokassa.ru/Merchant/Indexjson.aspx?'
 ROBOKASSA_CULTURE = env("ROBOKASSA_CULTURE")
 
+
+# DJANGO PROMETHEUS
+PROMETHEUS_EXPORT_MIGRATIONS = False
 
 # LOGGING
 LOGGING = {
