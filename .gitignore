@@ -68,6 +68,9 @@ cover/
 # Translations
 *.mo
 
+# Nginx
+.htpasswd
+
 # Django stuff:
 
 # Flask stuff:
