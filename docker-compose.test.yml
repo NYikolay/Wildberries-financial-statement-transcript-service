@@ -91,6 +91,7 @@ services:
   grafana:
     image: grafana/grafana:8.5.2
     container_name: commery_grafana
+    restart: always
     expose:
       - "3000"
     volumes:
@@ -107,6 +108,7 @@ services:
   promtail:
     image: grafana/promtail:2.5.0
     container_name: commery_promtail
+    restart: always
     volumes:
       - ./promtail/promtail.yaml:/etc/promtail/promtail.yaml
       - /var/web_logs:/var/log
@@ -116,6 +118,7 @@ services:
   loki:
     image: grafana/loki:2.5.0
     container_name: commery_loki
+    restart: always
     expose:
       - "3100"
     depends_on:
@@ -123,6 +126,7 @@ services:
   prometheus:
     image: prom/prometheus:v2.35.0
     container_name: commery_prometheus
+    restart: always
     expose:
       - "9090"
     volumes:
