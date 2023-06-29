@@ -11,5 +11,6 @@ scrape_configs:
 
   - job_name: webapp-scraper
     metrics_path: /metrics
+    scheme: https
     static_configs:
       - targets: ['web:8000']
