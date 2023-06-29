@@ -97,8 +97,10 @@ services:
       - ./grafana/dashboard.yaml:/etc/grafana/provisioning/datasources/dashboard.yaml
       - grafana_data:/var/lib/grafana
     environment:
-      - GF_SERVER_DOMAIN=45.146.165.193
-      - GF_SERVER_ROOT_URL=http://45.146.165.193/grafana/
+      - GF_SERVER_DOMAIN=${GF_SERVER_DOMAIN}
+      - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
     depends_on:
       - loki
       - prometheus
