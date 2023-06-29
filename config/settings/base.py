@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django_otp',
     'django_celery_beat',
     'django_otp.plugins.otp_totp',
-    'django_prometheus'
+    'django_prometheus',
 ]
 
 MIDDLEWARE = [
