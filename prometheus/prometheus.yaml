@@ -14,5 +14,7 @@ scrape_configs:
     scheme: https
     tls_config:
       insecure_skip_verify: true
+    scrape_interval: 5m
+    scrape_timeout: 1m
     static_configs:
       - targets: ['web:8000']
