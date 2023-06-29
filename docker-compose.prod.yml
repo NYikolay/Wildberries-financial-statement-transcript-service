@@ -147,3 +147,5 @@ volumes:
   static_volume:
   media_volume:
   postgres_data:
+  grafana_data:
+  prometheus_data:
