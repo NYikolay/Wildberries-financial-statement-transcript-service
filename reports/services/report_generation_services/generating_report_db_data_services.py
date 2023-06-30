@@ -79,7 +79,7 @@ def get_calculated_financials_by_products(
              'revenue_by_article', 'share_in_revenue',
              'product_marginality', 'share_in_number',
              'sales_quantity', 'returns_quantity', 'commission', 'penalty_sum',
-             'additional_payment_sum', 'logistic_sum', 'total_payable', 'rom')
+             'additional_payment_sum', 'logistic_sum', 'total_payable', 'rom', 'net_costs_sum')
 
     return calculated_financials
 
