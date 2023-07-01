@@ -162,7 +162,9 @@ def get_share_in_number_formula_annotation_obj():
 def get_total_payable_formula_annotation_obj():
     total_payable_annotation_obj = Coalesce(
         ExpressionWrapper(
-            F('interim_revenue') - F('commission') - F('logistic_sum') - F('penalty_sum') - F('additional_payment_sum'),
+            F('interim_revenue') - F('commission') -
+            F('logistic_sum') - F('penalty_sum') -
+            F('additional_payment_sum') - F('net_costs_sum'),
             output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()
@@ -173,7 +175,7 @@ def get_total_payable_formula_annotation_obj():
 
 def get_rom_formula_annotation_obj():
     rom_annotations_obj = Coalesce(Case(
-        When(net_costs_sum__gt=0, then=(((F('total_payable') - F('net_costs_sum')) / F('net_costs_sum')) * 100)),
+        When(net_costs_sum__gt=0, then=((F('total_payable') / F('net_costs_sum')) * 100)),
         default=Value(0.0), output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()

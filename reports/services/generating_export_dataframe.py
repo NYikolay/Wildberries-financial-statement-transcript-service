@@ -28,8 +28,9 @@ def get_barcodes_detail_dataframe(report_by_barcodes):
             'sales_quantity': 'Продажи',
             'returns_quantity': 'Возвраты',
             'commission': 'Комиссия',
-            'total_payable': 'Итого к оплате',
-            'rom': 'ROM'
+            'net_costs_sum': 'Себестоиомсть продаж',
+            'total_payable': 'Валовая прибыль',
+            'rom': 'ROM',
         }, inplace=True
     )
 
