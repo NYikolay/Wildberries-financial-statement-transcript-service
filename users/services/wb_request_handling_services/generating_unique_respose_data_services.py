@@ -32,4 +32,6 @@ def get_unique_nm_ids(data_frame: pd.DataFrame) -> np.ndarray:
     # Getting the unique_nm_ids as an array
     unique_nm_ids: np.ndarray = df['nm_id'].unique()
 
+    unique_nm_ids = unique_nm_ids.astype(int)
+
     return unique_nm_ids
