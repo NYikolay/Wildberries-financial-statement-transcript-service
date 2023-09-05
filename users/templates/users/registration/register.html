@@ -71,6 +71,7 @@
           <input
                   type="tel"
                   data-id="phone"
+                  value="{{form.phone.value|default_if_none:''}}"
                   {% if form.phone.errors %} class="input_error" {% endif %}
                   name="{{form.phone.html_name}}"
                   id="{{form.phone.id_for_label}}"
@@ -80,6 +81,22 @@
           {% if form.phone.errors %}
           <div class="input_footer" data-id-error="phone">
             {{ form.phone.errors }}
+          </div>
+          {% endif %}
+        </div>
+                <div class="input__item">
+          <input
+                  type="text"
+                  data-id="promocode"
+                  {% if form.promocode.errors %} class="input_error" {% endif %}
+                  name="{{form.promocode.html_name}}"
+                  value="{{form.promocode.value|default_if_none:''}}"
+                  id="{{form.promocode.id_for_label}}"
+                  placeholder="Промокод"
+          >
+          {% if form.promocode.errors %}
+          <div class="input_footer" data-id-error="promocode">
+            {{ form.promocode.errors }}
           </div>
           {% endif %}
         </div>

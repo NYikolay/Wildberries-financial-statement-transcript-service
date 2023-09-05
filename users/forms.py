@@ -21,6 +21,10 @@ class UserRegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["email", 'is_accepted_terms_of_offer', 'phone', "password1", "password2"]
+        
+    def __init__(self, *args, **kwargs):
+        super(UserRegisterForm, self).__init__(*args, **kwargs)
+        self.fields["promocode"] = forms.CharField(required=False)
 
 
 class PasswordResetEmailForm(forms.Form):

@@ -1,6 +1,8 @@
 import time
+from datetime import datetime, time as date_time
 import logging
 import pytz
+from dateutil.relativedelta import relativedelta
 from datetime import date, datetime
 from urllib.parse import urlencode
 
@@ -28,7 +30,8 @@ from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
                          LoadNetCostsFileForm)
 from users.mixins import SubscriptionRequiredMixin
-from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport
+from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport, Promocode, \
+    UserDiscount
 from users.services.encrypt_api_key_service import get_encrypted_key
 from users.services.generate_email_data import get_email_data
 from users.services.generate_subscriptions_data_service import get_user_subscriptions_data
@@ -56,9 +59,30 @@ class RegisterPageView(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        promocode_val = form.cleaned_data['promocode']
+        promocode = None
+
+        if promocode_val:
+            promocode = Promocode.objects.filter(value=promocode_val).first()
+            if not promocode:
+                form.add_error('promocode', 'Указанный промокод не существует')
+
+                return render(self.request, self.template_name, {"form": form})
+
         user = form.save(commit=False)
         user.is_active = False
+        user.promocode = promocode
         user.save()
+
+        if promocode:
+            current_date = datetime.now()
+            discount_to = current_date + relativedelta(months=6)
+            UserDiscount.objects.create(
+                user=user,
+                percent=promocode.discount_percent,
+                is_active=True,
+                expiration_date=datetime.combine(discount_to, date_time.max)
+            )
 
         current_site = get_current_site(self.request)
         email_data = get_email_data(user, current_site.domain)

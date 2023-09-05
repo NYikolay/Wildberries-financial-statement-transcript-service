@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from users.models import (User, WBApiKey, SaleObject,
                           ClientUniqueProduct, NetCost, SaleReport, TaxRate,
-                          IncorrectReport, UnloadedReports, UserSubscription, UserDiscount, Order)
+                          IncorrectReport, UnloadedReports, UserSubscription, UserDiscount, Order, Promocode)
 
 
 admin.site.register(NetCost)
@@ -12,6 +12,7 @@ admin.site.register(TaxRate)
 admin.site.register(IncorrectReport)
 admin.site.register(UnloadedReports)
 admin.site.register(UserDiscount)
+admin.site.register(Promocode)
 
 
 @admin.register(User)
