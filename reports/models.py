@@ -18,6 +18,5 @@ class GeneralInformationObj(models.Model):
         verbose_name = 'Сообщение для пользователей'
         verbose_name_plural = 'Сообщения для пользователей'
         constraints = [
-            UniqueConstraint(fields=['info_type', 'is_active'], condition=Q(is_active=True),
-                             name='unique_is_active'),
+            UniqueConstraint(fields=['info_type', 'is_active'], condition=Q(is_active=True), name='unique_is_active'),
         ]

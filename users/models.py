@@ -32,6 +32,14 @@ class User(ExportModelOperationsMixin('user'), AbstractBaseUser, PermissionsMixi
     date_joined = models.DateTimeField('Дата регистрации', auto_now_add=True)
     phone = models.CharField(max_length=18, blank=True, verbose_name='Контактный номер телефона')
     is_accepted_terms_of_offer = models.BooleanField('Согласен ли с условиями Оферты')
+    promocode = models.ForeignKey(
+        'Promocode',
+        on_delete=models.SET_NULL,
+        related_name='users',
+        null=True,
+        blank=True,
+        verbose_name='Промокод'
+    )
     role = models.CharField(
         max_length=9,
         choices=UserRoles.choices,
@@ -59,6 +67,21 @@ class User(ExportModelOperationsMixin('user'), AbstractBaseUser, PermissionsMixi
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class Promocode(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="promocodes", verbose_name='Владелец')
+    value = models.CharField(max_length=65, unique=True, verbose_name="Значение промокода")
+    discount_percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания промокода')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Промокод пользователя - {self.owner.email}"
+
+    class Meta:
+        verbose_name = 'Промокод'
+        verbose_name_plural = 'Промокоды'
 
 
 class Order(models.Model):
