@@ -590,6 +590,7 @@ class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
         current_api_key.is_active_import = True
         current_api_key.save()
         last_report_date = get_last_report_date(current_api_key)
+
         try:
             report_status = execute_wildberries_request_data_handling(
                 request.user,

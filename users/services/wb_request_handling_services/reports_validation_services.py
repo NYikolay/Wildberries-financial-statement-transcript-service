@@ -69,7 +69,6 @@ def check_additional_conditions(row: pd.Series) -> bool:
         pd.notna(subject_name),
         pd.notna(nm_id),
         pd.notna(ts_name),
-        pd.notna(doc_type_name),
         pd.isna(brand_name),
         pd.notna(quantity),
         pd.notna(retail_amount),

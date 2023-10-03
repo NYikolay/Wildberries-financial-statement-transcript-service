@@ -303,7 +303,7 @@ class SaleObject(models.Model):
     sa_name = models.CharField(max_length=65, verbose_name='Артикул поставщика', null=True)
     ts_name = models.CharField(max_length=65, verbose_name='Размер', null=True)
     barcode = models.CharField(max_length=125, verbose_name='Бар-код')
-    doc_type_name = models.CharField(max_length=65, verbose_name='Тип документа')
+    doc_type_name = models.CharField(max_length=65, verbose_name='Тип документа', null=True)
     order_dt = models.DateTimeField('Дата заказа', null=True)
     sale_dt = models.DateTimeField('Дата продажи', null=True)
     quantity = models.IntegerField('Количество')
