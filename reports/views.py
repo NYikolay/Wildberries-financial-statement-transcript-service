@@ -330,3 +330,10 @@ class EmptyReportsView(LoginRequiredMixin, View):
                     api_key=current_api_key).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d'))
 
         return render(request, 'reports/empty_reports.html')
+
+
+class DemoDashboardView(View):
+
+    def get(self, request):
+
+        return render(request, '')

@@ -29,41 +29,19 @@
     <!-- /Yandex.Metrika counter -->
 
     <!-- Styles -->
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     {% block styles %}
     {% endblock %}
 </head>
 
 <body>
-<div class="wrapper">
-    <header class="header">
-        {% include 'includes/header.html'%}
-    </header>
-    <div class="subheader">
-        {% include 'includes/subheader.html' %}
-    </div>
-    <section class="main">
-        {% block content %}
-        {% endblock %}
-    </section>
-    <footer class="footer">
-        {% include 'includes/footer.html' %}
-    </footer>
-</div>
-
-<div class="messages-wrapper">
-    {% include 'includes/messages.html' %}
-</div>
-
-{% url 'reports:dashboard' as url %}
-{% if request.path == url %}
-<div class="barcode__detail-wrapper">
-    {% include 'includes/barcode_detail.html' %}
-</div>
-<script src="{% static 'reports/js/barcode_detail.js' %}"></script>
-{% endif %}
-
-<script src="{% static 'js/messages.js' %}"></script>
+    <main>
+        <aside>
+            asdasd
+        </aside>
+        <section class="section__main">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
 </body>
 </html>
