@@ -1,68 +1,56 @@
-{% extends 'users/base/auth_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block title %} Авторизация - Commery{% endblock %}
 {% block content %}
-<div class="auth_wrapper">
-    <div class="auth__container">
-        <div class="auth__logo-wrapper">
-            <img src="{% static 'images/logo_text.png' %}" alt="">
-        </div>
-        <div class="auth__form-wrapper">
-            <div class="auth__form-wrapper__header">
-                <h1>Авторизация</h1>
-                <p>Пожалуйста, введите e-mail адрес и пароль</p>
-            </div>
-            <form action="." method="post" class="auth_form">
-                {% csrf_token %}
-                <div class="input__item">
-                    <input
-                            type="email"
-                            data-id="email"
-                            {% if form.email.errors %} class="input_error" {% endif %}
-                            required
-                            name="{{form.email.html_name}}"
-                            value="{{form.email.value|default_if_none:''}}"
-                            id="{{form.email.id_for_label}}"
-                            placeholder="Введите адрес почты"
-                    >
+<div class="wrapper_first">
+    <div class="unauthorized_header">
+        <ul class="header-nav">
+            {% url 'users:login' as url %}
+            <li><a href="{{ url }}" class="{% if request.path == url %} active_link {% endif %}">Авторизация</a></li>
+            {% url 'users:register' as url %}
+            <li><a href="{{ url }}" class="{% if request.path == url %} active_link {% endif %}">Регистрация</a></li>
+            {% url 'users:password_reset' as url %}
+            <li><a href="{{ url }}" class="{% if request.path == url %} active_link {% endif %}">Сброс пароля</a></li>
+        </ul>
+    </div>
+
+    <div class="form-wrapper">
+        <form action="." method="post" class="common-form">
+            {% csrf_token %}
+            <h1>Введите email и пароль, указанные при регистрации</h1>
+            <div class="form-items">
+                <div class="form__item {% if form.email.errors %} input__item-error {% endif %}">
+                    {{ form.email }}
+                    {{ form.email.label_tag }}
                     {% if form.email.errors %}
-                    <div class="input_footer" data-id-error="email">
+                    <div class="form__item-error" data-id-error="email">
                         {{ form.email.errors }}
                     </div>
                     {% endif %}
                 </div>
-                <div class="input__item">
-                    <input
-                            type="password"
-                            data-id="password"
-                            {% if form.password.errors %} class="input_error" {% endif %}
-                            name="{{form.password.html_name}}"
-                            id="{{form.password.id_for_label}}"
-                            required
-                            placeholder="Введите пароль"
-                    >
+                <div class="form__item {% if form.password.errors %} input__item-error {% endif %}">
+                    {{ form.password }}
+                    {{ form.password.label_tag }}
                     {% if form.password.errors %}
-                    <div class="input_footer" data-id-error="password">
+                    <div class="form__item-error" data-id-error="password">
                         {{ form.password.errors }}
                     </div>
                     {% endif %}
                 </div>
-                <button type="submit">Авторизоваться</button>
-                {% if user_error %}
-                <div class="auth__form-error__wrapper">
-                    <img src="{% static 'images/iconizer-4201973.svg' %}" alt="">
-                    <p>{{ user_error }}</p>
-                </div>
-                {% endif %}
-            </form>
-        </div>
-        <div class="auth__form-help__wrapper">
-            <h2 class="auth__help-text">Забыли пароль? <a class="auth__help-link" href="{% url 'users:password_reset' %}">Сбросить пароль</a></h2>
-            <h2 class="auth__help-text">Нет аккаунта? <a class="auth__help-link" href="{% url 'users:register' %}">Зарегистрироваться</a></h2>
-            <h2 class="auth__help-text">Возникли трудности? <a class="auth__help-link" target="_blank" href="https://t.me/c/1877551793/156">Поддержка</a></h2>
-        </div>
+            </div>
+            <div class="form_buttons">
+                <button class="form__accent-button" type="submit">Зарегестрироваться</button>
+                <a href="{% url 'users:password_reset' %}" class="medium-link">Сбросить пароль</a>
+            </div>
+        </form>
     </div>
+    <a class="footer__support-item">
+        <svg width="19" height="19" viewBox="0 0 19 19" xmlns="http://www.w3.org/2000/svg">
+            <path class="img-svg" fill-rule="evenodd" clip-rule="evenodd" d="M5.32966 2.13807C7.73609 0.0775237 11.2924 0.077641 13.6937 2.14645C15.0673 3.32987 15.9132 5.00118 16.063 6.79286H16.4023C17.837 6.79286 19 7.95585 19 9.39051V10.9491C19 12.4042 17.8204 13.5839 16.3652 13.5839H15.7344C15.345 13.5839 15.0293 13.2682 15.0293 12.8788V12.3222H15.0108V7.36721C15.0108 5.67483 14.2734 4.0664 12.9913 2.96176C10.9939 1.24093 8.03336 1.23977 6.02961 2.95551C4.73625 4.06299 3.98925 5.68288 3.98925 7.38492V12.3222H3.9707V12.8788C3.9707 13.2682 3.65503 13.5839 3.26562 13.5839H2.63477C1.17962 13.5839 0 12.4042 0 10.9491V9.39051C0 7.95585 1.16301 6.79286 2.59766 6.79286H2.93857C3.0935 4.99621 3.94875 3.32051 5.32966 2.13807ZM7.57031 17.2948C7.57031 16.639 8.10198 16.1073 8.75781 16.1073H10.2422C10.898 16.1073 11.4297 16.639 11.4297 17.2948C11.4297 17.9506 10.898 18.4823 10.2422 18.4823H8.75781C8.10198 18.4823 7.57031 17.9506 7.57031 17.2948ZM5.90777 17.5917H6.93945V16.9608H5.90777C4.40337 16.9608 3.18383 15.7413 3.18383 14.2369H2.55297C2.55297 16.0897 4.05496 17.5917 5.90777 17.5917Z" fill="#5C659D"/>
+        </svg>
+        <p>Поддержка</p>
+    </a>
 </div>
 
-<script src="{% static 'js/messages.js' %}"></script>
+<script src="{% static 'js/handleInputsValidation.js' %}"></script>
 {% endblock %}

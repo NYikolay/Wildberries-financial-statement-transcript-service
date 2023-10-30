@@ -30,18 +30,24 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     {% block styles %}
     {% endblock %}
 </head>
 
 <body>
+<div class="container">
+    <!-- Sidebar Section -->
+    {% include "includes/aside.html" %}
+    <!-- End of Sidebar Section -->
+
+    <!-- Main Content -->
     <main>
-        <aside>
-            asdasd
-        </aside>
-        <section class="section__main">
-            {% block content %}{% endblock %}
-        </section>
+        {% block content %}{% endblock %}
     </main>
+</div>
+
+<script src="{% static 'js/base.js' %}"></script>
 </body>
 </html>

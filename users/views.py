@@ -30,10 +30,9 @@ from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
                          LoadNetCostsFileForm)
 from users.mixins import SubscriptionRequiredMixin
-from users.models import User, WBApiKey, SaleReport, ClientUniqueProduct, TaxRate, NetCost, IncorrectReport, Promocode, \
-    UserDiscount
+from users.models import User, WBApiKey, ClientUniqueProduct, TaxRate, NetCost, UserDiscount
 from users.services.encrypt_api_key_service import get_encrypted_key
-from users.services.generate_email_data import get_email_data
+from users.services.email_services import send_email
 from users.services.generate_subscriptions_data_service import get_user_subscriptions_data
 from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
 from users.services.generate_last_report_date_service import get_last_report_date
@@ -53,43 +52,33 @@ class RegisterPageView(CreateView):
     model = User
     success_url = reverse_lazy('users:email_confirmation_info')
     template_name = 'users/registration/register.html'
+    activate_email_template_name = 'users/profile/password/password_reset_email.html'
+    mail_subject = 'Подтверждение email на commery.ru'
 
     @redirect_authenticated_user
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        promocode_val = form.cleaned_data['promocode']
-        promocode = None
-
-        if promocode_val:
-            promocode = Promocode.objects.filter(value=promocode_val).first()
-            if not promocode:
-                form.add_error('promocode', 'Указанный промокод не существует')
-
-                return render(self.request, self.template_name, {"form": form})
-
+        promo_code = form.cleaned_data['promo_code']
         user = form.save(commit=False)
         user.is_active = False
-        user.promocode = promocode
+        user.promocode = promo_code
         user.save()
 
-        if promocode:
+        if promo_code:
             current_date = datetime.now()
             discount_to = current_date + relativedelta(months=6)
             UserDiscount.objects.create(
                 user=user,
-                percent=promocode.discount_percent,
+                percent=promo_code.discount_percent,
                 is_active=True,
                 expiration_date=datetime.combine(discount_to, date_time.max)
             )
 
         current_site = get_current_site(self.request)
-        email_data = get_email_data(user, current_site.domain)
-        send_email_verification.delay(
-            email_data.get('mail_message'),
-            form.cleaned_data['email'],
-            email_data.get('mail_subject')
+        send_email(
+            user, current_site.domain, form.cleaned_data['email'], self.activate_email_template_name, self.mail_subject
         )
 
         self.request.session['new_email'] = form.cleaned_data['email']
@@ -199,6 +188,8 @@ class ConfirmEmailPageView(View):
 class LoginPageView(View):
     template_name = 'users/authentication/login.html'
     form_class = LoginForm
+    activate_email_template_name = 'users/profile/password/password_reset_email.html'
+    mail_subject = 'Подтверждение email на commery.ru'
 
     @redirect_authenticated_user
     def dispatch(self, *args, **kwargs):
@@ -214,20 +205,13 @@ class LoginPageView(View):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            user = User.objects.filter(email=form.cleaned_data['email']).first()
+            user = form.cleaned_data['user']
 
-            if not user or not user.check_password(form.cleaned_data['password']):
-
-                context = {'form': form, 'user_error': 'Введён неверный пароль или почта'}
-                return render(request, self.template_name, context=context)
-            elif not user.is_active:
-
+            if not user.is_active:
                 current_site = get_current_site(self.request)
-                email_data = get_email_data(user, current_site.domain)
-                send_email_verification.delay(
-                    email_data.get('mail_message'),
-                    form.cleaned_data['email'],
-                    email_data.get('mail_subject')
+                send_email(
+                    user, current_site.domain, form.cleaned_data['email'], self.activate_email_template_name,
+                    self.mail_subject
                 )
 
                 self.request.session['new_email'] = form.cleaned_data['email']
@@ -322,52 +306,43 @@ class ChangePasswordView(LoginRequiredMixin, View):
 
 class PasswordResetView(View):
     form_class = PasswordResetEmailForm
+    template_name = 'users/profile/password/password_reset_form.html'
+    reset_email_template_name = 'users/profile/password/password_reset_email.html'
+    mail_subject = 'Подтверждение сброса пароля'
 
     @redirect_authenticated_user
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        return render(request, 'users/profile/password/password_reset_form.html', context={'form': self.form_class()})
+        return render(request, self.template_name, context={'form': self.form_class()})
 
     def post(self, request):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            try:
-                user = User.objects.get(email=form.cleaned_data['email'])
-            except Exception as err:
-                form.add_error('email', 'Аккаунта с такой почтой не существует')
-                return render(request, 'users/profile/password/password_reset_form.html', context={'form': form})
-
+            user = form.cleaned_data['user']
             current_site = get_current_site(self.request)
-            reset_message = render_to_string('users/profile/password/password_reset_email.html', {
-                'user': user,
-                'protocol': 'https',
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': password_reset_token.make_token(user),
-            })
-            mail_subject = 'Подтверждение сброса пароля'
-
-            send_email_verification.delay(reset_message, form.cleaned_data['email'], mail_subject)
-
+            send_email(
+                user,
+                current_site.domain,
+                form.cleaned_data['email'],
+                self.reset_email_template_name,
+                self.mail_subject
+            )
             return redirect('users:password_reset_done')
-        return render(request, 'users/profile/password/password_reset_form.html', context={'form': form})
+
+        return render(request, self.template_name, context={'form': form})
 
 
 class PasswordResetConfirmView(View):
     form_class = UserPasswordResetForm
 
-    @redirect_authenticated_user
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get(self, request, token, uidb64):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = get_object_or_404(User, pk=uid)
-        except(TypeError, ValueError, OverflowError):
+        except (TypeError, ValueError, OverflowError):
             user = None
 
         if user is not None and password_reset_token.check_token(user, token):
