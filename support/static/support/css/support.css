@@ -1,0 +1,17 @@
+.support-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.support-list a {
+    color: var(--var-font-primary-color);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 189px;
+    padding: 11px 20px 11px 20px;
+    border-radius: 7px;
+    border: 1px solid var(--var-border-color);
+    background: linear-gradient(90deg, #32396B 0%, #262D56 100%), linear-gradient(0deg, #424B80, #424B80);
+}

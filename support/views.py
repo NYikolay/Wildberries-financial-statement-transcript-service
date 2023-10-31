@@ -9,6 +9,13 @@ from support.tasks import send_user_report_to_chat
 from users.tasks import send_email_verification
 
 
+class SupportInfoPage(View):
+    template_name = "support/support.html"
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+
 class SupportRequestView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'

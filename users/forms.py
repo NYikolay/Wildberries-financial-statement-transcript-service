@@ -20,6 +20,7 @@ class LoginForm(forms.Form):
         }))
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'password'}),
+        label="Пароль",
         required=True
     )
 
@@ -116,24 +117,12 @@ class PasswordResetEmailForm(forms.Form):
 
 class UserPasswordResetForm(SetPasswordForm):
     new_password1 = forms.CharField(
-        label='',
-        widget=forms.PasswordInput(
-            attrs={
-                "autocomplete": "new-password",
-                "placeholder": "Введите пароль",
-                "class": 'password_reset-input'
-            }),
-        strip=False,
+        label='Пароль',
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password1'}),
     )
     new_password2 = forms.CharField(
-        label='',
-        strip=False,
-        widget=forms.PasswordInput(
-            attrs={
-                "autocomplete": "new-password",
-                "placeholder": "Повторите пароль",
-                "class": 'password_reset-input'
-            }),
+        label='Повторите пароль',
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password2'})
     )
 
 
@@ -180,26 +169,38 @@ class ChangeUserDataForm(forms.ModelForm):
 
 
 class ChangeUserPasswordForm(forms.Form):
-    old_password = forms.CharField(widget=forms.PasswordInput(), required=True)
-    new_password = forms.CharField(widget=forms.PasswordInput(), required=True)
-    reenter_password = forms.CharField(widget=forms.PasswordInput(), required=True)
+    old_password = forms.CharField(
+        label='Старый пароль',
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'old_password'}),
+        required=True
+    )
+    new_password = forms.CharField(
+        label='Новый пароль',
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password'}),
+        required=True
+    )
+    reenter_password = forms.CharField(
+        label='Повтор нового пароля',
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'reenter_password'}),
+        required=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
-        if len(self.cleaned_data['new_password']) < 8:
-            raise ValidationError(
-                ngettext(
-                    "Пароль должен содержать минимум %(min_length)d символов.",
-                    "Пароль должен содержать минимум %(min_length)d символов.",
-                    8
-                ),
-                code='password_too_short',
-                params={'min_length': 8},
-            )
+        cleaned_data = super().clean()
+        new_password = cleaned_data['new_password']
 
-        if self.cleaned_data['new_password'] != self.cleaned_data['reenter_password']:
-            raise ValidationError('Пароли не совпадают!')
+        if len(new_password) < 8:
+            self.add_error("new_password", "Пароль должен содержать минимум 8 символов.")
 
-        return self.cleaned_data
+        if new_password != self.cleaned_data['reenter_password']:
+            self.add_error("reenter_password", "Пароли не совпадают.")
+
+        if not self.user.check_password(cleaned_data['old_password']):
+            self.add_error("old_password", "Старый пароль введён неверно.")
 
 
 class LoadNetCostsFileForm(forms.Form):

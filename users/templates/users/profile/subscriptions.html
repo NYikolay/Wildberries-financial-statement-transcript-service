@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Подписка - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'users/css/subscriptions.css' %}">
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+{% endblock %}
+{% block content %}
+<div class="wrapper_first">
+    {% include 'includes/profile_header.html' %}
+    <div class="subscriptions-container">
+        {% if current_subscription %}
+        <div class="subscription_item">
+            <div class="common__content-wrapper active-border">
+                <div class="common__content-container">
+                    <h1>Текущая</h1>
+                    <div class="subscription-description">
+                        <ul class="subscription__description-list">
+                            <li><p>Тариф: {% if current_subscription.type == 'Test' %} Пробный {% else %} {{ current_subscription.duration }} {{ current_subscription.duration_desc }} {% endif %}</p></li>
+                            <li><p>Стоимость: {{ current_subscription.cost|floatformat:"-3g" }} руб. ({{ current_subscription.cost_for_week|floatformat:"-3g" }} руб./неделя)</p></li>
+                            <li><p>Скидка: {% if current_subscription.type == 'Test' %} 100% {% else %} {{ current_subscription.build_in_discount|floatformat:"0" }}% {% endif %}</p></li>
+                            <li><p>Описание: полный функционал сервиса</p></li>
+                        </ul>
+                        <div class="subscription__description_duration">
+                            <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="7" height="7" rx="3.5" fill="#36D04F"/>
+                            </svg>
+                            <p>Действует до {{ current_subscription.subscribed_to|date:"d.m.Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="subscription_item">
+            <div class="common__content-wrapper active-border">
+                <div class="common__content-container">
+                    <h1>Текущая</h1>
+                    <div class="subscription-description">
+                        <div class="subscription__description_duration">
+                            <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
+                            </svg>
+                            <p>Закончилась</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% for subscription in subscriptions %}
+        <div class="subscription_item">
+            <div class="common__content-wrapper {% if subscription.duration == 3 %}gradient-border {% else %} primary-border {% endif %}">
+                <div class="common__content-container">
+                    <h1>{{ subscription.duration }} {{ subscription.duration_desc }}</h1>
+                    <div class="subscription-description">
+                        <ul class="subscription__description-list">
+                            <li><p>Стоимость: {{ subscription.cost|floatformat:"-3g" }} руб. ({{ subscription.cost_for_week|floatformat:"-3g" }} руб./неделя)</p></li>
+                            <li><p>Скидка: {{ subscription.build_in_discount|floatformat:"0" }}%</p></li>
+                            <li><p>Описание: полный функционал сервиса</p></li>
+                        </ul>
+                        <form action="{% url 'payments:generate_robokassa_redirection' %}" method="post">
+                            {% csrf_token %}
+                            {{ subscription.form.as_p }}
+                            <div class="form_buttons">
+                                <button class="form__accent-button" type="submit">Купить</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="{% static 'js/handleInputsValidation.js' %}"></script>
+{% endblock %}

@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, time as date_time
+from datetime import time as date_time
 import logging
 import pytz
 from dateutil.relativedelta import relativedelta
@@ -17,8 +17,7 @@ from django.views.generic import View, CreateView
 from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
@@ -40,7 +39,6 @@ from users.services.handle_uploaded_netcosts_excel_service import handle_uploade
 from users.services.wb_request_handling_services.execute_request_data_handling import \
     execute_wildberries_request_data_handling
 
-from users.tasks import send_email_verification
 from users.token import account_activation_token, password_reset_token
 
 
@@ -52,7 +50,7 @@ class RegisterPageView(CreateView):
     model = User
     success_url = reverse_lazy('users:email_confirmation_info')
     template_name = 'users/registration/register.html'
-    activate_email_template_name = 'users/profile/password/password_reset_email.html'
+    activate_email_template_name = 'users/registration/account_activation.html'
     mail_subject = 'Подтверждение email на commery.ru'
 
     @redirect_authenticated_user
@@ -60,7 +58,7 @@ class RegisterPageView(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        promo_code = form.cleaned_data['promo_code']
+        promo_code = form.cleaned_data.get('promo_code')
         user = form.save(commit=False)
         user.is_active = False
         user.promocode = promo_code
@@ -88,6 +86,7 @@ class RegisterPageView(CreateView):
 
 
 class ConfirmRegistrationView(View):
+    login_url = 'users:login'
 
     @redirect_authenticated_user
     def dispatch(self, request, *args, **kwargs):
@@ -97,7 +96,7 @@ class ConfirmRegistrationView(View):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = get_object_or_404(User, pk=uid)
-        except(TypeError, ValueError, OverflowError, ObjectDoesNotExist):
+        except (TypeError, ValueError, OverflowError, ObjectDoesNotExist):
             user = None
 
         if user is not None and account_activation_token.check_token(user, token):
@@ -119,13 +118,16 @@ class ConfirmRegistrationView(View):
                     exc_info=err)
 
             messages.success(request, 'Благодарим за подтверждение почты. Вы можете войти в свой аккаунт')
-            return redirect('users:login')
+            return redirect(self.login_url)
 
         messages.error(request, 'Ссылка повреждена или более недействительна')
-        return redirect('users:login')
+        return redirect(self.login_url)
 
 
 class ConfirmEmailPageView(View):
+    template_name = 'users/registration/confirm_email.html'
+    activate_email_template_name = 'users/registration/account_activation.html'
+    mail_subject = 'Подтверждение email на commery.ru'
 
     @redirect_authenticated_user
     def dispatch(self, request, *args, **kwargs):
@@ -139,56 +141,37 @@ class ConfirmEmailPageView(View):
             return redirect('users:login')
 
         context = {'email': new_email}
-        return render(request, 'users/registration/confirm_email.html', context=context)
+        return render(request, self.template_name, context=context)
 
     def post(self, request):
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        if is_ajax:
-            try:
-                user = User.objects.get(email=request.session.get('new_email'), is_active=False)
-            except Exception as err:
-                return JsonResponse(
-                    {
-                        'status': False,
-                        'message': 'Отсутствует почта для подтверждения'
-                    }, status=400
-                )
+        new_email = request.session.get('new_email', None)
 
-            email_timestamp_subtracting = time.time() - request.session.get('email_message_timestamp', 0)
+        try:
+            user = User.objects.get(email=request.session.get('new_email'), is_active=False)
+        except ObjectDoesNotExist:
 
-            if email_timestamp_subtracting < 60:
-                return JsonResponse(
-                    {
-                        'status': False,
-                        'message': 'Перед повторным подтверждением необходимо подождать 60 секунд.'
-                    }, status=429
-                )
+            messages.error(request, 'Отсутствует почта для подтверждения.')
+            return render(request, self.template_name, context={'email': new_email})
 
-            current_site = get_current_site(self.request)
-            mail_message = render_to_string('users/registration/account_activation.html', {
-                'user': user,
-                'protocol': 'https',
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
+        email_timestamp_subtracting = time.time() - request.session.get('email_message_timestamp', 0)
 
-            send_email_verification.delay(mail_message, user.email, 'Подтверждение email на COMMERY.RU')
+        if email_timestamp_subtracting < 60:
+            messages.error(request, 'Отправить письмо повторно можно раз в 60 секунд.')
+            return render(request, self.template_name, context={'email': new_email})
 
-            self.request.session['email_message_timestamp'] = time.time()
-            return JsonResponse(
-                {
-                    'status': True,
-                    'message': 'На ваш почтовый ящик было повторно отправлено письмо для подтверждения.'
-                }, status=200
-            )
-        return HttpResponseBadRequest('Invalid request')
+        current_site = get_current_site(self.request)
+        send_email(user, current_site.domain, user.email, self.activate_email_template_name, self.mail_subject)
+
+        self.request.session['email_message_timestamp'] = time.time()
+
+        messages.success(request, 'Письмо для активации аккаунта было повторно отправлено на указанный email.')
+        return render(request, self.template_name, context={'email': new_email})
 
 
 class LoginPageView(View):
     template_name = 'users/authentication/login.html'
     form_class = LoginForm
-    activate_email_template_name = 'users/profile/password/password_reset_email.html'
+    activate_email_template_name = 'users/registration/account_activation.html'
     mail_subject = 'Подтверждение email на commery.ru'
 
     @redirect_authenticated_user
@@ -220,7 +203,7 @@ class LoginPageView(View):
                 return redirect('users:email_confirmation_info')
 
             login(request, user)
-            return redirect('reports:dashboard')
+            return redirect('users:profile_subscriptions')
 
         context = {'form': form}
         return render(request, self.template_name, context=context)
@@ -232,25 +215,24 @@ class LogoutView(LoginRequiredMixin, View):
 
     def get(self, request):
         logout(request)
-        return redirect('users:login')
+        return redirect(self.login_url)
 
 
-class ProfilePage(LoginRequiredMixin, View):
+class ProfileSubscriptionsPage(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
+    template_name = "users/profile/subscriptions.html"
 
     def get(self, request):
-
         subscriptions = get_user_subscriptions_data(request.user)
 
         context = {
-            'api_keys': request.user.keys.filter(),
-            'profile_form': ChangeUserDataForm(instance=request.user),
-            'change_password_form': ChangeUserPasswordForm(),
-            'subscriptions': subscriptions,
+            'current_subscription': subscriptions.get('current_subscription'),
+            'subscriptions': subscriptions.get('subscriptions_data'),
             'is_active_subscription_exists': request.user.is_subscribed
         }
-        return render(request, 'users/profile/profile.html', context)
+
+        return render(request, self.template_name, context=context)
 
 
 class ChangeProfileData(LoginRequiredMixin, View):
@@ -269,39 +251,26 @@ class ChangeProfileData(LoginRequiredMixin, View):
 class ChangePasswordView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
+    template_name = 'users/profile/password/password_change.html'
     form_class = ChangeUserPasswordForm
 
+    def get(self, request):
+        context = {"form": self.form_class(user=request.user)}
+        return render(request, self.template_name, context)
+
     def post(self, request):
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        form = self.form_class(request.POST)
-        if is_ajax:
-            if form.is_valid():
-                if not request.user.check_password(form.cleaned_data['old_password']):
-                    return JsonResponse(
-                        {
-                            'status': False,
-                            'message': f'Старый пароль введён неверно.'
-                        }
-                    )
-                user = request.user
-                user.set_password(form.cleaned_data['new_password'])
-                user.save()
-                update_session_auth_hash(request, user)
-                return JsonResponse(
-                    {
-                        'status': True,
-                        'message': f'Пароль успешно обновлён.'
-                    },
-                    status=200
-                )
-            return JsonResponse(
-                {
-                    'status': False,
-                    'message': f'{form.non_field_errors().as_text()}'
-                },
-                status=400
-            )
-        return HttpResponseBadRequest('Invalid request')
+        form = self.form_class(request.POST, user=request.user)
+
+        if form.is_valid():
+            user = request.user
+            user.set_password(form.cleaned_data['new_password'])
+            user.save()
+            update_session_auth_hash(request, user)
+
+            messages.success(request, "Пароль был успешно обновлён")
+            return render(request, self.template_name, context={"form": self.form_class()})
+
+        return render(request, self.template_name, context={"form": form})
 
 
 class PasswordResetView(View):
@@ -328,7 +297,8 @@ class PasswordResetView(View):
                 current_site.domain,
                 form.cleaned_data['email'],
                 self.reset_email_template_name,
-                self.mail_subject
+                self.mail_subject,
+                is_reset_password=True
             )
             return redirect('users:password_reset_done')
 
@@ -337,6 +307,11 @@ class PasswordResetView(View):
 
 class PasswordResetConfirmView(View):
     form_class = UserPasswordResetForm
+    template_name = 'users/profile/password/password_reset_confirm.html'
+
+    @redirect_authenticated_user
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, token, uidb64):
         try:
@@ -347,11 +322,11 @@ class PasswordResetConfirmView(View):
 
         if user is not None and password_reset_token.check_token(user, token):
             context = {
-                'form': UserPasswordResetForm(user),
+                'form': self.form_class(user),
                 'uid': uidb64,
                 'token': token
             }
-            return render(request, 'users/profile/password/password_reset_confirm.html', context=context)
+            return render(request, self.template_name, context=context)
 
         messages.error(request, 'Ссылка повреждена или более недействительна.')
         return redirect('users:login')
@@ -360,36 +335,35 @@ class PasswordResetConfirmView(View):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = get_object_or_404(User, pk=uid)
-        except(TypeError, ValueError, OverflowError):
+        except (TypeError, ValueError, OverflowError):
             user = None
 
         if user is not None and password_reset_token.check_token(user, token):
-            form = UserPasswordResetForm(user=user, data=request.POST)
+            form = self.form_class(user=user, data=request.POST)
+
             if form.is_valid():
                 form.save()
                 update_session_auth_hash(request, form.user)
 
                 messages.success(request, 'Пароль был успешно изменён.')
                 return redirect('users:login')
-            context = {
-                'form': form,
-                'uid': uidb64,
-                'token': token
-            }
-            return render(request, 'users/profile/password/password_reset_confirm.html', context=context)
+
+            context = {'form': form, 'uid': uidb64, 'token': token}
+            return render(request, self.template_name, context=context)
 
         messages.error(request, 'Ссылка повреждена или более недействительна.')
         return redirect('users:login')
 
 
 class PasswordResetDoneView(View):
+    template_name = 'users/profile/password/password_reset_done.html'
 
     @redirect_authenticated_user
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        return render(request, 'users/profile/password/password_reset_done.html')
+        return render(request, self.template_name)
 
 
 class CompanyEditView(LoginRequiredMixin, View):

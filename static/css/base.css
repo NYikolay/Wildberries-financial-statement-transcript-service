@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-
 :root{
     --card-border-radius: 2rem;
     --border-radius-1: 0.4rem;
@@ -36,6 +34,13 @@ h1 {
     color: var(--var-font-primary-color);
     font-size: 14px;
     line-height: 21px;
+}
+
+p {
+    font-weight: bold;
+    color: var(--var-font-primary-color);
+    font-size: 10px;
+    line-height: 15px;
 }
 
 html {
@@ -76,7 +81,7 @@ aside {
     justify-content: space-between;
     height: 100vh;
     border-right: 1px solid var(--var-border-color);
-    padding: 15px 15px 58px 15px;
+    padding: 15px 20px 58px 25px;
 }
 
 .header-nav {
@@ -85,6 +90,12 @@ aside {
     gap: 30px;
     font-size: 10px;
     padding-left: 5px;
+}
+
+.header-nav li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .header-nav>li>a {
@@ -113,6 +124,14 @@ main {
     display: flex;
     flex-direction: column;
     gap: 25px;
+}
+
+.active_navbar_link {
+    color: var(--var-font-primary-color) !important;
+}
+
+.active_link {
+    color: var(--var-font-primary-color) !important;
 }
 
 .active_link::before {
@@ -170,6 +189,12 @@ footer {
     color: var(--var-fontcolor);
 }
 
+.nav>li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .nav>li>a:hover {
     color: var(--var-link-hover-color);
     cursor: pointer;
@@ -224,114 +249,50 @@ footer {
     background: #5C659D;
 }
 
-/*FORM STYLING*/
-
-.form-wrapper {
-    border: 1px solid var(--var-border-color);
-    background: linear-gradient(90deg, #32396B 0%, #262D56 100%),
-    linear-gradient(0deg, #424B80, #424B80);
-    max-width: 708px;
-    border-radius: 7px;
-    padding: 20px;
-}
-
-.common-form {
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
-}
-
-.form__item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.form-items {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    padding-top: 20px;
-}
-
-.form__input {
-    width: 271px;
-    border-radius: 7px;
-    color: var(--var-font-primary-color);
-    font-size: 10px;
-    line-height: 13px;
-    font-weight: normal;
-    background-color: var(--var-bgcolor);
-    border: 1px solid var(--var-border-color);
-    padding: 11px 20px 11px 20px;
-}
-
-.input__item-error input {
-    border: 1px solid var(--var-error-main-color);
-}
-
-.input__item-error p {
-    color: var(--var-error-main-color);
-}
-
-.form__item-error {
-    opacity: 1;
-    transition: opacity 0.4s ease-in-out;
-}
-
-.form__item-error.hidden {
-    opacity: 0;
-    transition: opacity 0.4s ease-in-out;
-}
-
-.errorlist li {
-    color: var(--var-error-main-color);
-}
-
-.form__input:focus {
-    border: 1px solid var(--var-active-main-color);
-    transition: .4s;
-}
-
-.form__item label {
-    position: absolute;
-    left: 0;
-    top: -20px;
-}
-.form__input:focus + label {
-    color: var(--var-font-primary-color);
-    transition: .4s;
-}
-
-.form__input::placeholder {
-    color: var(--var-fontcolor);
-}
-
-.form__input::-ms-input-placeholder {
-    color: var(--var-fontcolor);
-}
-
-.form__accent-button {
-    background: linear-gradient(91.88deg, #00C6FF 0%, #0073FF 100%);
-    font-weight: bold;
-    font-size: 12px;
-    align-items: center;
-    text-align: center;
-    color: var(--var-font-primary-color);
-    padding: 5px 20px 5px 20px;
-    border-radius: 5px;
-}
-
-.form_buttons {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-/*FORM STYLING END*/
-
 .unauthorized_header {
     padding-top: 22px;
 }
 
+.common__content-wrapper {
+    border: 1px solid var(--var-border-color);
+    background: linear-gradient(90deg, #32396B 0%, #262D56 100%),
+    linear-gradient(0deg, #424B80, #424B80);
+    border-radius: 7px;
+    padding: 15px 20px 20px 20px;
+}
+
+.common__content-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.active-border {
+    border: 1px solid var(--var-active-main-color);
+}
+
+.primary-border {
+    border: 1px solid var(--var-font-primary-color)
+}
+
+.gradient-border {
+    position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: -2px;
+  right: -2px;
+  background: linear-gradient(114.14deg, #FC9E36 0%, #FD6DAB 100%);
+  border-radius: 7px;
+  z-index: -1;
+}
+
+.dot-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

@@ -2,11 +2,12 @@ from django.urls import path, re_path
 
 from users.views import (
     LoginPageView, LogoutView, RegisterPageView,
-    ProfilePage, LoadDataFromWBView, ChangeProfileData,
+    LoadDataFromWBView, ChangeProfileData,
     ChangePasswordView, CompaniesListView, CompanyEditView,
     EditProductView, ProductDetailView, EmptyProductsListView,
     DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
-    PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView
+    PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView,
+    ProfileSubscriptionsPage
 )
 
 app_name = 'users'
@@ -26,8 +27,8 @@ urlpatterns = [
          ConfirmRegistrationView.as_view(), name='activate_email'),
     path('email/confirmation/', ConfirmEmailPageView.as_view(), name='email_confirmation_info'),
 
-
-    path('profile/', ProfilePage.as_view(), name='profile'),
+    path('profile/subscriptions/', ProfileSubscriptionsPage.as_view(), name='profile_subscriptions'),
+    path('profile/change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('profile/companies/', CompaniesListView.as_view(), name='companies_list'),
     path('profile/company/edit/<int:api_key_id>/', CompanyEditView.as_view(), name='company_edit'),
     path('profile/company/delete/<int:api_key_id>/', DeleteCompanyView.as_view(), name='company_delete'),
@@ -42,5 +43,4 @@ urlpatterns = [
     path('sheck-reports-loading-status/', CheckReportsLoadingStatus.as_view(), name='check_reports_loading_status'),
 
     path('change-user-profile/', ChangeProfileData.as_view(), name='change_user_profile'),
-    path('change-user-password/', ChangePasswordView.as_view(), name='change_user_password'),
 ]

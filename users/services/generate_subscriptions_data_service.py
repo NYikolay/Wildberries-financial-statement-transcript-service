@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Dict
 from datetime import datetime
 import pytz
 from payments.forms import RoboKassaForm
@@ -62,38 +62,50 @@ def get_calculated_subscription_values(subscription_type, current_user_subscript
 
     cost_for_week: int = round((cost / 4) / subscription_type.duration)
 
-    if current_user_subscription and current_user_subscription.subscription_type == subscription_type:
+    if current_user_subscription:
         subscribed_to = current_user_subscription.subscribed_to
-        is_active: bool = True
+        build_in_discount = current_user_subscription.discount_percent
     else:
         subscribed_to = None
-        is_active: bool = False
-
-    is_test_period: bool = subscription_type.type == SubscriptionTypes.TEST
 
     return {
         'build_in_discount': build_in_discount,
         'cost': round(cost),
         'cost_for_week': cost_for_week,
         'subscribed_to': subscribed_to,
-        'is_active': is_active,
-        'is_test_period': is_test_period
     }
 
 
-def get_user_subscriptions_data(request_user) -> list:
+def get_current_user_subscription_data(request_user, active_user_discount) -> None or dict:
+    current_user_subscription = UserSubscription.objects.filter(
+        user=request_user,
+        subscribed_to__gt=datetime.now()
+    ).first()
+
+    if not current_user_subscription:
+        return None
+
+    current_subscription_values = get_calculated_subscription_values(
+        current_user_subscription.subscription_type, current_user_subscription, active_user_discount
+    )
+    current_subscription = {
+        'type': current_user_subscription.subscription_type.type,
+        'duration': current_user_subscription.subscription_type.duration,
+        'duration_desc': current_user_subscription.subscription_type.duration_desc,
+        **current_subscription_values,
+    }
+
+    return current_subscription
+
+
+def get_user_subscriptions_data(request_user) -> dict:
     """
     The function generates a list consisting of dictionaries with user-accessible rates and their values,
     based on the SubscriptionType, UserSubscription, UserDiscount models
     :param request_user: Current authorized user
     :return: Returns a list containing the dictionaries
     """
-    subscriptions_types = SubscriptionType.objects.all()
-
-    current_user_subscription = UserSubscription.objects.filter(
-        user=request_user,
-        subscribed_to__gt=datetime.now()
-    ).first()
+    subscriptions_types = SubscriptionType.objects.exclude(type=SubscriptionTypes.TEST)
 
     active_user_discount = UserDiscount.objects.filter(
         user=request_user,
@@ -101,12 +113,14 @@ def get_user_subscriptions_data(request_user) -> list:
         is_active=True
     ).first()
 
+    current_subscription = get_current_user_subscription_data(request_user, active_user_discount)
+
     subscriptions_data: List[dict] = []
 
     for subscription_type in subscriptions_types:
         calculated_subscription_values: dict = get_calculated_subscription_values(
             subscription_type,
-            current_user_subscription,
+            None,
             active_user_discount
         )
 
@@ -117,9 +131,6 @@ def get_user_subscriptions_data(request_user) -> list:
                 'cost': calculated_subscription_values.get('cost'),
                 'cost_for_week': calculated_subscription_values.get('cost_for_week'),
                 'build_in_discount': calculated_subscription_values.get('build_in_discount'),
-                'is_active': calculated_subscription_values.get('is_active'),
-                'is_test_period': calculated_subscription_values.get('is_test_period'),
-                'subscribed_to': calculated_subscription_values.get('subscribed_to'),
                 'form': generate_robokassa_form(
                     request_user,
                     calculated_subscription_values.get('cost'),
@@ -131,7 +142,7 @@ def get_user_subscriptions_data(request_user) -> list:
             }
         )
 
-    return subscriptions_data
+    return {"current_subscription": current_subscription, "subscriptions_data": subscriptions_data}
 
 
 
