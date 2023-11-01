@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Авторизация - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+<link rel="stylesheet" href="{% static 'users/css/companies.css' %}">
+{% endblock %}
+{% block content %}
+<div class="wrapper_first">
+    {% include 'includes/headers/data_header.html' %}
+    <div class="company-container">
+        <div class="form-wrapper company-form">
+            <form action="{% url 'users:api_key_edit' api_key.id %}" method="post" class="common-form">
+                {% csrf_token %}
+                <h1>Редактирование подключения к WILDBERRIES по API</h1>
+                <div class="form-items">
+                    <div class="form__item {% if form.name.errors %} input__item-error {% endif %}">
+                        {{ form.name }}
+                        {{ form.name.label_tag }}
+                        {% if form.old_password.errors %}
+                        <div class="form__item-error form__item-error-fixed__width" data-id-error="name">
+                            {{ form.name.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form__item {% if form.api_key.errors %} input__item-error {% endif %}">
+                        {{ form.api_key }}
+                        {{ form.api_key.label_tag }}
+                        {% if form.api_key.errors %}
+                        <div class="form__item-error form__item-error-fixed__width" data-id-error="api_key">
+                            {{ form.api_key.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form_buttons">
+                    <button class="form__accent-button" type="submit">Сохранить</button>
+                </div>
+            </form>
+        </div>
+        <div class="company__instructions-container">
+            <p>Для создания подключения используется API-ключ “Статистика” из Личного кабинета продавца WILDBERRIES. Данный типа ключа предоставляет доступ лишь к вашим Финансовым отчетам и ограничивает доступ к прочему функционалу Личного кабинета продавца.</p>
+            <br>
+            <p>Мы храним ваши ключи в зашифрованном виде на защищенных от несанкционированного проникновения серверах.</p>
+            <br>
+            <div class="company__instruction-wrapper">
+                <p class="p-bold">1. Откройте “Настройки” в правом верхнем углу раздела “Аналитика” в Личном кабинете продавца WB</p>
+                <img src="{% static 'images/api_key_instruction.jpg' %}" alt="">
+            </div>
+            <div class="company__instruction-wrapper">
+                <p class="p-bold">2. На открывшейся странице выберите раздел «Доступ к API»</p>
+                <img src="{% static 'images/api_key_instruction2.jpg' %}" alt="">
+            </div>
+            <div class="company__instruction-wrapper">
+                <p class="p-bold">3. Создайте новый токен</p>
+                <img src="{% static 'images/api_key_instruction3.jpg' %}" alt="">
+            </div>
+            <div class="company__instruction-wrapper">
+                <p class="p-bold">4. Выберите тип токена “Статистика” и задайте ему название</p>
+                <img src="{% static 'images/api_key_instruction4.jpg' %}" alt="">
+            </div>
+            <div class="company__instruction-wrapper">
+                <p class="p-bold">5. Скопируйте токен</p>
+                <img src="{% static 'images/api_key_instruction5.jpg' %}" alt="">
+            </div>
+            <div class="company__instruction-wrapper">
+                <p class="p-bold">6. Вставьте скопированный токен в соответствующее окно сервиса и нажмите "Сохранить"</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/handleInputsValidation.js' %}"></script>
+{% endblock %}

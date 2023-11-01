@@ -7,7 +7,8 @@ import pandas as pd
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, QuerySet
+from django.views.generic.list import ListView
+from django.db.models import Q, QuerySet, Count, Case, When, IntegerField, BooleanField
 from django.http import Http404, JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.contrib import messages
 
@@ -24,6 +25,24 @@ from reports.services.handle_report_additional_data_filte_service import create_
 from users.models import SaleReport, IncorrectReport, UnloadedReports
 
 django_logger = logging.getLogger('django_logger')
+
+
+class ReportsListView(LoginRequiredMixin, ListView):
+    model = SaleReport
+    template_name = 'reports/reports_list.html'
+    context_object_name = 'reports'
+
+    def get_queryset(self):
+        incorrect_reports = IncorrectReport.objects.filter(owner=self.request.user, api_key__is_current=True)
+
+        correct_reports = (self.model.objects
+                           .filter(owner=self.request.user, api_key__is_current=True)
+                           .order_by('realizationreport_id')
+                           )
+
+        queryset = {"correct_reports": correct_reports, "incorrect_reports": incorrect_reports}
+
+        return queryset
 
 
 class DashboardView(LoginRequiredMixin, View):

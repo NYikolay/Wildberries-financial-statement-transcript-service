@@ -2,7 +2,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const invalidInputs = document.querySelectorAll('.input__item-error')
 
     for (let i = 0; i < invalidInputs.length; i++) {
-        const currentInput = invalidInputs[i].getElementsByTagName('input')[0]
+        let currentInput = invalidInputs[i].getElementsByTagName('input')[0]
+
+        if (!currentInput) {
+            currentInput = invalidInputs[i].getElementsByTagName('textarea')[0]
+        }
 
         currentInput.addEventListener('input', (e) => {
             if (e.target.value !== '') {

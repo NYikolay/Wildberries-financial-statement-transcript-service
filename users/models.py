@@ -16,7 +16,7 @@ from users.managers import UserManager
 from postgres_copy import CopyManager
 from django_prometheus.models import ExportModelOperationsMixin
 
-cyrillic_exclusion = RegexValidator(r'^[^а-яА-Я]*$', 'Символы кириллицы в API ключе недопустимы')
+cyrillic_exclusion = RegexValidator(r'^[^а-яА-Я]*$', 'Символы кириллицы в API-ключе недопустимы')
 
 
 class UserRoles(models.TextChoices):

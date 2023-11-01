@@ -130,16 +130,31 @@ class APIKeyForm(forms.ModelForm):
     class Meta:
         model = WBApiKey
         fields = ["api_key", "name"]
+        labels = {
+            'api_key': 'API-ключ “Статистика”',
+            'name': 'Название подключения'
+        }
         widgets = {
             'api_key': forms.Textarea(attrs={
-                'class': 'api_key-input',
-                'cols': 3,
-                'rows': 2
+                'class': 'form__input',
+                'cols': 1,
+                'rows': 5,
+                'data-id': 'api_key',
+                'style': 'resize:none;'
             }),
             'name': forms.TextInput(attrs={
-                'class': 'shop_name-input'
+                'class': 'form__input',
+                'data-id': 'name'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        self.api_keys_count = kwargs.pop('api_keys_count', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        if self.api_keys_count and self.api_keys_count >= 10:
+            self.add_error("api_key", "Нельзя создать более 10 подключений к WILDBERRIES по API")
 
 
 class UpdateAPIKeyForm(forms.ModelForm):

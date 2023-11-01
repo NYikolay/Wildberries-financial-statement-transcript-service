@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.generic.list import ListView
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
@@ -235,17 +236,75 @@ class ProfileSubscriptionsPage(LoginRequiredMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class ChangeProfileData(LoginRequiredMixin, View):
+class CreateApiKeyView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
-    form_class = ChangeUserDataForm
+    template_name = 'users/profile/companies/create_api_key.html'
+    form_class = APIKeyForm
+
+    def get(self, request):
+        context = {"form": self.form_class()}
+        return render(request, self.template_name, context)
 
     def post(self, request):
-        form = self.form_class(request.POST, instance=request.user)
+        api_keys_count = request.user.keys.count()
+        form = self.form_class(request.POST, api_keys_count=api_keys_count)
+
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Данные успешно обновлены')
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+            api_key_obj = form.save(commit=False)
+            api_key_obj.api_key = get_encrypted_key(form.cleaned_data['api_key'])
+            api_key_obj.user = request.user
+
+            if api_keys_count > 0:
+                api_key_obj.is_current = False
+
+            api_key_obj.save()
+
+            return redirect("users:companies_list")
+
+        context = {"form": form}
+        return render(request, self.template_name, context)
+
+
+class CompaniesListView(LoginRequiredMixin, ListView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    template_name = 'users/profile/companies/companies_list.html'
+    model = WBApiKey
+    context_object_name = 'companies'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['api_keys_count'] = self.request.user.keys.count()
+        return context
+
+
+class UpdateApiKeyView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    template_name = 'users/profile/companies/edit_api_key.html'
+    form_class = APIKeyForm
+
+    def get(self, request, api_key_id):
+
+        api_key = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
+        form = self.form_class(instance=api_key)
+
+        return render(request, self.template_name, context={"form": form, "api_key": api_key})
+
+    def post(self, request, api_key_id):
+        company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
+        form = self.form_class(data=request.POST, instance=company)
+
+        if form.is_valid():
+            api_key_obj = form.save(commit=False)
+            if api_key_obj.api_key != company.api_key:
+                api_key_obj.api_key = get_encrypted_key(form.cleaned_data['api_key'])
+
+            api_key_obj.save()
+
+            return redirect("users:companies_list")
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
@@ -439,73 +498,6 @@ class CompanyEditView(LoginRequiredMixin, View):
         }
 
         return render(request, 'users/profile/companies/company_edit.html', context=context)
-
-
-class CompaniesListView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-    api_key_form = APIKeyForm
-    tax_rate_form = TaxRateForm
-
-    def get(self, request):
-        context = {
-            'api_keys': request.user.keys.all(),
-            'api_key_form': self.api_key_form(),
-            'tax_rate_form': self.tax_rate_form()
-        }
-        return render(request, 'users/profile/companies/companies_list.html', context)
-
-    def post(self, request):
-        tax_rates = list(filter(None, request.POST.getlist('tax_rate')))
-        commencement_dates = list(filter(None, request.POST.getlist('commencement_date')))
-
-        if all([
-            (len(tax_rates) != len(commencement_dates)) and (len(tax_rates) <= 3 or len(commencement_dates) <= 3)
-        ]):
-            django_logger.info(f'Removed js validation, an attempt to bypass security. User - {request.user.email}.')
-            messages.error(
-                request,
-                'Ошибка валидации значений налогов. Количестно ставок налога не может быть больше 3. '
-                'Количестно ставок налога должно соответствовать количеству дат начала действия'
-            )
-            return redirect(request.META.get('HTTP_REFERER', '/'))
-
-        tax_rates_forms = []
-
-        for tax, date in zip(tax_rates, commencement_dates):
-            tax_rates_forms.append(self.tax_rate_form({'tax_rate': tax, 'commencement_date': date}))
-
-        api_key_form = self.api_key_form(request.POST)
-
-        if api_key_form.is_valid() and all([form.is_valid() for form in tax_rates_forms]):
-            if WBApiKey.objects.filter(user=request.user).exists():
-                messages.error(request, 'Для вашего аккаунта нельзя создавать более 1 API ключа')
-                return redirect(request.META.get('HTTP_REFERER', '/'))
-
-            try:
-                with transaction.atomic():
-                    api_key_obj = api_key_form.save(commit=False)
-                    api_key_obj.api_key = get_encrypted_key(api_key_form.cleaned_data['api_key'])
-                    api_key_obj.user = request.user
-                    api_key_obj.save()
-
-                    for tax_rate_form in tax_rates_forms:
-                        tax_rate_obj = tax_rate_form.save(commit=False)
-                        tax_rate_obj.api_key = api_key_obj
-                        tax_rate_obj.save()
-            except Exception as err:
-                django_logger.error(f'Error when creating a store for a user {request.user.email}. '
-                                    f'Failed to save values in the database in a transaction', exc_info=err)
-                messages.error(
-                    request,
-                    'Не удалось создать магазин. Пожалуйста, повторите попытку или свяжитесь со службой поддержки.'
-                )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
-
-            messages.success(request, 'Магазин успешно создан')
-            return redirect(request.META.get('HTTP_REFERER', '/'))
-
-        return render(request, 'users/profile/companies/companies_list.html', context={'api_key_form': api_key_form})
 
 
 class DeleteCompanyView(LoginRequiredMixin, View):

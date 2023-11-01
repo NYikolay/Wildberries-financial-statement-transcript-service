@@ -7,9 +7,9 @@
 {% block content %}
 <div class="wrapper_first">
     {% if request.user.is_authenticated %}
-    {% include 'includes/profile_header.html' %}
+    {% include 'includes/headers/profile_header.html' %}
     {% else %}
-    {% include 'includes/unquthorized_header.html' %}
+    {% include 'includes/headers/unquthorized_header.html' %}
     {% endif %}
 
     <ul class="support-list">

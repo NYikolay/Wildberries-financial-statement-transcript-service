@@ -16,6 +16,7 @@
     --var-link-hover-color: #FFFFFF;
     --var-active-main-color: #0073FF;
     --var-error-main-color: #EC496B;
+    --var-blue-accent-color: #00C6FF;
 }
 
 [data-color-theme="light"] {
@@ -27,20 +28,7 @@
     --var-link-hover-color: #5C659D;
     --var-active-main-color: #0073FF;
     --var-error-main-color: #EC496B;
-}
-
-h1 {
-    font-weight: bold;
-    color: var(--var-font-primary-color);
-    font-size: 14px;
-    line-height: 21px;
-}
-
-p {
-    font-weight: bold;
-    color: var(--var-font-primary-color);
-    font-size: 10px;
-    line-height: 15px;
+    --var-blue-accent-color: #00C6FF;
 }
 
 html {
@@ -57,11 +45,68 @@ body {
     color: var(--var-fontcolor);
 }
 
+main {
+    min-height: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+}
+
 .container {
     display: grid;
     width: 1200px;
     margin: 0 auto;
     grid-template-columns: 175px 1fr;
+}
+
+aside {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    border-right: 1px solid var(--var-border-color);
+    padding: 15px 20px 58px 25px;
+}
+
+h1 {
+    font-weight: bold;
+    color: var(--var-font-primary-color);
+    font-size: 14px;
+    line-height: 21px;
+}
+
+p {
+    font-weight: normal;
+    color: var(--var-font-primary-color);
+    font-size: 10px;
+    line-height: 15px;
+}
+
+.p-bold {
+    font-weight: bold;
+    color: var(--var-fontcolor);
+    font-size: 10px;
+    line-height: 15px;
+}
+
+.accent-link {
+    background: linear-gradient(91.88deg, #00C6FF 0%, #0073FF 100%);
+    align-self: flex-start;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 18px;
+    align-items: center;
+    text-align: center;
+    color: var(--var-font-primary-color) !important;
+    padding: 5px 20px 5px 20px;
+    border-radius: 5px;
+}
+
+.p-dark {
+    font-weight: bold;
+    color: var(--var-font-primary-color);
+    font-size: 14px;
+    line-height: 21px;
 }
 
 .medium-link {
@@ -75,14 +120,20 @@ body {
     fill: var(--var-svg-color);
 }
 
-aside {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100vh;
-    border-right: 1px solid var(--var-border-color);
-    padding: 15px 20px 58px 25px;
+.active-border {
+    border: 1px solid var(--var-active-main-color);
 }
+
+.primary-border {
+    border: 1px solid var(--var-font-primary-color)
+}
+
+.gradient-border {
+    position: relative;
+}
+
+
+/*HEADER STYLING START*/
 
 .header-nav {
     display: flex;
@@ -107,17 +158,35 @@ aside {
     transition: .4s;
 }
 
-main {
-    min-height: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 20px;
+.unauthorized_header {
+    padding-top: 22px;
 }
+
+.data_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 15px;
+}
+
+.data__header-report {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.data__header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/*HEADER STYLING END*/
 
 .wrapper_first {
     display: flex;
     flex-direction: column;
-    gap: 72px;
+    gap: 70px;
 }
 
 .wrapper_second {
@@ -201,6 +270,8 @@ footer {
     transition: .4s;
 }
 
+/*SITHE THEME CHECKBOX STYLING START*/
+
 .site__theme-wrapper {
     display: flex;
     align-items: center;
@@ -249,9 +320,7 @@ footer {
     background: #5C659D;
 }
 
-.unauthorized_header {
-    padding-top: 22px;
-}
+/*SITHE THEME CHECKBOX STYLING END*/
 
 .common__content-wrapper {
     border: 1px solid var(--var-border-color);
@@ -261,34 +330,27 @@ footer {
     padding: 15px 20px 20px 20px;
 }
 
+.common__content-medium {
+    flex: 0 0 auto;
+    width: 468px;
+}
+
 .common__content-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-.active-border {
-    border: 1px solid var(--var-active-main-color);
-}
-
-.primary-border {
-    border: 1px solid var(--var-font-primary-color)
-}
-
-.gradient-border {
-    position: relative;
+    gap: 11px;
 }
 
 .gradient-border::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  bottom: -2px;
-  left: -2px;
-  right: -2px;
-  background: linear-gradient(114.14deg, #FC9E36 0%, #FD6DAB 100%);
-  border-radius: 7px;
-  z-index: -1;
+    content: "";
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    left: -2px;
+    right: -2px;
+    background: linear-gradient(114.14deg, #FC9E36 0%, #FD6DAB 100%);
+    border-radius: 7px;
+    z-index: -1;
 }
 
 .dot-link {

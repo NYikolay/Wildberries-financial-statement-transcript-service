@@ -2,12 +2,12 @@ from django.urls import path, re_path
 
 from users.views import (
     LoginPageView, LogoutView, RegisterPageView,
-    LoadDataFromWBView, ChangeProfileData,
+    LoadDataFromWBView,
     ChangePasswordView, CompaniesListView, CompanyEditView,
     EditProductView, ProductDetailView, EmptyProductsListView,
     DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
     PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView,
-    ProfileSubscriptionsPage
+    ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView
 )
 
 app_name = 'users'
@@ -28,9 +28,10 @@ urlpatterns = [
     path('email/confirmation/', ConfirmEmailPageView.as_view(), name='email_confirmation_info'),
 
     path('profile/subscriptions/', ProfileSubscriptionsPage.as_view(), name='profile_subscriptions'),
+    path('profile/create-api-key/', CreateApiKeyView.as_view(), name='create_api_key'),
     path('profile/change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('profile/companies/', CompaniesListView.as_view(), name='companies_list'),
-    path('profile/company/edit/<int:api_key_id>/', CompanyEditView.as_view(), name='company_edit'),
+    path('profile/api-key/edit/<int:api_key_id>/', UpdateApiKeyView.as_view(), name='api_key_edit'),
     path('profile/company/delete/<int:api_key_id>/', DeleteCompanyView.as_view(), name='company_delete'),
 
     path('product/<int:article_value>/', ProductDetailView.as_view(), name='product_detail'),
@@ -41,6 +42,4 @@ urlpatterns = [
 
     path('send-request-for-report/', LoadDataFromWBView.as_view(), name='send_request_for_report'),
     path('sheck-reports-loading-status/', CheckReportsLoadingStatus.as_view(), name='check_reports_loading_status'),
-
-    path('change-user-profile/', ChangeProfileData.as_view(), name='change_user_profile'),
 ]
