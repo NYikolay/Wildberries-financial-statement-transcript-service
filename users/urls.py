@@ -28,7 +28,7 @@ urlpatterns = [
     path('email/confirmation/', ConfirmEmailPageView.as_view(), name='email_confirmation_info'),
 
     path('profile/subscriptions/', ProfileSubscriptionsPage.as_view(), name='profile_subscriptions'),
-    path('profile/create-api-key/', CreateApiKeyView.as_view(), name='create_api_key'),
+    path('create-api-key/', CreateApiKeyView.as_view(), name='create_api_key'),
     path('profile/change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('profile/companies/', CompaniesListView.as_view(), name='companies_list'),
     path('profile/api-key/edit/<int:api_key_id>/', UpdateApiKeyView.as_view(), name='api_key_edit'),

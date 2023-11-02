@@ -441,6 +441,8 @@ class IncorrectReport(models.Model):
         verbose_name='Владелец отчёта'
     )
     realizationreport_id = models.BigIntegerField('Номер отчёта')
+    create_dt = models.DateTimeField('Дата формирования отчёта', null=True, blank=True)
+    week_num = models.IntegerField('Номер недели', null=True, blank=True)
     date_from = models.DateTimeField('Дата начала отчетного периода')
     date_to = models.DateTimeField('Дата конца отчетного периода')
 

@@ -31,6 +31,7 @@ class ReportsListView(LoginRequiredMixin, ListView):
     model = SaleReport
     template_name = 'reports/reports_list.html'
     context_object_name = 'reports'
+    form_class = LoadReportAdditionalDataFrom
 
     def get_queryset(self):
         incorrect_reports = IncorrectReport.objects.filter(owner=self.request.user, api_key__is_current=True)
@@ -43,6 +44,11 @@ class ReportsListView(LoginRequiredMixin, ListView):
         queryset = {"correct_reports": correct_reports, "incorrect_reports": incorrect_reports}
 
         return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class()
+        return context
 
 
 class DashboardView(LoginRequiredMixin, View):
@@ -316,24 +322,25 @@ class LoadReportAdditionalDataView(LoginRequiredMixin, View):
                     request,
                     'Не удалось обработать файл. Пожалуйста, убедитесь в корректности данных внутри файла'
                 )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+                return redirect("reports:reports_list")
             if file_handling_status:
                 messages.success(
                     request,
                     'Значения успешно обновлены'
                 )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+                return redirect("reports:reports_list")
             else:
                 messages.error(
                     request,
                     'Ошибка валидации файла. Пожалуйста, убедитесь в корректности данных внутри файла'
                 )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+                return redirect("reports:reports_list")
+
         messages.error(
             request,
             'Не удалось загрузить файл. Пожалуйста, убедитесь, что расширение загружаемого файла - .xlsx'
         )
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect("reports:reports_list")
 
 
 class EmptyReportsView(LoginRequiredMixin, View):

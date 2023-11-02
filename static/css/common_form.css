@@ -7,7 +7,7 @@
     align-self: flex-start;
     border-radius: 7px;
     width: 708px;
-    padding: 20px 0 20px 20px;
+    padding: 15px 20px 20px 20px;
 }
 
 .common-form {
@@ -39,7 +39,7 @@
     font-weight: normal;
     background-color: var(--var-bgcolor);
     border: 1px solid var(--var-border-color);
-    padding: 11px 20px 11px 20px;
+    padding: 12px 20px 12px 20px;
 }
 
 .input__item-error input {
@@ -79,9 +79,22 @@
     position: absolute;
     left: 0;
     top: -20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
+
+.form__item label path {
+    fill: var(--var-svg-color);
+}
+
 .form__input:focus + label {
     color: var(--var-font-primary-color);
+    transition: .4s;
+}
+
+.form__input:focus + label path {
+    fill: var(--var-font-primary-color);
     transition: .4s;
 }
 

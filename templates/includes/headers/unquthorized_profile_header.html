@@ -1,5 +1,5 @@
 {% load static %}
-<div class="unauthorized_header">
+<header>
     <ul class="header-nav">
         {% url 'users:login' as login_url %}
         <li><a href="{{ login_url }}" class="{% if request.path == login_url %} active_link {% endif %}">Авторизация</a></li>
@@ -12,10 +12,9 @@
         </a></li>
         {% url 'users:password_reset' as password_reset_url %}
         {% url 'users:password_reset_done' as password_reset_done_url %}
-        {% url 'users:password_reset_confirm' as password_reset_confirm_url %}
         <li><a
                 href="{{ password_reset_url }}"
-                class="{% if request.path == password_reset_url or request.path == password_reset_done_url or request.path in password_reset_confirm_url %} active_link {% endif %}">
+                class="{% if request.path == password_reset_url or request.path == password_reset_done_url or '/password-reset/confirm/' in request.path %} active_link {% endif %}">
             Сброс пароля
         </a></li>
         {% url 'support:support' as support_url %}
@@ -25,4 +24,4 @@
             Поддержка
         </a></li>
     </ul>
-</div>
+</header>

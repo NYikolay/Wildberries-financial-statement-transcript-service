@@ -11,24 +11,28 @@
     --var-bgcolor: #32396B;
     --var-fontcolor: #5C659D;
     --var-font-primary-color: #FFFFFF;
+    --var-tooltip-bg-color: #FFFFFF;
     --var-border-color: #424B80;
     --var-svg-color: #5C659D;
     --var-link-hover-color: #FFFFFF;
     --var-active-main-color: #0073FF;
     --var-error-main-color: #EC496B;
     --var-blue-accent-color: #00C6FF;
+    --var-success-color: #36D04F;
 }
 
 [data-color-theme="light"] {
     --var-bgcolor: #FFFFFF;
     --var-fontcolor: #A0A2A4;
     --var-font-primary-color: #5C659D;
+    --var-tooltip-bg-color: #D7E3EC;
     --var-border-color: #D7E3EC;
     --var-svg-color: #A0A2A4;
     --var-link-hover-color: #5C659D;
     --var-active-main-color: #0073FF;
     --var-error-main-color: #EC496B;
     --var-blue-accent-color: #00C6FF;
+    --var-success-color: #36D04F;
 }
 
 html {
@@ -45,21 +49,36 @@ body {
     color: var(--var-fontcolor);
 }
 
+header {
+    position: fixed;
+    width: 1025px;
+    margin-left: 175px;
+    background-color: var(--var-bgcolor);
+    border-bottom: 1px solid var(--var-border-color);
+    padding: 20px 20px 20px 30px;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-top: 67px;
+}
+
 main {
+    margin-left: 195px;
     min-height: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 20px;
+    padding: 112px 20px 20px 0;
 }
 
 .container {
-    display: grid;
     width: 1200px;
     margin: 0 auto;
-    grid-template-columns: 175px 1fr;
 }
 
 aside {
+    position: fixed;
+    width: 175px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -87,6 +106,21 @@ p {
     color: var(--var-fontcolor);
     font-size: 10px;
     line-height: 15px;
+}
+
+.p-normal {
+    font-weight: normal;
+    color: var(--var-fontcolor);
+    font-size: 10px;
+    line-height: 15px;
+}
+
+.error__dot-icon {
+    fill: var(--var-error-main-color);
+}
+
+.success__dot-icon {
+    fill: var(--var-success-color);
 }
 
 .accent-link {
@@ -140,7 +174,6 @@ p {
     align-items: center;
     gap: 30px;
     font-size: 10px;
-    padding-left: 5px;
 }
 
 .header-nav li {
@@ -158,15 +191,10 @@ p {
     transition: .4s;
 }
 
-.unauthorized_header {
-    padding-top: 22px;
-}
-
 .data_header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 15px;
 }
 
 .data__header-report {
@@ -244,27 +272,43 @@ footer {
     transition: .4s;
 }
 
-.nav {
+.sidebar__current-key__block {
+    color: var(--var-font-primary-color);
+    font-weight: bold;
+    word-break: break-all;
+    line-height: 15px;
+    font-size: 10px;
+}
+
+.sidebar__current-key__block button {
+    margin-left: 20px;
+    text-decoration: underline;
+    font-weight: normal;
+    font-size: 10px;
+    line-height: 15px;
+    color: var(--var-blue-accent-color);
+}
+
+.nav-list {
     display: flex;
     flex-direction: column;
     gap: 35px;
-    margin-top: 137px;
 }
 
-.nav>li>a {
+.nav-list>li>a {
     display: flex;
     align-items: center;
     gap: 20px;
     color: var(--var-fontcolor);
 }
 
-.nav>li {
+.nav-list>li {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.nav>li>a:hover {
+.nav-list>li>a:hover {
     color: var(--var-link-hover-color);
     cursor: pointer;
     transition: .4s;
@@ -322,6 +366,12 @@ footer {
 
 /*SITHE THEME CHECKBOX STYLING END*/
 
+.default__content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
 .common__content-wrapper {
     border: 1px solid var(--var-border-color);
     background: linear-gradient(90deg, #32396B 0%, #262D56 100%),
@@ -357,4 +407,32 @@ footer {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    font-size: 10px;
+    font-weight: normal;
+    line-height: 15px;
+    background-color: var(--var-tooltip-bg-color);
+    color: var(--var-fontcolor);
+    border-radius: 7px;
+    padding: 20px;
+    width: 253px;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 130%;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    transition: .4s;
 }

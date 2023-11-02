@@ -1,11 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
     const message = document.querySelector(".messages-wrapper")
-
-    message.style.transform = "translateX(0)";
-    message.style.right = "30px";
+    const closeMessageButton = document.getElementById("close-message")
 
     setTimeout(() => {
-        message.style.transform = "translateX(100%)";
-        message.style.right = "0";
-    }, 10000);
+        message.style.top = "3%"
+    }, 200)
+
+    setTimeout(function() {
+        message.style.top = "-100%"
+        setTimeout(function() {
+            message.classList.add("hide-message")
+        }, 5000)
+    }, 3000)
+
+    message.addEventListener("click", () => {
+        message.style.top = "-100%"
+    })
 })

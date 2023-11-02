@@ -15,19 +15,60 @@
     justify-content: space-between;
 }
 
-.companies-link {
+.companies__delete-button {
+    position: relative;
     display: flex;
+    cursor: pointer;
     align-items: center;
     gap: 15px;
 }
 
-.companies-link:hover {
+.companies__delete-button p:hover {
     display: flex;
     color: var(--var-link-hover-color) !important;
     cursor: pointer;
     transition: .4s;
 }
 
+.approve__company-delete__container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.delete__company-modal__container {
+    display: flex;
+    pointer-events: auto;
+    flex-direction: column;
+    gap: 10px;
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    top: 25px;
+    width: 253px;
+    border-radius: 7px;
+    padding: 15px 20px 20px 20px;
+    background-color: var(--var-tooltip-bg-color);
+}
+
+.delete__company-modal__container h1 {
+    color: var(--var-fontcolor);
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 21px;
+}
+
+.approve__delete-company__button {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.delete__company-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
 
 .company-form {
     flex: 0 0 auto;
@@ -48,7 +89,7 @@
 
 .company__instructions-container {
     overflow-y: auto;
-    max-height: 81vh;
+    max-height: calc(100vh - 175px);
 }
 
 .company__connection-block {

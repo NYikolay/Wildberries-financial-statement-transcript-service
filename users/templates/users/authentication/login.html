@@ -5,39 +5,35 @@
 <link rel="stylesheet" href="{% static 'css/common_form.css' %}">
 {% endblock %}
 {% block content %}
-<div class="wrapper_first">
-    {% include 'includes/unquthorized_header.html' %}
-
-    <div class="form-wrapper">
-        <form action="." method="post" class="common-form">
-            {% csrf_token %}
-            <h1>Введите email и пароль, указанные при регистрации</h1>
-            <div class="form-items">
-                <div class="form__item {% if form.email.errors %} input__item-error {% endif %}">
-                    {{ form.email }}
-                    {{ form.email.label_tag }}
-                    {% if form.email.errors %}
-                    <div class="form__item-error" data-id-error="email">
-                        {{ form.email.errors }}
-                    </div>
-                    {% endif %}
+<div class="form-wrapper">
+    <form action="." method="post" class="common-form">
+        {% csrf_token %}
+        <h1>Введите email и пароль, указанные при регистрации</h1>
+        <div class="form-items">
+            <div class="form__item {% if form.email.errors %} input__item-error {% endif %}">
+                {{ form.email }}
+                {{ form.email.label_tag }}
+                {% if form.email.errors %}
+                <div class="form__item-error" data-id-error="email">
+                    {{ form.email.errors }}
                 </div>
-                <div class="form__item {% if form.password.errors %} input__item-error {% endif %}">
-                    {{ form.password }}
-                    {{ form.password.label_tag }}
-                    {% if form.password.errors %}
-                    <div class="form__item-error" data-id-error="password">
-                        {{ form.password.errors }}
-                    </div>
-                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="form__item {% if form.password.errors %} input__item-error {% endif %}">
+                {{ form.password }}
+                {{ form.password.label_tag }}
+                {% if form.password.errors %}
+                <div class="form__item-error" data-id-error="password">
+                    {{ form.password.errors }}
                 </div>
+                {% endif %}
             </div>
-            <div class="form_buttons">
-                <button class="form__accent-button" type="submit">Зарегестрироваться</button>
-                <a href="{% url 'users:password_reset' %}" class="medium-link">Сбросить пароль</a>
-            </div>
-        </form>
-    </div>
+        </div>
+        <div class="form_buttons">
+            <button class="form__accent-button" type="submit">Зарегестрироваться</button>
+            <a href="{% url 'users:password_reset' %}" class="medium-link">Сбросить пароль</a>
+        </div>
+    </form>
 </div>
 
 <script src="{% static 'js/handleInputsValidation.js' %}"></script>

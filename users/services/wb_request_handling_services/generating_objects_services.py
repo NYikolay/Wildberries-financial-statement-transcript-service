@@ -11,10 +11,16 @@ def get_unloaded_report_object(current_api_key, realizationreport_id):
 
 
 def get_incorrect_report_object(current_user, report_data, current_api_key):
+    create_dt = datetime.datetime.strptime(
+        report_data.create_dt, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.timezone('Europe/Moscow'))
+    week_num = datetime.datetime.strptime(report_data.date_from, '%Y-%m-%dT%H:%M:%SZ').isocalendar()[1]
+
     return IncorrectReport(
         api_key=current_api_key,
         owner=current_user,
         realizationreport_id=report_data.realizationreport_id,
+        create_dt=create_dt,
+        week_num=week_num,
         date_from=report_data.date_from,
         date_to=report_data.date_to
     )

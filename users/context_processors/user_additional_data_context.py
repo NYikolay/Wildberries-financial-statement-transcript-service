@@ -1,11 +1,33 @@
 from reports.models import InfoTypes, GeneralInformationObj
-from users.models import WBApiKey, ClientUniqueProduct, SaleReport
+from users.models import ClientUniqueProduct, SaleReport
+from django.urls import reverse
 
 
 def current_user_api_key(request):
     if request.user.is_authenticated:
         return {'current_api_key': request.user.keys.filter(is_current=True).first()}
     return {}
+
+
+def current_path(request):
+    profile_urls = [
+        reverse("users:change_password"),
+        reverse("users:profile_subscriptions"),
+        reverse("users:register"), reverse("users:password_reset"), reverse("users:password_reset_done"),
+        reverse("users:login"), reverse("users:email_confirmation_info"), reverse("support:support"),
+        '/password-reset/confirm/'
+    ]
+
+    data_urls = [
+        reverse("reports:reports_list"), reverse("users:create_api_key"), reverse("users:companies_list"),
+        '/profile/api-key/edit/'
+    ]
+
+    return {
+        "is_profile_url": request.path in profile_urls or any(list(map(lambda url: url in request.path, profile_urls))),
+        "is_data_url": request.path in data_urls or any(list(map(lambda url: url in request.path, data_urls))),
+        "is_dashboard_url": False
+    }
 
 
 def general_report_message(request):

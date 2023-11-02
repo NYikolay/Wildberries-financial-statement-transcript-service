@@ -24,11 +24,15 @@ class LoginForm(forms.Form):
         required=True
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
+
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data['email']
         password = cleaned_data['password']
-        user = User.objects.filter(email=email).first()
+        user = User.objects.filter(email__iexact=email).first()
 
         if not user:
             self.add_error("email", "Введён неверный Email")
@@ -43,7 +47,9 @@ class UserRegisterForm(UserCreationForm):
         error_messages={'required': 'Необходимо согласие с условиями Оферты'},
         widget=forms.CheckboxInput(attrs={'data-id': 'is_accepted_terms_of_offer'}),
         label='Принять условия Оферты',
-        required=True)
+        required=True,
+        initial=True
+    )
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'password1'}),
         label='Пароль'
@@ -74,7 +80,8 @@ class UserRegisterForm(UserCreationForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(UserRegisterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
         self.fields["promocode"] = forms.CharField(required=False, widget=forms.TextInput(attrs={
             'class': 'form__input',
             'placeholder': 'HXTYUUU1',
@@ -104,6 +111,10 @@ class PasswordResetEmailForm(forms.Form):
             'data-id': 'email'
         }))
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
+
     def clean(self):
         cleaned_data = super().clean()
         email = cleaned_data['email']
@@ -125,6 +136,10 @@ class UserPasswordResetForm(SetPasswordForm):
         widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password2'})
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
+
 
 class APIKeyForm(forms.ModelForm):
     class Meta:
@@ -138,7 +153,7 @@ class APIKeyForm(forms.ModelForm):
             'api_key': forms.Textarea(attrs={
                 'class': 'form__input',
                 'cols': 1,
-                'rows': 5,
+                'rows': 10,
                 'data-id': 'api_key',
                 'style': 'resize:none;'
             }),
@@ -150,6 +165,7 @@ class APIKeyForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.api_keys_count = kwargs.pop('api_keys_count', None)
+        self.label_suffix = ""
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -162,6 +178,10 @@ class UpdateAPIKeyForm(forms.ModelForm):
     class Meta:
         model = WBApiKey
         fields = ["api_key", "name"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
 
 
 class TaxRateForm(forms.ModelForm):
@@ -202,6 +222,7 @@ class ChangeUserPasswordForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        self.label_suffix = ""
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -223,6 +244,7 @@ class LoadNetCostsFileForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.label_suffix = ""
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'file-load_input'
 

@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.list import ListView
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
@@ -503,13 +503,14 @@ class CompanyEditView(LoginRequiredMixin, View):
 class DeleteCompanyView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
+    success_redirect_url = "users:companies_list"
 
     def post(self, request, api_key_id):
         company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
         company.delete()
 
-        messages.success(request, 'Магазин успешно удалён!')
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        messages.success(request, 'Подключение было успешно остановлено')
+        return redirect(self.success_redirect_url)
 
 
 class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
