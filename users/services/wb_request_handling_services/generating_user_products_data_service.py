@@ -60,10 +60,12 @@ def handle_article_additional_data(article: int, article_obj_list: list) -> None
         1169 >= small_article_1 >= 1116: '//basket-08.wb.ru/',
         1313 >= small_article_1 >= 1170: '//basket-09.wb.ru/',
         1601 >= small_article_1 >= 1314: '//basket-10.wb.ru/',
-        1889 >= small_article_1 >= 1602: '//basket-11.wb.ru/',
+        1655 >= small_article_1 >= 1602: '//basket-11.wb.ru/',
+        1919 >= small_article_1 >= 1656: '//basket-12.wb.ru/',
+        2045 >= small_article_1 >= 1920: '//basket-13.wb.ru/',
     }
 
-    basket_url: str = links_conditions_data.get(True, '//basket-12.wb.ru/')
+    basket_url: str = links_conditions_data.get(True, '//basket-14.wb.ru/')
 
     json_data_url: str = f'https:{basket_url}vol{small_article_1}/part{small_article_2}/{article}/info/ru/card.json'
     img_url: str = f'https:{basket_url}vol{small_article_1}/part{small_article_2}/{article}/images/tm/1.jpg'
