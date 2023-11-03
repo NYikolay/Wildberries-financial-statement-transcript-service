@@ -65,6 +65,7 @@ TEMPLATES = [
                 'users.context_processors.user_additional_data_context.user_product_article',
                 'users.context_processors.user_additional_data_context.general_report_message',
                 'users.context_processors.user_additional_data_context.current_path',
+                'users.context_processors.user_additional_data_context.api_keys_list',
             ],
         },
     },

@@ -10,20 +10,20 @@
 <div class="company-container">
     <div class="common__content-wrapper common__content-medium">
         <div class="common__content-container">
-            <h1>Подключение к вб</h1>
+            <h1>Подключение к WILDBERRIES по API</h1>
             <div class="company__connection-block">
                 <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
+                    <rect class="error__dot-icon" width="7" height="7" rx="3.5" />
                 </svg>
-                <p>Отсутствует</p>
+                <p class="text__accent-bold">Отсутствует</p>
             </div>
-            <button class="form__accent-button">Создать подключение</button>
+            <button class="accent-button">Создать подключение</button>
         </div>
     </div>
     <div>
-        <p>Для создания подключения используется API-ключ “Статистика” из Личного кабинета продавца WILDBERRIES. Данный типа ключа предоставляет доступ лишь к вашим Финансовым отчетам и ограничивает доступ к прочему функционалу Личного кабинета продавца.</p>
+        <p class="text__accent">Для создания подключения используется API-ключ “Статистика” из Личного кабинета продавца WILDBERRIES. Данный типа ключа предоставляет доступ лишь к вашим Финансовым отчетам и ограничивает доступ к прочему функционалу Личного кабинета продавца.</p>
         <br>
-        <p>Мы храним ваши ключи в зашифрованном виде на защищенных от несанкционированного проникновения серверах.</p>
+        <p class="text__accent">Мы храним ваши ключи в зашифрованном виде на защищенных от несанкционированного проникновения серверах.</p>
     </div>
 </div>
 {% else %}
@@ -34,29 +34,28 @@
             <h1>Подключение к WILDBERRIES по API</h1>
             <div class="company__connection-block">
                 <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="7" height="7" rx="3.5" fill="#36D04F"/>
+                    <rect class="success__dot-icon" width="7" height="7" rx="3.5" />
                 </svg>
-                <p>Активно</p>
+                <p class="text__accent-bold">Активно</p>
             </div>
-
-            <p class="p-bold">Название подключения: {{ company.name }}</p>
+            <p class="text__common-bold" style="word-break: break-all">Название подключения: {{ company.name }}</p>
             <div class="company__buttons-wrapper">
-                <a class="accent-link" href="{% url 'users:api_key_edit' company.id %}">Редактировать</a>
+                <a class="accent-button" href="{% url 'users:api_key_edit' company.id %}">Редактировать</a>
                 <div id="delete-company" class="companies__delete-button">
-                    <p class="p-bold">Остановить</p>
+                    <p class="text__common-bold">Остановить</p>
                     <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
-                        <path class="company__delete-icon" fill-rule="evenodd" clip-rule="evenodd" d="M7.5 13.8281C4.00508 13.8281 1.17188 10.9949 1.17188 7.5C1.17188 5.99345 1.69834 4.60986 2.57733 3.52316L11.4768 12.4227C10.3901 13.3017 9.00655 13.8281 7.5 13.8281ZM12.3163 11.6049C13.259 10.4998 13.8281 9.06637 13.8281 7.5C13.8281 4.00508 10.9949 1.17188 7.5 1.17188C5.93362 1.17188 4.50019 1.74097 3.39514 2.68369L12.3163 11.6049ZM0 7.5C0 3.35786 3.35786 0 7.5 0C11.6421 0 15 3.35786 15 7.5C15 11.6421 11.6421 15 7.5 15C3.35786 15 0 11.6421 0 7.5Z" fill="#5C659D"/>
+                        <path class="company__delete-icon" fill-rule="evenodd" clip-rule="evenodd" d="M7.5 13.8281C4.00508 13.8281 1.17188 10.9949 1.17188 7.5C1.17188 5.99345 1.69834 4.60986 2.57733 3.52316L11.4768 12.4227C10.3901 13.3017 9.00655 13.8281 7.5 13.8281ZM12.3163 11.6049C13.259 10.4998 13.8281 9.06637 13.8281 7.5C13.8281 4.00508 10.9949 1.17188 7.5 1.17188C5.93362 1.17188 4.50019 1.74097 3.39514 2.68369L12.3163 11.6049ZM0 7.5C0 3.35786 3.35786 0 7.5 0C11.6421 0 15 3.35786 15 7.5C15 11.6421 11.6421 15 7.5 15C3.35786 15 0 11.6421 0 7.5Z" />
                     </svg>
                     <div class="delete__company-modal__container">
                         <h1>Подтверждение отключения</h1>
-                        <h2 class="p-normal">Будут удалены все загруженные ранее отчеты WILDBERRIES и прочие данные</h2>
+                        <h2 class="text__common-normal">Будут удалены все загруженные ранее отчеты WILDBERRIES и прочие данные</h2>
                         <form action="{% url 'users:company_delete' company.id %}" method="post" class="delete__company-form">
                             {% csrf_token %}
-                            <button type="button" class="form__accent-button p-bold" id="cancel-company-delete">Отменить</button>
-                            <button type="submit" class="approve__delete-company__button p-bold">
-                                Остановить
+                            <button type="button" class="accent-button" id="cancel-company-delete">Отменить</button>
+                            <button type="submit" class="approve__delete-company__button">
+                                <p class="text__common-bold">Остановить</p>
                                 <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
-                                    <path class="company__delete-icon" fill-rule="evenodd" clip-rule="evenodd" d="M7.5 13.8281C4.00508 13.8281 1.17188 10.9949 1.17188 7.5C1.17188 5.99345 1.69834 4.60986 2.57733 3.52316L11.4768 12.4227C10.3901 13.3017 9.00655 13.8281 7.5 13.8281ZM12.3163 11.6049C13.259 10.4998 13.8281 9.06637 13.8281 7.5C13.8281 4.00508 10.9949 1.17188 7.5 1.17188C5.93362 1.17188 4.50019 1.74097 3.39514 2.68369L12.3163 11.6049ZM0 7.5C0 3.35786 3.35786 0 7.5 0C11.6421 0 15 3.35786 15 7.5C15 11.6421 11.6421 15 7.5 15C3.35786 15 0 11.6421 0 7.5Z" fill="#5C659D"/>
+                                    <path class="company__delete-icon" fill-rule="evenodd" clip-rule="evenodd" d="M7.5 13.8281C4.00508 13.8281 1.17188 10.9949 1.17188 7.5C1.17188 5.99345 1.69834 4.60986 2.57733 3.52316L11.4768 12.4227C10.3901 13.3017 9.00655 13.8281 7.5 13.8281ZM12.3163 11.6049C13.259 10.4998 13.8281 9.06637 13.8281 7.5C13.8281 4.00508 10.9949 1.17188 7.5 1.17188C5.93362 1.17188 4.50019 1.74097 3.39514 2.68369L12.3163 11.6049ZM0 7.5C0 3.35786 3.35786 0 7.5 0C11.6421 0 15 3.35786 15 7.5C15 11.6421 11.6421 15 7.5 15C3.35786 15 0 11.6421 0 7.5Z"/>
                                 </svg>
                             </button>
                         </form>
@@ -67,7 +66,7 @@
     </div>
     {% endfor %}
     {% if api_keys_count <= 10 %}
-    <a class="accent-link" href="{% url 'users:create_api_key' %}">Добавить подключение</a>
+    <a class="accent-button" href="{% url 'users:create_api_key' %}">Добавить подключение</a>
     {% endif %}
 </div>
 {% endif %}

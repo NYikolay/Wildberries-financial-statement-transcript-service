@@ -9,6 +9,12 @@ def current_user_api_key(request):
     return {}
 
 
+def api_keys_list(request):
+    if request.user.is_authenticated:
+        return {"api_keys": request.user.keys.values("name", "id", "is_current")}
+    return {}
+
+
 def current_path(request):
     profile_urls = [
         reverse("users:change_password"),

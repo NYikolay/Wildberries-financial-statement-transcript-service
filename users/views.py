@@ -28,7 +28,7 @@ from users.decorators import redirect_authenticated_user
 from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          ChangeUserDataForm, ChangeUserPasswordForm, TaxRateForm,
                          UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
-                         LoadNetCostsFileForm)
+                         LoadNetCostsFileForm, ChangeCurrentApiKeyForm)
 from users.mixins import SubscriptionRequiredMixin
 from users.models import User, WBApiKey, ClientUniqueProduct, TaxRate, NetCost, UserDiscount
 from users.services.encrypt_api_key_service import get_encrypted_key
@@ -265,6 +265,28 @@ class CreateApiKeyView(LoginRequiredMixin, View):
 
         context = {"form": form}
         return render(request, self.template_name, context)
+
+
+class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
+    form_class = ChangeCurrentApiKeyForm
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            current_api_key = request.user.keys.filter(is_current=True).first()
+            api_key = request.user.keys.filter(id=form.cleaned_data['api_key_id']).first()
+
+            with transaction.atomic():
+                current_api_key.is_current = False
+                api_key.is_current = True
+                current_api_key.save()
+                api_key.save()
+
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        print(form.errors)
+        return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
 class CompaniesListView(LoginRequiredMixin, ListView):

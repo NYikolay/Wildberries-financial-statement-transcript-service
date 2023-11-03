@@ -173,6 +173,10 @@ class APIKeyForm(forms.ModelForm):
             self.add_error("api_key", "Нельзя создать более 10 подключений к WILDBERRIES по API")
 
 
+class ChangeCurrentApiKeyForm(forms.Form):
+    api_key_id = forms.IntegerField()
+
+
 class UpdateAPIKeyForm(forms.ModelForm):
 
     class Meta:

@@ -7,7 +7,18 @@
     max-width: 754px;
 }
 
-.subscription_item:first-child {
+.subscription_item {
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    border: 1px solid var(--var-border-color);
+    background: var(--var-content-bg-gradient);
+    border-radius: 7px;
+    padding: 15px 20px 20px 20px;
+    align-self: flex-start;
+}
+
+.subscription_item-first {
     grid-row: 1;
     grid-column-start: 1;
     grid-column-end: 4;
@@ -37,6 +48,13 @@
 .subscription__description-list {
     display: flex;
     flex-direction: column;
+}
+
+.subscription__description-list li {
+    font-weight: bold;
+    color: var(--var-accent-text-color);
+    font-size: 10px;
+    line-height: 15px;
 }
 
 .subscription__description_duration {

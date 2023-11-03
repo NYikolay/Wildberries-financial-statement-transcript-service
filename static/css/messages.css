@@ -15,7 +15,7 @@
 
 .message_item-error {
     border-radius: 7px;
-    background-color: var(--var-error-main-color);
+    background-color: var(--var-error-color);
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -14,11 +14,13 @@ document.addEventListener("DOMContentLoaded", function () {
         cancelDeleteButton.addEventListener("click", (event) => {
             event.stopPropagation();
             deleteCompanyModalContainer.style.visibility = "hidden"
+            currentButton.style.cursor = "pointer"
         })
 
         document.addEventListener('click', function(event) {
             if (!deleteCompanyModalContainer.contains(event.target) && !currentButton.contains(event.target)) {
                 deleteCompanyModalContainer.style.visibility = 'hidden'
+                currentButton.style.cursor = "pointer"
             }
         });
     }

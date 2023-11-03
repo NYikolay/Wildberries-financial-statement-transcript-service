@@ -23,11 +23,11 @@
     gap: 15px;
 }
 
-.companies__delete-button p:hover {
-    display: flex;
-    color: var(--var-link-hover-color) !important;
-    cursor: pointer;
-    transition: .4s;
+.companies__delete-button h1 {
+    font-weight: bold;
+    color: var(--var-common-text-color);
+    font-size: 14px;
+    line-height: 21px;
 }
 
 .approve__company-delete__container {
@@ -48,14 +48,11 @@
     width: 253px;
     border-radius: 7px;
     padding: 15px 20px 20px 20px;
-    background-color: var(--var-tooltip-bg-color);
+    background-color: var(--var-bg-modal-color);
 }
 
-.delete__company-modal__container h1 {
-    color: var(--var-fontcolor);
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 21px;
+.company__delete-icon {
+    fill: var(--var-common-text-color);
 }
 
 .approve__delete-company__button {
