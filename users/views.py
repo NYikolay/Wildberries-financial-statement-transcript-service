@@ -8,13 +8,14 @@ from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.views.generic.list import ListView
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.urls import reverse_lazy
-from django.views.generic import View, CreateView
+from django.views.generic import View, CreateView, UpdateView
 from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_str
@@ -293,8 +294,12 @@ class CompaniesListView(LoginRequiredMixin, ListView):
     login_url = 'users:login'
     redirect_field_name = 'login'
     template_name = 'users/profile/companies/companies_list.html'
-    model = WBApiKey
     context_object_name = 'companies'
+
+    def get_queryset(self):
+        queryset = self.request.user.keys.order_by('-is_current', '-last_reports_update')
+
+        return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -327,6 +332,8 @@ class UpdateApiKeyView(LoginRequiredMixin, View):
             api_key_obj.save()
 
             return redirect("users:companies_list")
+
+        return render(request, self.template_name, context={"form": form, "api_key": company})
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
@@ -528,11 +535,62 @@ class DeleteCompanyView(LoginRequiredMixin, View):
     success_redirect_url = "users:companies_list"
 
     def post(self, request, api_key_id):
-        company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
-        company.delete()
+        for_delete_api_key = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
+        for_current_api_key = request.user.keys.filter(
+            ~Q(pk=for_delete_api_key.id)).order_by('-is_current', '-last_reports_update').first()
+
+        with transaction.atomic():
+            for_delete_api_key.delete()
+            if for_current_api_key:
+                for_current_api_key.is_current = True
+                for_current_api_key.save()
 
         messages.success(request, 'Подключение было успешно остановлено')
         return redirect(self.success_redirect_url)
+
+
+class TaxRateListView(LoginRequiredMixin, ListView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    template_name = 'users/profile/taxes.html'
+    form_class = TaxRateForm
+    context_object_name = 'tax_rates'
+
+    def get_queryset(self):
+        queryset = WBApiKey.objects.filter(user=self.request.user, is_current=True).first().taxes.all()
+        return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class()
+        context['tax_rates_forms'] = [
+            self.form_class(instance=tax_rate) for tax_rate in WBApiKey.objects.filter(
+                user=self.request.user, is_current=True).first().taxes.all()]
+
+        return context
+
+
+class CreateTaxRateView(LoginRequiredMixin, CreateView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    success_url = reverse_lazy("users:profile_taxes")
+    form_class = TaxRateForm
+    model = TaxRate
+
+    def form_valid(self, form):
+        api_key = self.request.user.keys.filter(is_current=True).first()
+        tax_rate = form.save(commit=False)
+
+        tax_rate.api_key = api_key
+        tax_rate.save()
+
+        return super().form_valid(form)
+
+
+class ChangeTaxRateView(LoginRequiredMixin, UpdateView):
+    model = TaxRate
+    form_class = TaxRateForm
+    pk_url_kwarg = 'id'
 
 
 class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):

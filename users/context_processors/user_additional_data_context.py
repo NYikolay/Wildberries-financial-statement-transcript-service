@@ -11,7 +11,13 @@ def current_user_api_key(request):
 
 def api_keys_list(request):
     if request.user.is_authenticated:
-        return {"api_keys": request.user.keys.values("name", "id", "is_current")}
+        return {
+            "api_keys": request.user.keys.values(
+                "name", "id", "is_current"
+            ).order_by(
+                '-is_current', '-last_reports_update'
+            )
+        }
     return {}
 
 
@@ -26,7 +32,7 @@ def current_path(request):
 
     data_urls = [
         reverse("reports:reports_list"), reverse("users:create_api_key"), reverse("users:companies_list"),
-        '/profile/api-key/edit/'
+        '/profile/api-key/edit/', reverse("users:profile_taxes")
     ]
 
     return {

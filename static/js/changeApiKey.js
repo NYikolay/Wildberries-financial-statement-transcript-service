@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentKeysContainer = document.getElementById('current-keys-container')
     const openChangeKeyModelButton = document.getElementById('open-change-key-modal')
     const cancelChangeKeyButton = document.getElementById('cancel-key-change')
-    const changeKeyCheckboxInputs = document.querySelectorAll('.change__key-checkbox')
+    const changeKeyCheckboxInputs = document.querySelectorAll('.change__key-checkbox__input')
 
     const handleCheckboxChange = (event) =>  {
         const clickedCheckbox = event.target;

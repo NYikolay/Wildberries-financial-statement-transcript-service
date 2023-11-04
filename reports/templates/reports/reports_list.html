@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'reports/css/reports.css' %}">
 {% endblock %}
 {% block content %}
-{% if not reports %}
+{% if not reports or not current_api_key.is_wb_data_loaded %}
 <div class="reports-wrapper">
     <div class="reports__content-container__medium">
         <h1>Список отчетов</h1>
@@ -21,10 +21,10 @@
             </tr>
             </thead>
         </table>
-        <p>Не загружено ни одного отчета WILDBERRIES. Для загрузки нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для загрузки нажмите на “Загрузить отчеты” в правом верхнем углу</p>
     </div>
     <div class="reports__content-container">
-        <h1>Стоимость хранения, платной приемки и прочие удержания</h1>
+        <h1>Расходы на стороне WILDBERRIES</h1>
         <table class="reports-table" style="width: 128px;">
             <thead>
             <tr class="tr-header">
@@ -32,7 +32,7 @@
             </tr>
             </thead>
         </table>
-        <p>Не загружено ни одного отчета WILDBERRIES. Для загрузки нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для загрузки нажмите на “Загрузить отчеты” в правом верхнем углу</p>
     </div>
 </div>
 {% else %}
@@ -97,7 +97,7 @@
         </table>
     </div>
     <div class="reports__content-container">
-        <h1>Стоимость хранения, платной приемки и прочие удержания</h1>
+        <h1>Расходы на стороне WILDBERRIES</h1>
         <div class="reports__detail-container">
             <table class="reports-table reports__fixed-table">
                 <thead>
@@ -162,7 +162,7 @@
                 <div class="common__content-wrapper reports__expenses-form__container">
                     <div class="reports__expenses-description__item">
                         <h1>Шаг 1</h1>
-                        <p>
+                        <p class="text__accent">
                             <a
                                     href="https://seller.wildberries.ru/suppliers-mutual-settlements/reports-implementations/reports-weekly"
                                     target="_blank">Скачайте
@@ -171,7 +171,7 @@
                     </div>
                     <div class="reports__expenses-description__item">
                         <h1>Шаг 2</h1>
-                        <p>
+                        <p class="text__accent">
                             {{ form.report_data_file }}
                             <label for="{{ form.report_data_file.id_for_label }}" class="reports__expenses-label">Выберите</label>
                             скачанный Excel-файл для загрузки
@@ -180,13 +180,13 @@
                             <svg width="7" height="7" viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg">
                                 <rect class="error__dot-icon" id="file-load-icon" width="7" height="7" rx="3.5"/>
                             </svg>
-                            <p id="file-load-text">Файл не выбран</p>
+                            <p class="text__accent" id="file-load-text">Файл не выбран</p>
                         </div>
                     </div>
                     <div class="reports__expenses-description__item">
                         <h1>Шаг 3</h1>
                         <div class="reports__expenses-form__buttons">
-                            <button type="submit" class="form__accent-button">Загрузить</button>
+                            <button type="submit" class="accent-button">Загрузить</button>
                             <button type="button" class="reports__expenses-cancel" id="reports-expenses-close-form">
                                 Отменить
                                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">

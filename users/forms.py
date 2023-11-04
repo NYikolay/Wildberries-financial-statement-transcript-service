@@ -141,6 +141,31 @@ class UserPasswordResetForm(SetPasswordForm):
         self.label_suffix = ""
 
 
+class TaxRateForm(forms.ModelForm):
+    class Meta:
+        model = TaxRate
+        fields = ["tax_rate", "commencement_date"]
+        labels = {
+            "tax_rate": "Ставка",
+            "commencement_date": "Дата начала действия"
+        }
+        widgets = {
+            "tax_rate": forms.NumberInput(attrs={
+                'class': 'form__input',
+                'data-id': 'tax_rate',
+            }),
+            'commencement_date': forms.DateInput(format='%d/%m/%Y', attrs={
+                "class": 'form__input',
+                'data-id': 'commencement_date',
+                'type': 'date'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
+
+
 class APIKeyForm(forms.ModelForm):
     class Meta:
         model = WBApiKey
@@ -186,12 +211,6 @@ class UpdateAPIKeyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.label_suffix = ""
-
-
-class TaxRateForm(forms.ModelForm):
-    class Meta:
-        model = TaxRate
-        fields = ["tax_rate", "commencement_date"]
 
 
 class NetCostForm(forms.ModelForm):

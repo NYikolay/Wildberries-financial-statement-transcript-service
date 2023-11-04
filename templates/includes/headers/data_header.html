@@ -4,6 +4,7 @@
         <ul class="header-nav">
             {% url 'users:create_api_key' as create_api_key_url %}
             {% url 'users:companies_list' as companies_list_url %}
+            {% url 'users:profile_taxes' as profile_taxes_url %}
             <li><a
                     href="{{ companies_list_url }}"
                     class="{% if request.path == create_api_key_url or request.path == companies_list_url or '/profile/api-key/edit/' in request.path %} active_link {% endif %}">
@@ -32,17 +33,19 @@
                 Мои расходы
             </a></li>
             <li><a
-                    href="{{ support_url }}"
-                    class="{% if request.path == support_url %} active_link {% endif %}">
+                    href="{{ profile_taxes_url }}"
+                    class="{% if request.path == profile_taxes_url %} active_link {% endif %}">
                 Налоги
             </a></li>
         </ul>
         {% if current_api_key %}
         <div class="data__header-report">
+            {% if current_api_key.is_wb_data_loaded %}
             <div class="data__header-info">
                 <p class="text__accent">Дата последней загрузки отчетов</p>
                 <p class="text__accent">{{ last_report_date }}</p>
             </div>
+            {% endif %}
             <div class="form_buttons">
                 <button class="accent-button accent__button-container" type="submit">
                     Загрузить отчёты

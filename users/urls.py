@@ -7,7 +7,8 @@ from users.views import (
     EditProductView, ProductDetailView, EmptyProductsListView,
     DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
     PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView,
-    ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView, ChangeCurrentApiKeyView
+    ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView, ChangeCurrentApiKeyView, TaxRateListView,
+    CreateTaxRateView, ChangeTaxRateView
 )
 
 app_name = 'users'
@@ -32,6 +33,9 @@ urlpatterns = [
     path('change-current-api-key/', ChangeCurrentApiKeyView.as_view(), name='change_current_api_key'),
     path('profile/change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('profile/companies/', CompaniesListView.as_view(), name='companies_list'),
+    path('profile/taxes', TaxRateListView.as_view(), name='profile_taxes'),
+    path('profile/taxes/change/<int:id>/', ChangeTaxRateView.as_view(), name='change_tax_rate'),
+    path('profile/taxes/create/', CreateTaxRateView.as_view(), name='create_tax_rate'),
     path('profile/api-key/edit/<int:api_key_id>/', UpdateApiKeyView.as_view(), name='api_key_edit'),
     path('profile/company/delete/<int:api_key_id>/', DeleteCompanyView.as_view(), name='company_delete'),
 

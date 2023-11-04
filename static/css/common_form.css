@@ -32,7 +32,7 @@
 .form__input {
     width: 271px;
     border-radius: 7px;
-    color: var(--var-accent-text-color);
+    color: #5C659D;
     font-size: 10px;
     line-height: 13px;
     font-weight: normal;
@@ -42,6 +42,10 @@
 }
 
 .input__item-error input {
+    border: 1px solid var(--var-error-color);
+}
+
+.input__item-error textarea {
     border: 1px solid var(--var-error-color);
 }
 
@@ -71,6 +75,7 @@
 .form__input:focus {
     outline: none !important;
     border: 1px solid var(--var-border-active-color);
+    color: var(--var-text-active-color);
     transition: .4s;
 }
 
@@ -109,6 +114,12 @@
 .form_buttons {
     display: flex;
     gap: 20px;
+    align-items: center;
+}
+
+.form__buttons-normal {
+    display: flex;
+    gap: 10px;
     align-items: center;
 }
 

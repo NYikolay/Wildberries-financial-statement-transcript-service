@@ -40,7 +40,7 @@
     display: flex;
     pointer-events: auto;
     flex-direction: column;
-    gap: 10px;
+    gap: 11px;
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -71,8 +71,7 @@
     flex: 0 0 auto;
     width: 468px;
     border: 1px solid var(--var-border-color);
-    background: linear-gradient(90deg, #32396B 0%, #262D56 100%),
-    linear-gradient(0deg, #424B80, #424B80);
+    background: var(--var-content-bg-gradient);
     border-radius: 7px;
     padding: 20px 20px 20px 20px;
 }

@@ -6,23 +6,27 @@
         <nav>
             {% if request.user.is_authenticated and current_api_key %}
             <div class="sidebar__current-key__block">
-                <p class="text__accent-bold">{{ current_api_key.name }}</p>
-                <button type="button" class="open__change-key__modal" id="open-change-key-modal">Изменить</button>
+                <p class="text__accent-bold">
+                    {{ current_api_key.name }}
+                    <button type="button" class="open__change-key__modal" id="open-change-key-modal" style="margin-left: 5px;">Изменить</button>
+                </p>
                 <div class="current__key-container hidden" id="current-keys-container">
                     <form method="post" action="{% url 'users:change_current_api_key' %}" class="current__key-form">
                         {% csrf_token %}
-                        <h1>Выбор подключения</h1>
+                        <h1 class="commot__modal-title">Выбор подключения</h1>
                         {% for key in api_keys %}
-                        <label for="key-checkbox-{{ key.id }}" class="change__key-label">
+                        <div>
                             <input
                                     type="checkbox"
                                     name="api_key_id"
                                     id="key-checkbox-{{ key.id }}"
                                     value="{{ key.id }}"
                                     {% if key.is_current %}checked{% endif %}
-                                    class="change__key-checkbox">
-                            {{ key.name }}
-                        </label>
+                                    class="change__key-checkbox__input">
+                            <label for="key-checkbox-{{ key.id }}" class="change__key-checkbox">
+                                {{ key.name }}
+                            </label>
+                        </div>
                         {% endfor %}
                         <div class="common__buttons-container">
                             <button type="submit" class="accent-button">Применить</button>
