@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, validate_email
 from django.utils.translation import gettext_lazy as _
 
-from users.models import User, WBApiKey, TaxRate, NetCost, Promocode
+from users.models import User, WBApiKey, TaxRate, NetCost, Promocode, SaleReport
 
 
 class LoginForm(forms.Form):
@@ -153,17 +153,34 @@ class TaxRateForm(forms.ModelForm):
             "tax_rate": forms.NumberInput(attrs={
                 'class': 'form__input',
                 'data-id': 'tax_rate',
+                'id': 'tax_rate',
+                'min': 0,
             }),
-            'commencement_date': forms.DateInput(format='%d/%m/%Y', attrs={
+            'commencement_date': forms.DateInput(format='%Y-%m-%d', attrs={
                 "class": 'form__input',
                 'data-id': 'commencement_date',
-                'type': 'date'
+                'id': 'commencement_date',
+                'type': 'date',
             })
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.label_suffix = ""
+
+
+class CostsForm(forms.ModelForm):
+
+    class Meta:
+        model = SaleReport
+        fields = ["supplier_costs"]
+        widgets = {
+            "supplier_costs": forms.NumberInput(attrs={
+                'class': 'form__input costs-input',
+                'id': 'supplier_costs',
+                'min': 0,
+            })
+        }
 
 
 class APIKeyForm(forms.ModelForm):

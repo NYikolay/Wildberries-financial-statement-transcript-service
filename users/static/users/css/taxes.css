@@ -55,13 +55,20 @@
     margin-left: 11px;
 }
 
+
+.tax_form-wrapper {
+    display: flex;
+    border: 1px solid var(--var-border-color);
+    padding: 20px 20px 20px 20px;
+    border-radius: 7px;
+    gap: 11px;
+    flex-direction: column;
+}
+
 .tax_form {
     display: flex;
     flex-direction: column;
     gap: 11px;
-    border: 1px solid var(--var-border-color);
-    padding: 20px 20px 20px 20px;
-    border-radius: 7px;
 }
 
 .tax__form-buttons {

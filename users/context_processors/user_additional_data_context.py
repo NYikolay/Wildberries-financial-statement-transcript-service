@@ -32,7 +32,7 @@ def current_path(request):
 
     data_urls = [
         reverse("reports:reports_list"), reverse("users:create_api_key"), reverse("users:companies_list"),
-        '/profile/api-key/edit/', reverse("users:profile_taxes")
+        '/profile/api-key/edit/', reverse("users:profile_taxes"), reverse("users:costs_list")
     ]
 
     return {
@@ -42,12 +42,12 @@ def current_path(request):
     }
 
 
-def general_report_message(request):
-    message = GeneralInformationObj.objects.filter(info_type=InfoTypes.reports, is_active=True).first()
-
-    return {'report_message': message}
-
-
+# def general_report_message(request):
+#     message = GeneralInformationObj.objects.filter(info_type=InfoTypes.reports, is_active=True).first()
+#
+#     return {'report_message': message}
+#
+#
 def user_last_report_date(request):
     if request.user.is_authenticated and request.user.keys.filter(is_current=True).exists():
         context = {
@@ -57,14 +57,14 @@ def user_last_report_date(request):
         }
         return context
     return {}
-
-
-def user_product_article(request):
-    if request.user.is_authenticated and request.user.keys.filter(is_current=True).exists():
-        context = {
-            'product_article': ClientUniqueProduct.objects.filter(
-                api_key__is_current=True, api_key__user=request.user
-            ).order_by('brand', 'nm_id').values_list('nm_id', flat=True)[:1].first()
-        }
-        return context
-    return {}
+#
+#
+# def user_product_article(request):
+#     if request.user.is_authenticated and request.user.keys.filter(is_current=True).exists():
+#         context = {
+#             'product_article': ClientUniqueProduct.objects.filter(
+#                 api_key__is_current=True, api_key__user=request.user
+#             ).order_by('brand', 'nm_id').values_list('nm_id', flat=True)[:1].first()
+#         }
+#         return context
+#     return {}

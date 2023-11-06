@@ -138,7 +138,7 @@ h1 {
 }
 
 .text__common-normal {
-    font-weight: bold;
+    font-weight: normal;
     color: var(--var-common-text-color);
     font-size: 10px;
     line-height: 18px;
@@ -278,6 +278,13 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+.footer-nav>li>a {
+    font-weight: normal;
+    color: var(--var-common-text-color);
+    font-size: 10px;
+    line-height: 18px;
 }
 
 .footer-nav>li>a:hover {

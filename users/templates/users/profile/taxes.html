@@ -46,86 +46,90 @@
             </tbody>
             {% endif %}
         </table>
+        {% for f in tax_rates_forms %}
+        <div data-tax-id-form="{{ f.instance.id }}" class="tax_form-wrapper hidden" id="change-tax-rate-form-wrapper">
+            <form
+                    action="{% url 'users:change_tax_rate' f.instance.id %}"
+                    method="post"
+                    class="tax_form"
+                    id="change-tax-rate-from">
+
+                {% csrf_token %}
+                <div class="form-items">
+                    <div class="form__item {% if f.tax_rate.errors %} input__item-error {% endif %}">
+                        {{ f.tax_rate }}
+                        {{ f.tax_rate.label_tag }}
+                        {% if f.tax_rate.errors %}
+                        <div class="form__item-error form__item-error-fixed__width" data-id-error="tax_rate">
+                            {{ f.tax_rate.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form__item {% if f.commencement_date.errors %} input__item-error {% endif %}">
+                        {{ f.commencement_date }}
+                        {{ f.commencement_date.label_tag }}
+                        {% if f.commencement_date.errors %}
+                        <div class="form__item-error form__item-error-fixed__width" data-id-error="commencement_date">
+                            {{ f.commencement_date.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <button type="submit" class="accent-button">
+                    Сохранить
+                </button>
+            </form>
+            <form action="{% url 'users:delete_tax_rate' f.instance.id  %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="text__accent-bold" style="text-decoration: underline">
+                    Удалить
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+        <div class="tax_form-wrapper hidden" id="add-tax-rate-from">
+            <form action="{% url 'users:create_tax_rate' %}" method="post" class="tax_form">
+                {% csrf_token %}
+                <div class="form-items">
+                    <div class="form__item {% if form.tax_rate.errors %} input__item-error {% endif %}">
+                        {{ form.tax_rate }}
+                        {{ form.tax_rate.label_tag }}
+                        {% if form.tax_rate.errors %}
+                        <div class="form__item-error form__item-error-fixed__width" data-id-error="tax_rate">
+                            {{ form.tax_rate.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form__item {% if form.commencement_date.errors %} input__item-error {% endif %}">
+                        {{ form.commencement_date }}
+                        {{ form.commencement_date.label_tag }}
+                        {% if form.commencement_date.errors %}
+                        <div class="form__item-error form__item-error-fixed__width" data-id-error="commencement_date">
+                            {{ form.commencement_date.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="tax__form-buttons">
+                    <button type="submit" class="accent-button">
+                        Сохранить
+                    </button>
+                    <button type="button" id="close-tax-form">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% if tax_rates|length < 3 %}
         <button class="taxes__add-button" id="add-tax-rate">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C6.21954 0 5.99219 0.227355 5.99219 0.507812V5.99219H0.507812C0.227356 5.99219 0 6.21954 0 6.5C0 6.78046 0.227356 7.00781 0.507812 7.00781H5.99219V12.4922C5.99219 12.7726 6.21954 13 6.5 13C6.78046 13 7.00781 12.7726 7.00781 12.4922V7.00781H12.4922C12.7726 7.00781 13 6.78046 13 6.5C13 6.21954 12.7726 5.99219 12.4922 5.99219H7.00781V0.507812C7.00781 0.227355 6.78046 0 6.5 0Z" fill="#00C6FF"/>
             </svg>
             <p class="text__common-normal" style="color: var(--var-blue-accent-color);">Добавить</p>
         </button>
-        {% for f in tax_rates_forms %}
-        <form
-                action="{% url 'users:change_tax_rate' f.instance.id %}"
-                method="post"
-                class="tax_form hidden"
-                data-tax-id-form="{{ f.instance.id }}"
-                id="change-tax-rate-from">
-
-            {% csrf_token %}
-            <div class="form-items">
-                <div class="form__item {% if f.tax_rate.errors %} input__item-error {% endif %}">
-                    {{ f.tax_rate }}
-                    {{ f.tax_rate.label_tag }}
-                    {% if f.tax_rate.errors %}
-                    <div class="form__item-error form__item-error-fixed__width" data-id-error="tax_rate">
-                        {{ f.tax_rate.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="form__item {% if f.commencement_date.errors %} input__item-error {% endif %}">
-                    {{ f.commencement_date }}
-                    {{ f.commencement_date.label_tag }}
-                    {% if f.commencement_date.errors %}
-                    <div class="form__item-error form__item-error-fixed__width" data-id-error="commencement_date">
-                        {{ f.commencement_date.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="tax__form-buttons">
-                <button type="submit" class="accent-button">
-                    Сохранить
-                </button>
-                <button type="button" id="delete-tax-form">
-                    <svg width="11" height="13" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.2942 1.82359V1.10521H6.75328V1.82359H4.2942ZM3.18899 1.82359V0.580233C3.18899 0.259779 3.44878 0 3.76923 0H7.27826C7.59872 0 7.8585 0.259779 7.8585 0.580233V1.82359H10.2761C10.5813 1.82359 10.8287 2.07099 10.8287 2.3762C10.8287 2.68139 10.5813 2.92881 10.2761 2.92881H0.771358C0.466156 2.92881 0.21875 2.68139 0.21875 2.3762C0.21875 2.07099 0.466156 1.82359 0.771358 1.82359H3.18899ZM1.40684 3.53666C1.71204 3.53666 1.95945 3.78407 1.95945 4.08927V10.7067C1.95945 11.3629 2.49138 11.8948 3.14756 11.8948H7.92757C8.58374 11.8948 9.11567 11.3629 9.11567 10.7067V4.08927C9.11567 3.78407 9.36307 3.53666 9.66827 3.53666C9.97346 3.53666 10.2209 3.78407 10.2209 4.08927V10.7067C10.2209 11.9733 9.19413 13 7.92757 13H3.14756C1.88099 13 0.854247 11.9733 0.854247 10.7067V4.08927C0.854247 3.78407 1.10165 3.53666 1.40684 3.53666ZM4.33565 4.72476C4.64084 4.72476 4.88826 4.97218 4.88826 5.27736V9.49096C4.88826 9.79616 4.64084 10.0436 4.33565 10.0436C4.03046 10.0436 3.78304 9.79616 3.78304 9.49096V5.27736C3.78304 4.97218 4.03046 4.72476 4.33565 4.72476ZM7.26445 5.27736C7.26445 4.97218 7.01703 4.72476 6.71184 4.72476C6.40664 4.72476 6.15924 4.97218 6.15924 5.27736V9.49096C6.15924 9.79616 6.40664 10.0436 6.71184 10.0436C7.01703 10.0436 7.26445 9.79616 7.26445 9.49096V5.27736Z" fill="#5C659D"/>
-                    </svg>
-                </button>
-            </div>
-        </form>
-        {% endfor %}
-        <form action="{% url 'users:create_tax_rate' %}" method="post" class="tax_form hidden" id="add-tax-rate-from">
-            {% csrf_token %}
-            <div class="form-items">
-                <div class="form__item {% if form.tax_rate.errors %} input__item-error {% endif %}">
-                    {{ form.tax_rate }}
-                    {{ form.tax_rate.label_tag }}
-                    {% if form.tax_rate.errors %}
-                    <div class="form__item-error form__item-error-fixed__width" data-id-error="tax_rate">
-                        {{ form.tax_rate.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="form__item {% if form.commencement_date.errors %} input__item-error {% endif %}">
-                    {{ form.commencement_date }}
-                    {{ form.commencement_date.label_tag }}
-                    {% if form.commencement_date.errors %}
-                    <div class="form__item-error form__item-error-fixed__width" data-id-error="commencement_date">
-                        {{ form.commencement_date.errors }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="tax__form-buttons">
-                <button type="submit" class="accent-button">
-                    Сохранить
-                </button>
-                <button type="button" id="close-tax-form">
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
-                    </svg>
-                </button>
-            </div>
-        </form>
+        {% endif %}
     </div>
     <div>
         <p class="text__accent">Сумма налога будет учтена при расчете прибыли от продаж</p>

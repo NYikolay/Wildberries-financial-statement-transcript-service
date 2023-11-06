@@ -15,7 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.urls import reverse_lazy
-from django.views.generic import View, CreateView, UpdateView
+from django.views.generic import View, CreateView, UpdateView, DeleteView
 from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_str
@@ -29,9 +29,9 @@ from users.decorators import redirect_authenticated_user
 from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
                          ChangeUserDataForm, ChangeUserPasswordForm, TaxRateForm,
                          UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
-                         LoadNetCostsFileForm, ChangeCurrentApiKeyForm)
+                         LoadNetCostsFileForm, ChangeCurrentApiKeyForm, CostsForm)
 from users.mixins import SubscriptionRequiredMixin
-from users.models import User, WBApiKey, ClientUniqueProduct, TaxRate, NetCost, UserDiscount
+from users.models import User, WBApiKey, ClientUniqueProduct, TaxRate, NetCost, UserDiscount, SaleReport
 from users.services.encrypt_api_key_service import get_encrypted_key
 from users.services.email_services import send_email
 from users.services.generate_subscriptions_data_service import get_user_subscriptions_data
@@ -454,81 +454,6 @@ class PasswordResetDoneView(View):
         return render(request, self.template_name)
 
 
-class CompanyEditView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-    api_key_form = UpdateAPIKeyForm
-    tax_rate_form = TaxRateForm
-
-    def get(self, request, api_key_id):
-        company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
-        context = {
-            'company': company,
-            'api_key_form': self.api_key_form(instance=company),
-            'taxes': company.taxes.all()
-        }
-        return render(request, 'users/profile/companies/company_edit.html', context=context)
-
-    def post(self, request, api_key_id):
-        tax_rates = list(filter(None, request.POST.getlist('tax_rate')))
-        commencement_dates = list(filter(None, request.POST.getlist('commencement_date')))
-
-        company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
-        api_key_form = self.api_key_form(request.POST, instance=company)
-
-        if all([
-            (len(tax_rates) != len(commencement_dates)) and (len(tax_rates) <= 3 or len(commencement_dates) <= 3)
-        ]):
-            django_logger.info(f'Removed js validation, an attempt to bypass security. User - {request.user.email}.')
-            messages.error(
-                request,
-                'Ошибка валидации значений налогов. Количестно ставок налога не может быть больше 3. '
-                'Количестно ставок налога должно соответствовать количеству дат начала действия'
-            )
-            return redirect(request.META.get('HTTP_REFERER', '/'))
-
-        tax_rates_forms = []
-
-        for tax, date in zip(tax_rates, commencement_dates):
-            tax_rates_forms.append(self.tax_rate_form({'tax_rate': tax, 'commencement_date': date}))
-
-        decrypted_api_key = company.api_key
-
-        if api_key_form.is_valid() and all([form.is_valid() for form in tax_rates_forms]):
-            try:
-                with transaction.atomic():
-                    api_key_obj = api_key_form.save(commit=False)
-                    if api_key_obj.api_key != decrypted_api_key:
-                        api_key_obj.api_key = get_encrypted_key(api_key_form.cleaned_data['api_key'])
-                    api_key_obj.save()
-
-                    TaxRate.objects.filter(api_key=company).delete()
-
-                    for tax_rate_form in tax_rates_forms:
-                        tax_rate_obj = tax_rate_form.save(commit=False)
-                        tax_rate_obj.api_key = company
-                        tax_rate_obj.save()
-            except Exception as err:
-                django_logger.error(f'Error when updating the store for a user {request.user.email}. '
-                                    f'Failed to save values in the database in a transaction', exc_info=err)
-                messages.error(
-                    request,
-                    'Не удалось обновить магазин. Пожалуйста, повторите попытку или свяжитесь со службой поддержки.'
-                )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
-
-            messages.success(request, 'Магазин успешно обновлён')
-            return redirect('users:companies_list')
-
-        context = {
-            'api_key_form': api_key_form,
-            'company': company,
-            'taxes': company.taxes.all()
-        }
-
-        return render(request, 'users/profile/companies/company_edit.html', context=context)
-
-
 class DeleteCompanyView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
@@ -557,16 +482,15 @@ class TaxRateListView(LoginRequiredMixin, ListView):
     context_object_name = 'tax_rates'
 
     def get_queryset(self):
-        queryset = WBApiKey.objects.filter(user=self.request.user, is_current=True).first().taxes.all()
+        queryset = TaxRate.objects.filter(
+            api_key__is_current=True, api_key__user=self.request.user
+        ).order_by('commencement_date')
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = self.form_class()
-        context['tax_rates_forms'] = [
-            self.form_class(instance=tax_rate) for tax_rate in WBApiKey.objects.filter(
-                user=self.request.user, is_current=True).first().taxes.all()]
-
+        context['tax_rates_forms'] = [self.form_class(instance=tax_rate) for tax_rate in self.object_list]
         return context
 
 
@@ -579,6 +503,12 @@ class CreateTaxRateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         api_key = self.request.user.keys.filter(is_current=True).first()
+        tax_rates_count = api_key.taxes.count()
+
+        if tax_rates_count >= 3:
+            messages.error(self.request, "Нельзя создать более 3-х ставок налога.")
+            return redirect(self.success_url)
+
         tax_rate = form.save(commit=False)
 
         tax_rate.api_key = api_key
@@ -587,10 +517,76 @@ class CreateTaxRateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ChangeTaxRateView(LoginRequiredMixin, UpdateView):
+class DeleteTaxRateView(LoginRequiredMixin, DeleteView):
     model = TaxRate
-    form_class = TaxRateForm
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    success_url = reverse_lazy("users:profile_taxes")
     pk_url_kwarg = 'id'
+
+    def get_queryset(self):
+        queryset = TaxRate.objects.filter(api_key__is_current=True, api_key__user=self.request.user)
+        return queryset
+
+
+class ChangeTaxRateView(LoginRequiredMixin, UpdateView):
+    form_class = TaxRateForm
+    success_url = reverse_lazy("users:profile_taxes")
+    pk_url_kwarg = 'id'
+
+    def get_queryset(self):
+        queryset = TaxRate.objects.filter(api_key__is_current=True, api_key__user=self.request.user)
+        return queryset
+
+
+class CostsListView(LoginRequiredMixin, ListView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    template_name = 'users/profile/costs.html'
+    context_object_name = 'costs'
+    form_class = CostsForm
+    model = SaleReport
+
+    def get_queryset(self):
+        reports = (self.model.objects.filter(owner=self.request.user, api_key__is_current=True)
+                   .only('id', 'week_num', 'date_from', 'date_to', 'create_dt', 'supplier_costs')
+                   .distinct('create_dt')
+                   .order_by('-create_dt'))
+
+        return [{"object": report, "costs_form": self.form_class(instance=report)} for report in reports]
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class()
+        return context
+
+
+class ChangeCostsView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    success_url = reverse_lazy("users:costs_list")
+    form_class = CostsForm
+    model = SaleReport
+
+    def post(self, request, create_dt):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            if self.request.GET.get("forDelete") == "true":
+                costs = None
+            else:
+                costs = form.cleaned_data['supplier_costs']
+
+            self.model.objects.filter(
+                api_key__is_current=True,
+                api_key__user=request.user,
+                create_dt__date=create_dt
+            ).update(supplier_costs=costs)
+
+            return redirect(self.success_url)
+
+        messages.error(self.request, "Значение расходов не может содержать более 11 символов до запятой")
+        return redirect(self.success_url)
 
 
 class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):

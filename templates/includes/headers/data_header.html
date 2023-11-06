@@ -27,9 +27,10 @@
                     class="{% if request.path == support_url %} active_link {% endif %}">
                 Склад
             </a></li>
+            {% url 'users:costs_list' as costs_list_url %}
             <li><a
-                    href="{{ support_url }}"
-                    class="{% if request.path == support_url %} active_link {% endif %}">
+                    href="{{ costs_list_url }}"
+                    class="{% if request.path == costs_list_url %} active_link {% endif %}">
                 Мои расходы
             </a></li>
             <li><a

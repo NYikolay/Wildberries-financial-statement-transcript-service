@@ -3,12 +3,12 @@ from django.urls import path, re_path
 from users.views import (
     LoginPageView, LogoutView, RegisterPageView,
     LoadDataFromWBView,
-    ChangePasswordView, CompaniesListView, CompanyEditView,
+    ChangePasswordView, CompaniesListView,
     EditProductView, ProductDetailView, EmptyProductsListView,
     DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
     PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView,
     ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView, ChangeCurrentApiKeyView, TaxRateListView,
-    CreateTaxRateView, ChangeTaxRateView
+    CreateTaxRateView, ChangeTaxRateView, DeleteTaxRateView, CostsListView, ChangeCostsView
 )
 
 app_name = 'users'
@@ -33,9 +33,15 @@ urlpatterns = [
     path('change-current-api-key/', ChangeCurrentApiKeyView.as_view(), name='change_current_api_key'),
     path('profile/change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('profile/companies/', CompaniesListView.as_view(), name='companies_list'),
+
     path('profile/taxes', TaxRateListView.as_view(), name='profile_taxes'),
     path('profile/taxes/change/<int:id>/', ChangeTaxRateView.as_view(), name='change_tax_rate'),
+    path('profile/taxes/delete/<int:id>/', DeleteTaxRateView.as_view(), name='delete_tax_rate'),
     path('profile/taxes/create/', CreateTaxRateView.as_view(), name='create_tax_rate'),
+
+    path('profile/costs/', CostsListView.as_view(), name='costs_list'),
+    path('profile/costs/change/<str:create_dt>/', ChangeCostsView.as_view(), name='change_costs'),
+
     path('profile/api-key/edit/<int:api_key_id>/', UpdateApiKeyView.as_view(), name='api_key_edit'),
     path('profile/company/delete/<int:api_key_id>/', DeleteCompanyView.as_view(), name='company_delete'),
 

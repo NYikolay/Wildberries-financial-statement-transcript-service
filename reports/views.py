@@ -38,7 +38,7 @@ class ReportsListView(LoginRequiredMixin, ListView):
 
         correct_reports = (self.model.objects
                            .filter(owner=self.request.user, api_key__is_current=True)
-                           .order_by('realizationreport_id')
+                           .order_by('-create_dt')
                            )
 
         queryset = {"correct_reports": correct_reports, "incorrect_reports": incorrect_reports}
