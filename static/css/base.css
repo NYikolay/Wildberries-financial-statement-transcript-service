@@ -17,6 +17,8 @@
     --var-border-color: #424B80;
     --var-common-text-color: #5C659D;
     --var-commont-icon-color: #5C659D;
+    --var-tooltip-icon-color: #5C659D;
+    --var-tooltip-accent-color: #FFFFFF;
     --var-accent-text-color: #FFFFFF;
     --var-modal-accent-text-color: #5C659D;
     --var-modal-common-text-color: #A0A2A4;
@@ -41,6 +43,8 @@
     --var-modal-common-text-color: #5C659D;
     --var-border-active-color: #0073FF;
     --var-commont-icon-color: #A0A2A4;
+    --var-tooltip-icon-color: #5C659D;
+    --var-tooltip-accent-color: #5C659D;
     --var-support-icon-color: #A0A2A4;
     --var-accent-text-color: #5C659D;
     --var-blue-accent-color: #00C6FF;
@@ -521,6 +525,10 @@ footer {
 .tooltip:hover .tooltiptext {
     visibility: visible;
     transition: .4s;
+}
+
+.tooltip-svg {
+    fill: var(--var-tooltip-accent-color);
 }
 
 .accent__button-container {

@@ -230,12 +230,6 @@ class UpdateAPIKeyForm(forms.ModelForm):
         self.label_suffix = ""
 
 
-class NetCostForm(forms.ModelForm):
-    class Meta:
-        model = NetCost
-        fields = ["amount", "cost_date"]
-
-
 class ChangeUserDataForm(forms.ModelForm):
 
     class Meta:
@@ -280,18 +274,43 @@ class ChangeUserPasswordForm(forms.Form):
 
 
 class LoadNetCostsFileForm(forms.Form):
-    net_costs_file = forms.FileField(label='')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.label_suffix = ""
-        for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'file-load_input'
+    net_costs_file = forms.FileField(
+        label='',
+        widget=forms.FileInput(attrs={'class': 'common__load-input', 'id': 'net-costs-file'})
+    )
 
     def clean_net_costs_file(self):
         if self.cleaned_data['net_costs_file'].name.lower().split('.')[-1] != 'xlsx':
             raise ValidationError('Расширение загружаемого файла должно быть xlsx!')
         return self.cleaned_data
+
+
+class NetCostForm(forms.ModelForm):
+    class Meta:
+        model = NetCost
+        fields = ["amount", "cost_date"]
+        labels = {
+            "amount": "Себестоимость",
+            "cost_date": "Дата начала действия"
+        }
+        widgets = {
+            "amount": forms.NumberInput(attrs={
+                'class': 'form__input net__cost-input',
+                'data-id': 'amount',
+                'id': 'amount',
+                'min': 0,
+            }),
+            'cost_date': forms.DateInput(format='%Y-%m-%d', attrs={
+                "class": 'form__input net__cost-input',
+                'data-id': 'cost_date',
+                'id': 'cost_date',
+                'type': 'date',
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ""
 
 
 class ExcelNetCostsForm(forms.Form):

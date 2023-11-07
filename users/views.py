@@ -15,7 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.urls import reverse_lazy
-from django.views.generic import View, CreateView, UpdateView, DeleteView
+from django.views.generic import View, CreateView, UpdateView, DeleteView, DetailView
 from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_str
@@ -589,6 +589,75 @@ class ChangeCostsView(LoginRequiredMixin, View):
         return redirect(self.success_url)
 
 
+class ProductDetailView(LoginRequiredMixin, DetailView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    template_name = 'users/profile/products.html'
+    pk_url_kwarg = 'article'
+    context_object_name = 'product'
+    model = ClientUniqueProduct
+    paginator_class = Paginator
+    form_class = LoadNetCostsFileForm
+    net_cost_form = NetCostForm
+
+    def get_object(self, queryset=None):
+        obj = get_object_or_404(
+            self.model,
+            api_key__user=self.request.user,
+            api_key__is_current=True,
+            nm_id=self.kwargs.get('article')
+        )
+
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page = self.request.GET.get('page')
+
+        products = self.model.objects.filter(
+            api_key__user=self.request.user, api_key__is_current=True
+        ).values('image', 'nm_id', 'product_name').order_by('brand', 'nm_id')
+
+        paginator = self.paginator_class(products, 4)
+
+        paginator_products = paginator.get_page(page)
+
+        context['products'] = paginator_products
+        context['form'] = self.form_class()
+        context['net_costs'] = self.object.cost_prices.all()
+        context['net_cost_form'] = self.net_cost_form()
+        return context
+
+
+# class ProductDetailView(LoginRequiredMixin, View):
+#     login_url = 'users:login'
+#     redirect_field_name = 'login'
+#
+#     def get(self, request, article_value):
+#         product = get_object_or_404(ClientUniqueProduct,
+#                                     api_key__user=request.user,
+#                                     api_key__is_current=True,
+#                                     nm_id=article_value
+#                                     )
+#
+#         products_objs_list = ClientUniqueProduct.objects.filter(
+#             api_key__user=request.user, api_key__is_current=True
+#         ).order_by('brand', 'nm_id')
+#
+#         product_paginator = Paginator(products_objs_list, 8)
+#         page_number = request.GET.get('page')
+#         page_obj = product_paginator.get_page(page_number)
+#         net_costs = product.cost_prices.all().order_by('cost_date')
+#
+#         context = {
+#             'products': page_obj,
+#             'product': product,
+#             'net_costs': net_costs,
+#             'net_costs_load_form': LoadNetCostsFileForm()
+#         }
+#         return render(request, 'users/profile/products/product_detail.html', context)
+
+
 class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
@@ -669,35 +738,6 @@ class EmptyProductsListView(LoginRequiredMixin, View):
             ).order_by('brand', 'nm_id').values_list('nm_id', flat=True)[:1].first())
 
         return render(request, 'users/profile/products/empty_products.html')
-
-
-class ProductDetailView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-
-    def get(self, request, article_value):
-        product = get_object_or_404(ClientUniqueProduct,
-                                    api_key__user=request.user,
-                                    api_key__is_current=True,
-                                    nm_id=article_value
-                                    )
-
-        products_objs_list = ClientUniqueProduct.objects.filter(
-            api_key__user=request.user, api_key__is_current=True
-        ).order_by('brand', 'nm_id')
-
-        product_paginator = Paginator(products_objs_list, 8)
-        page_number = request.GET.get('page')
-        page_obj = product_paginator.get_page(page_number)
-        net_costs = product.cost_prices.all().order_by('cost_date')
-
-        context = {
-            'products': page_obj,
-            'product': product,
-            'net_costs': net_costs,
-            'net_costs_load_form': LoadNetCostsFileForm()
-        }
-        return render(request, 'users/profile/products/product_detail.html', context)
 
 
 class EditProductView(LoginRequiredMixin, View):

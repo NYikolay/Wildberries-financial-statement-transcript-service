@@ -45,9 +45,10 @@ urlpatterns = [
     path('profile/api-key/edit/<int:api_key_id>/', UpdateApiKeyView.as_view(), name='api_key_edit'),
     path('profile/company/delete/<int:api_key_id>/', DeleteCompanyView.as_view(), name='company_delete'),
 
-    path('product/<int:article_value>/', ProductDetailView.as_view(), name='product_detail'),
-    path('product/edit/<int:article_value>/', EditProductView.as_view(), name='edit_product'),
+    path('product/<int:article>/', ProductDetailView.as_view(), name='product_detail'),
+    path('product/edit/<int:article>/', EditProductView.as_view(), name='edit_product'),
     path('products/', EmptyProductsListView.as_view(), name='empty_products'),
+
     path('set-net-costs/', SetNetCostsFromFileView.as_view(), name='set_net_costs'),
     path('export-net-costs-example/', ExportNetCostsExampleView.as_view(), name='export_net_costs_example'),
 

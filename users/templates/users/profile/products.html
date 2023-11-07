@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Подписка - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'users/css/products.css' %}">
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/common_load.css' %}">
+{% endblock %}
+{% block content %}
+<div class="products-wrapper">
+    {% if not current_api_key %}
+    <div class="common__content-wrapper product__detail-wrapper">
+        <div class="product__detail-head">
+            <h1>Себестоимость товаров</h1>
+            <div class="tooltip">
+                <svg width="13" height="13" viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg">
+                    <path class="tooltip-svg" opacity="0.96" fill-rule="evenodd" clip-rule="evenodd" d="M0.914063 6.5C0.914063 9.58502 3.41498 12.0859 6.5 12.0859C9.58502 12.0859 12.0859 9.58502 12.0859 6.5C12.0859 3.41498 9.58502 0.914063 6.5 0.914063C3.41498 0.914063 0.914063 3.41498 0.914063 6.5ZM6.5 0C2.91014 0 0 2.91014 0 6.5C0 10.0899 2.91014 13 6.5 13C10.0899 13 13 10.0899 13 6.5C13 2.91014 10.0899 0 6.5 0ZM5.66211 8.88672C5.66211 8.52212 5.95767 8.22656 6.32227 8.22656C6.68686 8.22656 6.98242 8.52212 6.98242 8.88672C6.98242 9.25132 6.68686 9.54688 6.32227 9.54688C5.95767 9.54688 5.66211 9.25132 5.66211 8.88672ZM7.25488 4.43727C7.35652 4.60358 7.34763 4.81483 7.23236 4.97201L7.12397 5.11982C7.0915 5.16409 7.0543 5.20469 7.01301 5.24087L6.31237 5.85515C6.18818 5.96402 6.08427 6.09405 6.00547 6.2392C5.85076 6.5242 5.79999 6.85414 5.86186 7.17247L5.88534 7.29323C5.9335 7.541 6.1734 7.70283 6.42117 7.65466C6.66895 7.6065 6.83077 7.3666 6.78262 7.11883L6.75913 6.99806C6.73774 6.88797 6.7553 6.77385 6.8088 6.67528C6.83605 6.62508 6.87199 6.58011 6.91494 6.54247L7.61559 5.92819C7.70693 5.84812 7.78925 5.75831 7.86107 5.66036L7.96946 5.51256C8.30398 5.05638 8.3298 4.44332 8.03484 3.96064C7.81747 3.60494 7.45239 3.36514 7.03964 3.30692L6.64927 3.25186C6.42667 3.22047 6.20017 3.23096 5.98144 3.28282L5.78818 3.32864C5.31039 3.44193 4.92322 3.79081 4.76101 4.25429C4.67763 4.49254 4.80316 4.75326 5.04141 4.83665C5.27965 4.92003 5.54037 4.79449 5.62376 4.55626C5.68303 4.38692 5.82449 4.25944 5.99905 4.21805L6.19229 4.17223C6.30015 4.14666 6.41184 4.14149 6.52161 4.15697L6.91196 4.21203C7.05419 4.23208 7.17998 4.31471 7.25488 4.43727Z" />
+                </svg>
+                <span class="tooltiptext">Это пароль</span>
+            </div>
+        </div>
+        <div class="product__detail-subheader">
+            <div>
+
+            </div>
+            <div class="product__detail-costs__head">
+                <p class="text__common-bold">Себестоимость</p>
+                <p class="text__common-bold">Дата начала действия</p>
+            </div>
+        </div>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для загрузки товаров нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+    </div>
+    <div class="common__content-wrapper product__report-wrapper">
+        <canvas id="productChart"></canvas>
+    </div>
+    {% else %}
+    <div class="common__content-wrapper product__detail-wrapper">
+        <div class="product__detail-head">
+            <h1>Себестоимость товаров</h1>
+            <div class="tooltip">
+                <svg width="13" height="13" viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg">
+                    <path class="tooltip-svg" opacity="0.96" fill-rule="evenodd" clip-rule="evenodd" d="M0.914063 6.5C0.914063 9.58502 3.41498 12.0859 6.5 12.0859C9.58502 12.0859 12.0859 9.58502 12.0859 6.5C12.0859 3.41498 9.58502 0.914063 6.5 0.914063C3.41498 0.914063 0.914063 3.41498 0.914063 6.5ZM6.5 0C2.91014 0 0 2.91014 0 6.5C0 10.0899 2.91014 13 6.5 13C10.0899 13 13 10.0899 13 6.5C13 2.91014 10.0899 0 6.5 0ZM5.66211 8.88672C5.66211 8.52212 5.95767 8.22656 6.32227 8.22656C6.68686 8.22656 6.98242 8.52212 6.98242 8.88672C6.98242 9.25132 6.68686 9.54688 6.32227 9.54688C5.95767 9.54688 5.66211 9.25132 5.66211 8.88672ZM7.25488 4.43727C7.35652 4.60358 7.34763 4.81483 7.23236 4.97201L7.12397 5.11982C7.0915 5.16409 7.0543 5.20469 7.01301 5.24087L6.31237 5.85515C6.18818 5.96402 6.08427 6.09405 6.00547 6.2392C5.85076 6.5242 5.79999 6.85414 5.86186 7.17247L5.88534 7.29323C5.9335 7.541 6.1734 7.70283 6.42117 7.65466C6.66895 7.6065 6.83077 7.3666 6.78262 7.11883L6.75913 6.99806C6.73774 6.88797 6.7553 6.77385 6.8088 6.67528C6.83605 6.62508 6.87199 6.58011 6.91494 6.54247L7.61559 5.92819C7.70693 5.84812 7.78925 5.75831 7.86107 5.66036L7.96946 5.51256C8.30398 5.05638 8.3298 4.44332 8.03484 3.96064C7.81747 3.60494 7.45239 3.36514 7.03964 3.30692L6.64927 3.25186C6.42667 3.22047 6.20017 3.23096 5.98144 3.28282L5.78818 3.32864C5.31039 3.44193 4.92322 3.79081 4.76101 4.25429C4.67763 4.49254 4.80316 4.75326 5.04141 4.83665C5.27965 4.92003 5.54037 4.79449 5.62376 4.55626C5.68303 4.38692 5.82449 4.25944 5.99905 4.21805L6.19229 4.17223C6.30015 4.14666 6.41184 4.14149 6.52161 4.15697L6.91196 4.21203C7.05419 4.23208 7.17998 4.31471 7.25488 4.43727Z" />
+                </svg>
+                <span class="tooltiptext">Это пароль</span>
+            </div>
+        </div>
+        <form
+                action="{% url 'users:set_net_costs' %}"
+                method="post"
+                enctype="multipart/form-data"
+                class="hidden"
+                id="net-costs-form"
+        >
+            <div class="common__content-wrapper common__load-container common__load-medium">
+                <div class="common__load-description__item">
+                    <h1>Шаг 1</h1>
+                    <p class="text__accent">
+                        <a href="{% url 'users:export_net_costs_example' %}" class="common__load-label">
+                            Скачайте
+                        </a>
+                        Excel-файл и заполните в соответствии с шаблоном внутри</p>
+                </div>
+                <div class="common__load-description__item">
+                    <h1>Шаг 2</h1>
+                    <p class="text__accent">
+                        {{ form.net_costs_file }}
+                        <label for="{{ form.net_costs_file.id_for_label }}" class="common__load-label">Выберите</label>
+                        заполненный Excel-файл для загрузки
+                    </p>
+                    <div class="common__load-status">
+                        <svg width="7" height="7" viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg">
+                            <rect class="error__dot-icon" id="file-load-icon" width="7" height="7" rx="3.5"/>
+                        </svg>
+                        <p class="text__accent" id="file-load-text">Файл не выбран</p>
+                    </div>
+                </div>
+                <div class="common__load-description__item">
+                    <h1>Шаг 3</h1>
+                    <div class="common__load-form__buttons">
+                        <button type="submit" class="accent-button">Загрузить</button>
+                        <button type="button" class="common__load-cancel__button" id="net-costs-close-form">
+                            Отменить
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="product__detail-subheader">
+            <button type="button" id="open-file-form" class="load_costs-button">
+                <svg width="13" height="13" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M5.117 2.31219L5.10827 2.30725L4.62459 2.59147L4.13652 2.8683V2.87828L2.52536 2.21334C2.21339 2.08458 1.85428 2.20672 1.68553 2.499L0.246483 4.99152C0.0785296 5.28242 0.150732 5.65263 0.415697 5.85909L1.79497 6.93386L1.78631 8.06105L1.79672 8.06705L0.416338 9.14069C0.151014 9.34706 0.0785762 9.71751 0.24663 10.0086L1.68508 12.5003C1.85392 12.7928 2.21334 12.9149 2.52541 12.7858L4.13881 12.1184L4.63083 12.3974L5.1185 12.684L5.35858 14.4191C5.40464 14.752 5.68927 15 6.02539 15H8.9025C9.24022 15 9.52566 14.7498 9.56987 14.415L9.7985 12.684L10.2861 12.3974L10.778 12.1185L12.4006 12.7781C12.712 12.9047 13.069 12.7822 13.2371 12.4911L14.6757 9.99942C14.8445 9.70695 14.7705 9.33464 14.5027 9.12895L13.1203 8.06725L13.1306 8.06128L13.122 6.93411L14.5035 5.87144C14.771 5.66566 14.8448 5.29359 14.676 5.0013L13.2371 2.50873C13.0691 2.21781 12.7124 2.09523 12.4011 2.22145L10.7807 2.87847L10.7804 2.87831V2.8683L10.2925 2.59156L9.80889 2.30736L9.80022 2.31236L9.79992 2.31219L9.5703 0.584478C9.52583 0.24992 9.24048 0 8.90298 0H6.02488C5.68897 0 5.40447 0.247633 5.35814 0.580333L5.117 2.31219ZM7.45847 4.97561C6.06833 4.97561 4.94139 6.10255 4.94139 7.49269C4.94139 8.88283 6.06833 10.0098 7.45847 10.0098C8.84861 10.0098 9.97553 8.88283 9.97553 7.49269C9.97553 6.10255 8.84861 4.97561 7.45847 4.97561Z" fill="#00C6FF"/>
+                </svg>
+                Загрузить себестоимость файлом
+            </button>
+            <div class="product__detail-costs__head">
+                <p class="text__common-bold">Себестоимость</p>
+                <p class="text__common-bold">Дата начала действия</p>
+            </div>
+        </div>
+        <div class="products-wrapper">
+            <div class="products-container">
+                {% for p in products %}
+                <a href="{% url 'users:product_detail' p.nm_id %}?page={{ products.number }}">
+                    <div class="product__item {% if p.nm_id == product.nm_id %}product__item-active{% endif %}">
+                        <img class="product_image" src="{% if p.image %}{{ p.image }}{% else %}{% static 'images/empty_photo2.png' %}{% endif %}" alt="">
+                        <div class="product__item-description">
+                            <div class="product__item-description__inner">
+                                <p class="text__accent-bold">{{ p.product_name }}</p>
+                                <p class="text__accent">Артикул: {{ p.nm_id }}</p>
+                            </div>
+                            <div class="product__item-status">
+                                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect class="error__dot-icon" width="7" height="7" rx="3.5"/>
+                                </svg>
+                                <p class="text__accent-bold">Не добавлена</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="product__net-costs__wrapper">
+                {% for net_cost in net_costs %}
+                <div class="product__net-cost__item">
+                    <div class="product__net-cost__description">
+                        <p class="text__accent">{{ net_cost.amount }}</p>
+                        <p class="text__accent">{{ net_cost.cost_date }}</p>
+                    </div>
+                    <button>
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M0.991238 10.3348C0.991238 9.9599 1.14031 9.60042 1.40561 9.33553L7.96066 2.79049L10.2265 5.03627L5.22615 10.0101C5.03211 10.2032 5.03131 10.5169 5.22438 10.7109C5.41743 10.9049 5.73124 10.9057 5.92528 10.7127L12.5618 4.11122C13.1416 3.53455 13.1467 2.59806 12.5733 2.01512L11.0281 0.444228C10.4492 -0.144331 9.50151 -0.148606 8.91731 0.434706L0.705155 8.63432C0.253684 9.08509 2.22966e-07 9.69684 2.03099e-07 10.3348L0 12.232C-9.06287e-08 12.6561 0.343939 13 0.768209 13H2.51677C3.04211 13 3.55298 12.8279 3.97124 12.5101L4.38875 12.1929C4.60667 12.0273 4.64907 11.7164 4.48346 11.4986C4.31783 11.2807 4.0069 11.2383 3.78897 11.4039L3.37146 11.7211C3.12567 11.9079 2.82547 12.009 2.51677 12.009H0.991238V10.3348ZM10.9292 4.33729L11.8627 3.40868C12.056 3.21646 12.0576 2.90429 11.8665 2.70999L10.3214 1.1391C10.1284 0.942909 9.8125 0.941483 9.61777 1.13592L8.66204 2.09018L10.9292 4.33729ZM5.89784 12.4426C5.89784 12.1689 6.11974 11.9471 6.39345 11.9471H12.2665C12.5403 11.9471 12.7622 12.1689 12.7622 12.4426C12.7622 12.7163 12.5403 12.9381 12.2665 12.9381H6.39345C6.11974 12.9381 5.89784 12.7163 5.89784 12.4426Z" fill="#00C6FF"/>
+                        </svg>
+                    </button>
+                </div>
+                {% endfor %}
+                <button class="add__net-cost_button" id="open-net-cost-form">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C6.21954 0 5.99219 0.227355 5.99219 0.507812V5.99219H0.507812C0.227356 5.99219 0 6.21954 0 6.5C0 6.78046 0.227356 7.00781 0.507812 7.00781H5.99219V12.4922C5.99219 12.7726 6.21954 13 6.5 13C6.78046 13 7.00781 12.7726 7.00781 12.4922V7.00781H12.4922C12.7726 7.00781 13 6.78046 13 6.5C13 6.21954 12.7726 5.99219 12.4922 5.99219H7.00781V0.507812C7.00781 0.227355 6.78046 0 6.5 0Z" fill="#00C6FF"/>
+                    </svg>
+                    <p class="text__common-normal" style="color: var(--var-blue-accent-color)">Добавить</p>
+                </button>
+                <div class="create__net-cost__wrapper hidden" id="create-net-cost-from-wrapper">
+                    <form action="" class="net__cost-from">
+                        {% csrf_token %}
+                        <div class="form-items">
+                            <div class="form__item {% if net_cost_form.amount.errors %} input__item-error {% endif %}">
+                                {{ net_cost_form.amount }}
+                                {{ net_cost_form.amount.label_tag }}
+                                {% if form.amount.errors %}
+                                <div class="form__item-error form__item-error-fixed__width" data-id-error="amount">
+                                    {{ net_cost_form.amount.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="form__item {% if form.commencement_date.errors %} input__item-error {% endif %}">
+                                {{ net_cost_form.cost_date }}
+                                {{ net_cost_form.cost_date.label_tag }}
+                                {% if net_cost_form.cost_date.errors %}
+                                <div class="form__item-error form__item-error-fixed__width" data-id-error="cost_date">
+                                    {{ net_cost_form.cost_date.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="net__cost-form__buttons">
+                            <button type="submit" class="accent-button">
+                                Сохранить
+                            </button>
+                            <button type="button" id="close-net-cost-form">
+                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="products__pagination-wrapper">
+            <div class="products__pages-container">
+                <p class="text__common-bold">Страница</p>
+                <input
+                        class="paginator_input"
+                        type="number"
+                        data-place="{{ products.paginator.num_pages }}"
+                        value="{{ products.number }}"
+                        onclick="generateInputValidationForPaginator()">
+                <p class="text__common-bold">из {{ products.paginator.num_pages }}</p>
+            </div>
+            <div>
+                {% if products.has_previous %}
+                <a href="?page={{ products.previous_page_number }}" class="arrow_item">
+                    <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.26 0C0.564121 0 0 0.564121 0 1.26V19.74C0 20.4359 0.564121 21 1.26 21H19.74C20.4359 21 21 20.4359 21 19.74V1.26C21 0.564121 20.4359 0 19.74 0H1.26ZM13.2459 17.7638C13.5887 18.1043 14.1426 18.1025 14.4832 17.7597C14.8237 17.4169 14.8218 16.863 14.479 16.5224L8.41628 10.5L14.479 4.47757C14.8218 4.13704 14.8237 3.5831 14.4832 3.24032C14.1426 2.89752 13.5887 2.89566 13.2459 3.23619L6.55832 9.8793C6.39297 10.0435 6.3 10.267 6.3 10.5C6.3 10.733 6.39297 10.9564 6.55832 11.1207L13.2459 17.7638Z" fill="#5C659D"/>
+                    </svg>
+                </a>
+                {% else %}
+                <a href="" class="arrow_item disabled_arrow">
+                    <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.26 0C0.564121 0 0 0.564121 0 1.26V19.74C0 20.4359 0.564121 21 1.26 21H19.74C20.4359 21 21 20.4359 21 19.74V1.26C21 0.564121 20.4359 0 19.74 0H1.26ZM13.2459 17.7638C13.5887 18.1043 14.1426 18.1025 14.4832 17.7597C14.8237 17.4169 14.8218 16.863 14.479 16.5224L8.41628 10.5L14.479 4.47757C14.8218 4.13704 14.8237 3.5831 14.4832 3.24032C14.1426 2.89752 13.5887 2.89566 13.2459 3.23619L6.55832 9.8793C6.39297 10.0435 6.3 10.267 6.3 10.5C6.3 10.733 6.39297 10.9564 6.55832 11.1207L13.2459 17.7638Z" fill="#5C659D"/>
+                    </svg>
+                </a>
+                {% endif %}
+                {% if products.has_next %}
+                <a href="?page={{ products.next_page_number }}" class="arrow_item">
+                    <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.26 0C0.564121 0 0 0.564121 0 1.26V19.74C0 20.4359 0.564121 21 1.26 21H19.74C20.4359 21 21 20.4359 21 19.74V1.26C21 0.564121 20.4359 0 19.74 0H1.26ZM7.79144 3.23619C7.44863 2.89566 6.89469 2.89752 6.55419 3.24032C6.21366 3.5831 6.21552 4.13704 6.55832 4.47757L12.6211 10.5L6.55832 16.5224C6.21552 16.863 6.21366 17.4169 6.55419 17.7597C6.89469 18.1025 7.44863 18.1043 7.79144 17.7638L14.479 11.1207C14.6444 10.9565 14.7373 10.733 14.7373 10.5C14.7373 10.267 14.6444 10.0436 14.479 9.87932L7.79144 3.23619Z" fill="#5C659D"/>
+                    </svg>
+                </a>
+                {% else %}
+                <a href="" class="arrow_item disabled_arrow">
+                    <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.26 0C0.564121 0 0 0.564121 0 1.26V19.74C0 20.4359 0.564121 21 1.26 21H19.74C20.4359 21 21 20.4359 21 19.74V1.26C21 0.564121 20.4359 0 19.74 0H1.26ZM7.79144 3.23619C7.44863 2.89566 6.89469 2.89752 6.55419 3.24032C6.21366 3.5831 6.21552 4.13704 6.55832 4.47757L12.6211 10.5L6.55832 16.5224C6.21552 16.863 6.21366 17.4169 6.55419 17.7597C6.89469 18.1025 7.44863 18.1043 7.79144 17.7638L14.479 11.1207C14.6444 10.9565 14.7373 10.733 14.7373 10.5C14.7373 10.267 14.6444 10.0436 14.479 9.87932L7.79144 3.23619Z" fill="#5C659D"/>
+                    </svg>
+                </a>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <div class="common__content-wrapper product__report-wrapper">
+        <canvas id="productChart"></canvas>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'users/js/products/products.js' %}"></script>
+<script src="{% static 'js/handleInputsValidation.js' %}"></script>
+<script src="{% static 'users/js/products/loadNetCosts.js' %}"></script>
+<script src="{% static 'users/js/products/netCostForm.js' %}"></script>
+{% endblock %}

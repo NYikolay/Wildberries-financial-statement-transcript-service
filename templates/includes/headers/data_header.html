@@ -21,10 +21,10 @@
                     class="{% if request.path == reports_list_url %} active_link {% endif %}">
                 Финансовые отчеты
             </a></li>
-            {% url 'support:support' as support_url %}
+            {% url 'users:reports_list' as products_list_url %}
             <li><a
-                    href="{{ support_url }}"
-                    class="{% if request.path == support_url %} active_link {% endif %}">
+                    href="{% url 'users:product_detail' product_article %}"
+                    class="{% if request.path == products_list_url %} active_link {% endif %}">
                 Склад
             </a></li>
             {% url 'users:costs_list' as costs_list_url %}
