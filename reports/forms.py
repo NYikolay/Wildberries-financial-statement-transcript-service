@@ -30,7 +30,7 @@ class SaleReportForm(forms.ModelForm):
 class LoadReportAdditionalDataFrom(forms.Form):
     report_data_file = forms.FileField(
         label='',
-        widget=forms.FileInput(attrs={'class': 'expenses__load-input', 'id': 'expenses-file'})
+        widget=forms.FileInput(attrs={'class': 'expenses__load-input', 'id': 'file-input'})
     )
 
     def clean_report_data_file(self):

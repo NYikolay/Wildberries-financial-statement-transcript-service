@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Авторизация - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+<link rel="stylesheet" href="{% static 'users/css/companies.css' %}">
+{% endblock %}
+{% block content %}
+<div class="company-container">
+    <div class="common__content-wrapper common__content-medium">
+        <div class="common__content-container">
+            <h1>Подключение к WILDBERRIES по API</h1>
+            <div class="company__connection-block">
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect class="error__dot-icon" width="7" height="7" rx="3.5" />
+                </svg>
+                <p class="text__accent-bold">Отсутствует</p>
+            </div>
+            <a href="{% url 'users:register' %}" class="accent-button">Создать подключение</a>
+        </div>
+    </div>
+    <div>
+        <p class="text__accent">Для создания подключения используется API-ключ “Статистика” из Личного кабинета продавца WILDBERRIES. Данный типа ключа предоставляет доступ лишь к вашим Финансовым отчетам и ограничивает доступ к прочему функционалу Личного кабинета продавца.</p>
+        <br>
+        <p class="text__accent">Мы храним ваши ключи в зашифрованном виде на защищенных от несанкционированного проникновения серверах.</p>
+    </div>
+</div>
+{% endblock %}

@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const changeTaxRateFormWrappers = document.querySelectorAll('#change-tax-rate-form-wrapper')
 
     const dateInputs = document.querySelectorAll('#commencement_date')
-    const taxRateInputs = document.querySelectorAll('#tax_rate')
 
     function setMaxAndMinValuesToDateInput() {
         for (let i = 0; i < dateInputs.length; i++) {
@@ -19,6 +18,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             }
         }
+    }
+
+    const closeAllUpdateFormsExceptCurrent = (currentCostId) => {
+        changeTaxRateFormWrappers.forEach((wrapper) => {
+            const wrapperCostId = wrapper.getAttribute("data-net-cost-id-form")
+
+            if (wrapperCostId !== currentCostId) {
+                wrapper.classList.add("hidden")
+            }
+        })
     }
 
     const hideCreateTaxForm = () => {
@@ -40,6 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", (event) => {
             const taxId = button.getAttribute("data-tax-id")
             const form = document.querySelector("[data-tax-id-form='" + taxId + "']")
+
+            closeAllUpdateFormsExceptCurrent()
 
             if (form.classList.contains("hidden")) {
                 form.classList.remove("hidden")

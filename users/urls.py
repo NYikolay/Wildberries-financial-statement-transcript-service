@@ -3,12 +3,12 @@ from django.urls import path, re_path
 from users.views import (
     LoginPageView, LogoutView, RegisterPageView,
     LoadDataFromWBView,
-    ChangePasswordView, CompaniesListView,
-    EditProductView, ProductDetailView, EmptyProductsListView,
-    DeleteCompanyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
+    ChangePasswordView, CompaniesListView, ProductDetailView,
+    DeleteApiKeyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
     PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView,
     ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView, ChangeCurrentApiKeyView, TaxRateListView,
-    CreateTaxRateView, ChangeTaxRateView, DeleteTaxRateView, CostsListView, ChangeCostsView
+    CreateTaxRateView, ChangeTaxRateView, DeleteTaxRateView, CostsListView, ChangeCostsView, CreateNetCostView,
+    UpdateNetCostView, DeleteNetCostView, EmptyProductsView
 )
 
 app_name = 'users'
@@ -43,11 +43,13 @@ urlpatterns = [
     path('profile/costs/change/<str:create_dt>/', ChangeCostsView.as_view(), name='change_costs'),
 
     path('profile/api-key/edit/<int:api_key_id>/', UpdateApiKeyView.as_view(), name='api_key_edit'),
-    path('profile/company/delete/<int:api_key_id>/', DeleteCompanyView.as_view(), name='company_delete'),
+    path('profile/company/delete/<int:api_key_id>/', DeleteApiKeyView.as_view(), name='company_delete'),
 
+    path('products/', EmptyProductsView.as_view(), name='empty_products'),
     path('product/<int:article>/', ProductDetailView.as_view(), name='product_detail'),
-    path('product/edit/<int:article>/', EditProductView.as_view(), name='edit_product'),
-    path('products/', EmptyProductsListView.as_view(), name='empty_products'),
+    path('product/create/net-cost/', CreateNetCostView.as_view(), name='product_net_cost_create'),
+    path('product/update/net-cost/<int:id>/', UpdateNetCostView.as_view(), name='product_net_cost_update'),
+    path('product/delete/net-cost/<int:id>', DeleteNetCostView.as_view(), name='product_net_cost_delete'),
 
     path('set-net-costs/', SetNetCostsFromFileView.as_view(), name='set_net_costs'),
     path('export-net-costs-example/', ExportNetCostsExampleView.as_view(), name='export_net_costs_example'),

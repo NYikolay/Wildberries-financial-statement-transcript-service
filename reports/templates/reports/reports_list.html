@@ -2,7 +2,6 @@
 {% load static %}
 {% block title %} Список отчётов - Commery{% endblock %}
 {% block styles %}
-<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
 <link rel="stylesheet" href="{% static 'reports/css/reports.css' %}">
 {% endblock %}
 {% block content %}
@@ -155,8 +154,8 @@
                     action="{% url 'reports:set_report_add_data' %}"
                     method="post"
                     enctype="multipart/form-data"
-                    class="reports__expenses-form"
-                    id="reports-expenses-form"
+                    class="reports__expenses-form hidden"
+                    id="file-form"
             >
                 {% csrf_token %}
                 <div class="common__content-wrapper reports__expenses-form__container">
@@ -176,7 +175,7 @@
                             <label for="{{ form.report_data_file.id_for_label }}" class="reports__expenses-label">Выберите</label>
                             скачанный Excel-файл для загрузки
                         </p>
-                        <div class="expenses__load-status">
+                        <div class="expenses__load-status" id="file-load-status">
                             <svg width="7" height="7" viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg">
                                 <rect class="error__dot-icon" id="file-load-icon" width="7" height="7" rx="3.5"/>
                             </svg>
@@ -187,7 +186,7 @@
                         <h1>Шаг 3</h1>
                         <div class="reports__expenses-form__buttons">
                             <button type="submit" class="accent-button">Загрузить</button>
-                            <button type="button" class="reports__expenses-cancel" id="reports-expenses-close-form">
+                            <button type="button" class="reports__expenses-cancel" id="close-file-form">
                                 Отменить
                                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
@@ -203,5 +202,5 @@
 {% endif %}
 
 <script src="{% static 'js/handleInputsValidation.js' %}"></script>
-<script src="{% static 'reports/js/reports_list.js' %}"></script>
+<script src="{% static 'js/loadFile.js' %}"></script>
 {% endblock %}

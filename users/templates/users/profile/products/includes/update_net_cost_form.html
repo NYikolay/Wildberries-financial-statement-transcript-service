@@ -1,0 +1,37 @@
+<div class="create__net-cost__wrapper hidden" id="update-net-cost-from-wrapper" data-net-cost-id-form="{{ net_cost.object.id }}">
+    <form action="{% url 'users:product_net_cost_update' net_cost.object.id %}" method="post" class="net__cost-from">
+        {% csrf_token %}
+        <div class="form-items">
+            {{ net_cost.form.product.as_hidden }}
+            <div class="form__item {% if net_cost.form.amount.errors %} input__item-error {% endif %}">
+                {{ net_cost.form.amount }}
+                {{ net_cost.form.amount.label_tag }}
+                {% if net_cost.form.amount.errors %}
+                <div class="form__item-error form__item-error-fixed__width" data-id-error="amount">
+                    {{ net_cost.form.amount.errors }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="form__item {% if net_cost.form.cost_date.errors %} input__item-error {% endif %}">
+                {{ net_cost.form.cost_date }}
+                {{ net_cost.form.cost_date.label_tag }}
+                {% if net_cost.form.cost_date.errors %}
+                <div class="form__item-error form__item-error-fixed__width" data-id-error="cost_date">
+                    {{ net_cost.form.cost_date.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="net__cost-form__buttons">
+            <button type="submit" class="accent-button">
+                Сохранить
+            </button>
+        </div>
+    </form>
+    <form action="{% url 'users:product_net_cost_delete' net_cost.object.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="text__accent-bold" style="text-decoration: underline">
+            Удалить
+        </button>
+    </form>
+</div>

@@ -48,20 +48,20 @@
     {% endif %}
     {% for subscription in subscriptions %}
     <div class="subscription_item {% if subscription.duration == 3 %} gradient-border {% else %} primary-border {% endif %}">
-            <h1>{{ subscription.duration }} {{ subscription.duration_desc }}</h1>
-            <div class="subscription-description">
-                <ul class="subscription__description-list">
-                    <li>Стоимость: {{ subscription.cost|floatformat:"-3g" }} руб. ({{ subscription.cost_for_week|floatformat:"-3g" }} руб./неделя)</li>
-                    <li>Скидка: {{ subscription.build_in_discount|floatformat:"0" }}%</li>
-                    <li>Описание: полный функционал сервиса</li>
-                </ul>
-                <form action="{% url 'payments:generate_robokassa_redirection' %}" method="post">
-                    {% csrf_token %}
-                    {{ subscription.form.as_p }}
-                    <button class="accent-button" type="submit">Купить</button>
-                </form>
-            </div>
+        <h1>{{ subscription.duration }} {{ subscription.duration_desc }}</h1>
+        <div class="subscription-description">
+            <ul class="subscription__description-list">
+                <li>Стоимость: {{ subscription.cost|floatformat:"-3g" }} руб. ({{ subscription.cost_for_week|floatformat:"-3g" }} руб./неделя)</li>
+                <li>Скидка: {{ subscription.build_in_discount|floatformat:"0" }}%</li>
+                <li>Описание: полный функционал сервиса</li>
+            </ul>
+            <form action="{% url 'payments:generate_robokassa_redirection' %}" method="post">
+                {% csrf_token %}
+                {{ subscription.form.as_p }}
+                <button class="accent-button" type="submit">Купить</button>
+            </form>
         </div>
+    </div>
     {% endfor %}
 </div>
 

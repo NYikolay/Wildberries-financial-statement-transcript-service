@@ -1,11 +1,7 @@
-{% if request.user.is_authenticated %}
-{% if is_profile_url %}
+{% if is_profile_url and request.user.is_authenticated %}
 {% include "includes/headers/profile_header.html" %}
+{% elif is_profile_url and not request.user.is_authenticated %}
+{% include "includes/headers/unquthorized_profile_header.html" %}
 {% elif is_data_url %}
 {% include "includes/headers/data_header.html" %}
-{% endif %}
-{% else %}
-{% if is_profile_url %}
-{% include "includes/headers/unquthorized_profile_header.html" %}
-{% endif %}
 {% endif %}

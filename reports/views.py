@@ -27,11 +27,18 @@ from users.models import SaleReport, IncorrectReport, UnloadedReports
 django_logger = logging.getLogger('django_logger')
 
 
-class ReportsListView(LoginRequiredMixin, ListView):
+class ReportsListView(ListView):
     model = SaleReport
     template_name = 'reports/reports_list.html'
+    unauthorized_template_name = 'reports/unauthorized_reports_list.html'
     context_object_name = 'reports'
     form_class = LoadReportAdditionalDataFrom
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(request, self.unauthorized_template_name)
+
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         incorrect_reports = IncorrectReport.objects.filter(owner=self.request.user, api_key__is_current=True)

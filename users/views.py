@@ -1,10 +1,8 @@
 import time
-from datetime import time as date_time
 import logging
 import pytz
+from datetime import time as date_time, date, datetime
 from dateutil.relativedelta import relativedelta
-from datetime import date, datetime
-from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,23 +11,24 @@ from django.views.generic.list import ListView
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import View, CreateView, UpdateView, DeleteView, DetailView
 from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_str
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponse
 
 from payments.models import SubscriptionTypes
 from payments.services.create_user_subscription_service import create_user_subscription
 from users.decorators import redirect_authenticated_user
-from users.forms import (LoginForm, UserRegisterForm, APIKeyForm,
-                         ChangeUserDataForm, ChangeUserPasswordForm, TaxRateForm,
-                         UpdateAPIKeyForm, NetCostForm, PasswordResetEmailForm, UserPasswordResetForm,
-                         LoadNetCostsFileForm, ChangeCurrentApiKeyForm, CostsForm)
+from users.forms import (
+    LoginForm, UserRegisterForm, APIKeyForm, ChangeUserPasswordForm, TaxRateForm,
+    NetCostForm, PasswordResetEmailForm, UserPasswordResetForm, LoadNetCostsFileForm,
+    ChangeCurrentApiKeyForm, CostsForm
+)
 from users.mixins import SubscriptionRequiredMixin
 from users.models import User, WBApiKey, ClientUniqueProduct, TaxRate, NetCost, UserDiscount, SaleReport
 from users.services.encrypt_api_key_service import get_encrypted_key
@@ -115,7 +114,7 @@ class ConfirmRegistrationView(View):
                     discount=0
                 )
             except Exception as err:
-                django_logger.info(
+                django_logger.critical(
                     f'Failed to issue a test subscription to a user - {user.email}.',
                     exc_info=err)
 
@@ -241,6 +240,7 @@ class CreateApiKeyView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
     template_name = 'users/profile/companies/create_api_key.html'
+    redirect_url = "users:companies_list"
     form_class = APIKeyForm
 
     def get(self, request):
@@ -262,13 +262,15 @@ class CreateApiKeyView(LoginRequiredMixin, View):
 
             api_key_obj.save()
 
-            return redirect("users:companies_list")
+            return redirect(self.redirect_url)
 
         context = {"form": form}
         return render(request, self.template_name, context)
 
 
 class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
     form_class = ChangeCurrentApiKeyForm
 
     def post(self, request):
@@ -278,6 +280,11 @@ class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
             current_api_key = request.user.keys.filter(is_current=True).first()
             api_key = request.user.keys.filter(id=form.cleaned_data['api_key_id']).first()
 
+            if not api_key:
+                django_logger.error(f"Changing api key with incorrect id for user - {request.user.email}")
+                messages.error(request, "Невозможно сменить подключение. Передан некорректный Api ключ")
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+
             with transaction.atomic():
                 current_api_key.is_current = False
                 api_key.is_current = True
@@ -286,15 +293,20 @@ class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
 
             return redirect(request.META.get('HTTP_REFERER', '/'))
 
-        print(form.errors)
+        django_logger.error(f"Error while change Api Key. User - {request.user.email}")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-class CompaniesListView(LoginRequiredMixin, ListView):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
+class CompaniesListView(ListView):
     template_name = 'users/profile/companies/companies_list.html'
+    unauthorized_template_name = 'users/profile/companies/unauthorized_companies.html'
     context_object_name = 'companies'
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(request, self.unauthorized_template_name)
+
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = self.request.user.keys.order_by('-is_current', '-last_reports_update')
@@ -311,10 +323,10 @@ class UpdateApiKeyView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
     template_name = 'users/profile/companies/edit_api_key.html'
+    redirect_url = "users:companies_list"
     form_class = APIKeyForm
 
     def get(self, request, api_key_id):
-
         api_key = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
         form = self.form_class(instance=api_key)
 
@@ -326,14 +338,39 @@ class UpdateApiKeyView(LoginRequiredMixin, View):
 
         if form.is_valid():
             api_key_obj = form.save(commit=False)
+
             if api_key_obj.api_key != company.api_key:
                 api_key_obj.api_key = get_encrypted_key(form.cleaned_data['api_key'])
 
             api_key_obj.save()
 
-            return redirect("users:companies_list")
+            return redirect(self.redirect_url)
 
         return render(request, self.template_name, context={"form": form, "api_key": company})
+
+
+class DeleteApiKeyView(LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    success_redirect_url = "users:companies_list"
+
+    def post(self, request, api_key_id):
+        for_delete_api_key = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
+        for_current_api_key = request.user.keys.filter(
+            ~Q(pk=for_delete_api_key.id)
+        ).order_by(
+            '-is_current', '-last_reports_update'
+        ).first()
+
+        with transaction.atomic():
+            for_delete_api_key.delete()
+
+            if for_current_api_key:
+                for_current_api_key.is_current = True
+                for_current_api_key.save()
+
+        messages.success(request, 'Подключение было успешно остановлено')
+        return redirect(self.success_redirect_url)
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
@@ -343,11 +380,11 @@ class ChangePasswordView(LoginRequiredMixin, View):
     form_class = ChangeUserPasswordForm
 
     def get(self, request):
-        context = {"form": self.form_class(user=request.user)}
+        context = {"form": self.form_class(user=request.user, use_required_attribute=False)}
         return render(request, self.template_name, context)
 
     def post(self, request):
-        form = self.form_class(request.POST, user=request.user)
+        form = self.form_class(request.POST, user=request.user, use_required_attribute=False)
 
         if form.is_valid():
             user = request.user
@@ -356,7 +393,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
             update_session_auth_hash(request, user)
 
             messages.success(request, "Пароль был успешно обновлён")
-            return render(request, self.template_name, context={"form": self.form_class()})
+            return render(request, self.template_name, context={"form": self.form_class(use_required_attribute=False)})
 
         return render(request, self.template_name, context={"form": form})
 
@@ -365,6 +402,7 @@ class PasswordResetView(View):
     form_class = PasswordResetEmailForm
     template_name = 'users/profile/password/password_reset_form.html'
     reset_email_template_name = 'users/profile/password/password_reset_email.html'
+    redirect_url = 'users:password_reset_done'
     mail_subject = 'Подтверждение сброса пароля'
 
     @redirect_authenticated_user
@@ -388,13 +426,14 @@ class PasswordResetView(View):
                 self.mail_subject,
                 is_reset_password=True
             )
-            return redirect('users:password_reset_done')
+            return redirect(self.redirect_url)
 
         return render(request, self.template_name, context={'form': form})
 
 
 class PasswordResetConfirmView(View):
     form_class = UserPasswordResetForm
+    redirect_url = 'users:login'
     template_name = 'users/profile/password/password_reset_confirm.html'
 
     @redirect_authenticated_user
@@ -417,7 +456,7 @@ class PasswordResetConfirmView(View):
             return render(request, self.template_name, context=context)
 
         messages.error(request, 'Ссылка повреждена или более недействительна.')
-        return redirect('users:login')
+        return redirect(self.redirect_url)
 
     def post(self, request, token, uidb64):
         try:
@@ -440,7 +479,7 @@ class PasswordResetConfirmView(View):
             return render(request, self.template_name, context=context)
 
         messages.error(request, 'Ссылка повреждена или более недействительна.')
-        return redirect('users:login')
+        return redirect(self.redirect_url)
 
 
 class PasswordResetDoneView(View):
@@ -454,32 +493,17 @@ class PasswordResetDoneView(View):
         return render(request, self.template_name)
 
 
-class DeleteCompanyView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-    success_redirect_url = "users:companies_list"
-
-    def post(self, request, api_key_id):
-        for_delete_api_key = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
-        for_current_api_key = request.user.keys.filter(
-            ~Q(pk=for_delete_api_key.id)).order_by('-is_current', '-last_reports_update').first()
-
-        with transaction.atomic():
-            for_delete_api_key.delete()
-            if for_current_api_key:
-                for_current_api_key.is_current = True
-                for_current_api_key.save()
-
-        messages.success(request, 'Подключение было успешно остановлено')
-        return redirect(self.success_redirect_url)
-
-
-class TaxRateListView(LoginRequiredMixin, ListView):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
+class TaxRateListView(ListView):
     template_name = 'users/profile/taxes.html'
+    unauthorized_template_name = 'users/profile/unauthorized_taxes.html'
     form_class = TaxRateForm
     context_object_name = 'tax_rates'
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(request, self.unauthorized_template_name)
+
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = TaxRate.objects.filter(
@@ -500,6 +524,12 @@ class CreateTaxRateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("users:profile_taxes")
     form_class = TaxRateForm
     model = TaxRate
+
+    def get_queryset(self):
+        queryset = TaxRate.objects.filter(
+            api_key__is_current=True, api_key__user=self.request.user
+        )
+        return queryset
 
     def form_valid(self, form):
         api_key = self.request.user.keys.filter(is_current=True).first()
@@ -525,7 +555,9 @@ class DeleteTaxRateView(LoginRequiredMixin, DeleteView):
     pk_url_kwarg = 'id'
 
     def get_queryset(self):
-        queryset = TaxRate.objects.filter(api_key__is_current=True, api_key__user=self.request.user)
+        queryset = TaxRate.objects.filter(
+            api_key__is_current=True, api_key__user=self.request.user
+        )
         return queryset
 
 
@@ -535,17 +567,24 @@ class ChangeTaxRateView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = 'id'
 
     def get_queryset(self):
-        queryset = TaxRate.objects.filter(api_key__is_current=True, api_key__user=self.request.user)
+        queryset = TaxRate.objects.filter(
+            api_key__is_current=True, api_key__user=self.request.user
+        )
         return queryset
 
 
-class CostsListView(LoginRequiredMixin, ListView):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
+class CostsListView(ListView):
     template_name = 'users/profile/costs.html'
+    unauthorized_template_name = 'users/profile/unauthorized_costs.html'
     context_object_name = 'costs'
     form_class = CostsForm
     model = SaleReport
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(request, self.unauthorized_template_name)
+
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         reports = (self.model.objects.filter(owner=self.request.user, api_key__is_current=True)
@@ -589,10 +628,17 @@ class ChangeCostsView(LoginRequiredMixin, View):
         return redirect(self.success_url)
 
 
+class EmptyProductsView(View):
+    template_name = 'users/profile/products/unauthorized_products.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+
 class ProductDetailView(LoginRequiredMixin, DetailView):
     login_url = 'users:login'
     redirect_field_name = 'login'
-    template_name = 'users/profile/products.html'
+    template_name = 'users/profile/products/products.html'
     pk_url_kwarg = 'article'
     context_object_name = 'product'
     model = ClientUniqueProduct
@@ -623,39 +669,89 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         paginator_products = paginator.get_page(page)
 
         context['products'] = paginator_products
-        context['form'] = self.form_class()
-        context['net_costs'] = self.object.cost_prices.all()
-        context['net_cost_form'] = self.net_cost_form()
+        context['file_form'] = self.form_class()
+        context['net_costs'] = [
+            {
+                "object": net_cost,
+                "form": self.net_cost_form(instance=net_cost)
+            }
+            for net_cost in self.object.cost_prices.all().order_by('cost_date')
+        ]
+        context['net_cost_form'] = self.net_cost_form(initial={"product": self.object})
+
         return context
 
 
-# class ProductDetailView(LoginRequiredMixin, View):
-#     login_url = 'users:login'
-#     redirect_field_name = 'login'
-#
-#     def get(self, request, article_value):
-#         product = get_object_or_404(ClientUniqueProduct,
-#                                     api_key__user=request.user,
-#                                     api_key__is_current=True,
-#                                     nm_id=article_value
-#                                     )
-#
-#         products_objs_list = ClientUniqueProduct.objects.filter(
-#             api_key__user=request.user, api_key__is_current=True
-#         ).order_by('brand', 'nm_id')
-#
-#         product_paginator = Paginator(products_objs_list, 8)
-#         page_number = request.GET.get('page')
-#         page_obj = product_paginator.get_page(page_number)
-#         net_costs = product.cost_prices.all().order_by('cost_date')
-#
-#         context = {
-#             'products': page_obj,
-#             'product': product,
-#             'net_costs': net_costs,
-#             'net_costs_load_form': LoadNetCostsFileForm()
-#         }
-#         return render(request, 'users/profile/products/product_detail.html', context)
+class CreateNetCostView(LoginRequiredMixin, CreateView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    model = NetCost
+    form_class = NetCostForm
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            product__api_key__user=self.request.user,
+            product__api_key__is_current=True
+        )
+
+        return queryset
+
+    def form_invalid(self, form):
+        messages.error(
+            self.request,
+            'Не удалось создать себестоимость, пожалуйста, убедитесь что все поля заполнены корректно'
+        )
+        return redirect(self.request.META.get('HTTP_REFERER', '/'))
+
+    def get_success_url(self):
+        messages.success(self.request, 'Себестоимость успешно создана')
+        return reverse_lazy("users:product_detail", args=(self.object.product.nm_id,))
+
+
+class UpdateNetCostView(LoginRequiredMixin, UpdateView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    model = NetCost
+    pk_url_kwarg = 'id'
+    form_class = NetCostForm
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            product__api_key__user=self.request.user,
+            product__api_key__is_current=True
+        )
+
+        return queryset
+
+    def form_invalid(self, form):
+        messages.error(
+            self.request,
+            'Не удалось обновить себестоимость, пожалуйста, убедитесь что все поля заполнены корректно'
+        )
+        return redirect(self.request.META.get('HTTP_REFERER', '/'))
+
+    def get_success_url(self):
+        messages.success(self.request, 'Себестоимость успешно изменена')
+        return reverse_lazy("users:product_detail", args=(self.object.product.nm_id,))
+
+
+class DeleteNetCostView(LoginRequiredMixin, DeleteView):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    pk_url_kwarg = 'id'
+    model = NetCost
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            product__api_key__user=self.request.user,
+            product__api_key__is_current=True
+        )
+
+        return queryset
+
+    def get_success_url(self):
+        messages.success(self.request, 'Себестоимость успешно удалена')
+        return reverse_lazy("users:product_detail", args=(self.object.product.nm_id,))
 
 
 class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
@@ -725,104 +821,13 @@ class CheckReportsLoadingStatus(LoginRequiredMixin, View):
         )
 
 
-class EmptyProductsListView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-
-    def get(self, request):
-        current_api_key = request.user.keys.filter(is_current=True).first()
-
-        if current_api_key and current_api_key.is_products_loaded:
-            return redirect('users:product_detail', ClientUniqueProduct.objects.filter(
-                api_key__is_current=True, api_key__user=request.user
-            ).order_by('brand', 'nm_id').values_list('nm_id', flat=True)[:1].first())
-
-        return render(request, 'users/profile/products/empty_products.html')
-
-
-class EditProductView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-    form_class = NetCostForm
-
-    def get(self, request, article_value):
-        product = get_object_or_404(
-            ClientUniqueProduct,
-            nm_id=article_value,
-            api_key__user=request.user,
-            api_key__is_current=True
-        )
-
-        products_objs_list = ClientUniqueProduct.objects.filter(
-            api_key__user=request.user, api_key__is_current=True
-        ).order_by('brand', 'nm_id')
-
-        product_paginator = Paginator(products_objs_list, 8)
-        page_number = request.GET.get('page')
-        page_obj = product_paginator.get_page(page_number)
-
-        net_costs = product.cost_prices.all().order_by('cost_date')
-        context = {
-            'products': page_obj,
-            'product': product,
-            'net_costs': net_costs,
-            'form': self.form_class(),
-            'net_costs_load_form': LoadNetCostsFileForm()
-        }
-        return render(request, 'users/profile/products/edit_product.html', context)
-
-    def post(self, request, article_value):
-        cost_inputs = list(filter(None, request.POST.getlist('cost_input')))
-        product_cost_dates = list(filter(None, request.POST.getlist('product_cost_date')))
-
-        if len(cost_inputs) != len(product_cost_dates):
-            messages.error(
-                request,
-                'Ошибка валидации значений себестоимости.'
-                'Количестно ставок налога должно соответствовать количеству дат начала действия.'
-            )
-            return redirect(request.META.get('HTTP_REFERER', '/'))
-
-        product = get_object_or_404(
-            ClientUniqueProduct,
-            nm_id=article_value,
-            api_key__user=request.user,
-            api_key__is_current=True
-        )
-        net_costs_forms = []
-
-        for cost, date in zip(cost_inputs, product_cost_dates):
-            net_costs_forms.append(self.form_class({'amount': cost, 'cost_date': date}))
-
-        if all([form.is_valid() for form in net_costs_forms]):
-
-            NetCost.objects.filter(product=product).delete()
-
-            for form in net_costs_forms:
-                net_cost_obj = form.save(commit=False)
-                net_cost_obj.product = product
-                net_cost_obj.save()
-
-            messages.success(request, 'Данные успешно сохранены!')
-
-            base_url = reverse('users:product_detail', kwargs={'article_value': product.nm_id})
-            query_string = urlencode({'page': request.GET.get('page')})
-            url = f'{base_url}?{query_string}'
-
-            return redirect(url)
-
-        messages.error(
-            request,
-            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 13')
-        return redirect(request.META.get('HTTP_REFERER', '/'))
-
-
 class ExportNetCostsExampleView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
 
     def get(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
+
         net_costs_set = NetCost.objects.filter(
             product__api_key=current_api_key
         ).values_list('product__nm_id', 'amount', 'cost_date')

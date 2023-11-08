@@ -122,6 +122,7 @@ class PasswordResetEmailForm(forms.Form):
 
         if not user:
             self.add_error("email", "Аккаунта с такой почтой не существует")
+            return
         else:
             self.cleaned_data['user'] = user
 
@@ -230,13 +231,6 @@ class UpdateAPIKeyForm(forms.ModelForm):
         self.label_suffix = ""
 
 
-class ChangeUserDataForm(forms.ModelForm):
-
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'email')
-
-
 class ChangeUserPasswordForm(forms.Form):
     old_password = forms.CharField(
         label='Старый пароль',
@@ -261,22 +255,30 @@ class ChangeUserPasswordForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        new_password = cleaned_data['new_password']
+        new_password = cleaned_data.get('new_password')
+        old_password = cleaned_data.get('old_password')
+        reenter_password = cleaned_data.get('reenter_password')
+
+        if not new_password or not old_password or not reenter_password:
+            return
 
         if len(new_password) < 8:
             self.add_error("new_password", "Пароль должен содержать минимум 8 символов.")
+            return
 
         if new_password != self.cleaned_data['reenter_password']:
             self.add_error("reenter_password", "Пароли не совпадают.")
+            return
 
         if not self.user.check_password(cleaned_data['old_password']):
             self.add_error("old_password", "Старый пароль введён неверно.")
+            return
 
 
 class LoadNetCostsFileForm(forms.Form):
     net_costs_file = forms.FileField(
         label='',
-        widget=forms.FileInput(attrs={'class': 'common__load-input', 'id': 'net-costs-file'})
+        widget=forms.FileInput(attrs={'class': 'common__load-input', 'id': 'file-input'})
     )
 
     def clean_net_costs_file(self):
@@ -288,10 +290,15 @@ class LoadNetCostsFileForm(forms.Form):
 class NetCostForm(forms.ModelForm):
     class Meta:
         model = NetCost
-        fields = ["amount", "cost_date"]
+        fields = ["product", "amount", "cost_date"]
         labels = {
             "amount": "Себестоимость",
             "cost_date": "Дата начала действия"
+        }
+        error_messages = {
+            "amount": {
+                "required": _("Поле себестоимость обязательно для заполнения")
+            }
         }
         widgets = {
             "amount": forms.NumberInput(attrs={

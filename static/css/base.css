@@ -9,6 +9,7 @@
 
 [data-color-theme="dark"] {
     --var-bgcolor: #32396B;
+    --var-logo-color: #FFFFFF;
     --var-success-color: #36D04F;
     --var-error-color: #EC496B;
     --var-text-active-color: #FFFFFF;
@@ -22,6 +23,7 @@
     --var-accent-text-color: #FFFFFF;
     --var-modal-accent-text-color: #5C659D;
     --var-modal-common-text-color: #A0A2A4;
+    --var-primary-border-color: #FFFFFF;
     --var-border-active-color: #0073FF;
     --var-underline-color: #5157CE;
     --var-blue-accent-color: #00C6FF;
@@ -32,6 +34,7 @@
 
 [data-color-theme="light"] {
     --var-bgcolor: #FFFFFF;
+    --var-logo-color: black;
     --var-success-color: #36D04F;
     --var-error-color: #EC496B;
     --var-text-active-color: #5C659D;
@@ -41,6 +44,7 @@
     --var-common-text-color: #A0A2A4;
     --var-modal-accent-text-color: #FFFFFF;
     --var-modal-common-text-color: #5C659D;
+    --var-primary-border-color: #424B80;
     --var-border-active-color: #0073FF;
     --var-commont-icon-color: #A0A2A4;
     --var-tooltip-icon-color: #5C659D;
@@ -70,6 +74,7 @@ header {
     position: fixed;
     width: 1025px;
     margin-left: 175px;
+    z-index: 999;
     background-color: var(--var-bgcolor);
     border-bottom: 1px solid var(--var-border-color);
     padding: 20px 20px 20px 30px;
@@ -178,7 +183,7 @@ h1 {
 }
 
 .primary-border {
-    border: 1px solid #FFFFFF !important;
+    border: 1px solid var(--var-primary-border-color) !important;
 }
 
 .gradient-border {
@@ -317,16 +322,28 @@ footer {
 /*CHANGE API KEY BLOCK STYLING START*/
 
 .sidebar__current-key__block {
-    position: relative;
     gap: 20px;
 }
 
+.logo {
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--var-logo-color) !important;
+    font-weight: bold !important;
+}
+
+.logo:hover {
+    display: flex;
+}
+
 .current__key-container {
-    position: absolute;
-    top: 30px;
-    right: -180px;
+    position: fixed;
+    top: 150px;
+    margin-left: 90px;
     border-radius: 7px;
-    z-index: 999;
+    z-index: 900;
     padding: 15px 20px 20px 20px;
     background-color: var(--var-bg-modal-color);
 }
@@ -510,7 +527,7 @@ footer {
     font-weight: normal;
     line-height: 15px;
     background-color: var(--var-bg-modal-color);
-    color: var(--var-common-text-color);
+    color: var(--var-modal-accent-text-color);
     border-radius: 7px;
     padding: 20px;
     width: 253px;

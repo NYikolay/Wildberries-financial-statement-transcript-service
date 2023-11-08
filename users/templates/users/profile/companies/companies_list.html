@@ -17,7 +17,7 @@
                 </svg>
                 <p class="text__accent-bold">Отсутствует</p>
             </div>
-            <button class="accent-button">Создать подключение</button>
+            <a href="{% url 'users:create_api_key' %}" class="accent-button">Создать подключение</a>
         </div>
     </div>
     <div>
@@ -48,7 +48,7 @@
                     </svg>
                     <div class="delete__company-modal__container">
                         <h1>Подтверждение отключения</h1>
-                        <h2 class="text__common-normal">Будут удалены все загруженные ранее отчеты WILDBERRIES и прочие данные</h2>
+                        <p class="text__common-normal">Будут удалены все загруженные ранее отчеты WILDBERRIES и прочие данные</p>
                         <form action="{% url 'users:company_delete' company.id %}" method="post" class="delete__company-form">
                             {% csrf_token %}
                             <button type="button" class="accent-button" id="cancel-company-delete">Отменить</button>

@@ -1,7 +1,23 @@
 {% load static %}
 <aside>
     <div class="sidebar">
-        <a href="{% url 'reports:dashboard' %}" class="logo"><img src="{% static 'images/commery_logo.svg' %}" alt=""></a>
+        <a href="{% url 'reports:dashboard' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_285_276)">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M48 0C21.4903 0 0 21.4903 0 48C0 57.0443 2.50142 65.5044 6.85018 72.7262L28.3636 43.893H60.4492L86.6809 19.5731C77.9425 7.70245 63.8707 0 48 0ZM91.3276 27.317L63.1444 51.2086L27.9786 51.4652L6.87207 72.7625C15.2745 86.6882 30.5498 96 48 96C74.5097 96 96 74.5097 96 48C96 40.5942 94.3228 33.5802 91.3276 27.317Z" fill="url(#paint0_linear_285_276)"/>
+                </g>
+                <defs>
+                    <linearGradient id="paint0_linear_285_276" x1="96" y1="0" x2="0" y2="96" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#00E7FF"/>
+                        <stop offset="1" stop-color="#0085FF"/>
+                    </linearGradient>
+                    <clipPath id="clip0_285_276">
+                        <rect width="96" height="96" fill="white"/>
+                    </clipPath>
+                </defs>
+            </svg>
+            COMMERY
+        </a>
 
         <nav>
             {% if request.user.is_authenticated and current_api_key %}
@@ -10,35 +26,6 @@
                     {{ current_api_key.name }}
                     <button type="button" class="open__change-key__modal" id="open-change-key-modal" style="margin-left: 5px;">Изменить</button>
                 </p>
-                <div class="current__key-container hidden" id="current-keys-container">
-                    <form method="post" action="{% url 'users:change_current_api_key' %}" class="current__key-form">
-                        {% csrf_token %}
-                        <h1 class="commot__modal-title">Выбор подключения</h1>
-                        {% for key in api_keys %}
-                        <div>
-                            <input
-                                    type="checkbox"
-                                    name="api_key_id"
-                                    id="key-checkbox-{{ key.id }}"
-                                    value="{{ key.id }}"
-                                    {% if key.is_current %}checked{% endif %}
-                                    class="change__key-checkbox__input">
-                            <label for="key-checkbox-{{ key.id }}" class="change__key-checkbox">
-                                {{ key.name }}
-                            </label>
-                        </div>
-                        {% endfor %}
-                        <div class="common__buttons-container">
-                            <button type="submit" class="accent-button">Применить</button>
-                            <button type="button" class="common__cancel-button" id="cancel-key-change">
-                                Отменить
-                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </form>
-                </div>
             </div>
             {% endif %}
             <ul class="nav-list">
@@ -73,11 +60,6 @@
                         </svg>
                         Данные
                     </a>
-                    {% if request.user.is_authenticated and not current_api_key %}
-                    <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
-                    </svg>
-                    {% endif %}
                     {% else %}
                     <a href="{% url 'users:companies_list' %}" class="p-bold">
                         <svg width="17" height="19" viewBox="0 0 17 19" xmlns="http://www.w3.org/2000/svg">
@@ -85,11 +67,11 @@
                         </svg>
                         Данные
                     </a>
-                    {% if request.user.is_authenticated and not current_api_key %}
+                    {% endif %}
+                    {% if not request.user.is_authenticated or not current_api_key %}
                     <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
                     </svg>
-                    {% endif %}
                     {% endif %}
                 </li>
                 <li>
@@ -106,11 +88,6 @@
                         </svg>
                         Профиль
                     </a>
-                    {% if request.user.is_authenticated and not request.user.is_subscribed %}
-                    <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
-                    </svg>
-                    {% endif %}
                     {% else %}
                     <a href="{% url 'users:profile_subscriptions' %}" class="p-bold">
                         <svg width="19" height="19" viewBox="0 0 19 19" xmlns="http://www.w3.org/2000/svg">
@@ -118,11 +95,11 @@
                         </svg>
                         Профиль
                     </a>
+                    {% endif %}
                     {% if request.user.is_authenticated and not request.user.is_subscribed %}
                     <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
                     </svg>
-                    {% endif %}
                     {% endif %}
                 </li>
             </ul>
@@ -145,4 +122,5 @@
             <li><a href="" class="text__common-normal">Политика конфиденциальности</a></li>
         </ul>
     </footer>
+
 </aside>

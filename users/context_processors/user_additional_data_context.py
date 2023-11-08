@@ -32,7 +32,8 @@ def current_path(request):
 
     data_urls = [
         reverse("reports:reports_list"), reverse("users:create_api_key"), reverse("users:companies_list"),
-        '/profile/api-key/edit/', reverse("users:profile_taxes"), reverse("users:costs_list"), '/product/'
+        '/profile/api-key/edit/', reverse("users:profile_taxes"), reverse("users:costs_list"), '/product/',
+        reverse("users:empty_products")
     ]
 
     return {

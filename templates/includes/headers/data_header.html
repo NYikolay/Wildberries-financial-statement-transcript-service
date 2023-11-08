@@ -5,39 +5,69 @@
             {% url 'users:create_api_key' as create_api_key_url %}
             {% url 'users:companies_list' as companies_list_url %}
             {% url 'users:profile_taxes' as profile_taxes_url %}
-            <li><a
-                    href="{{ companies_list_url }}"
-                    class="{% if request.path == create_api_key_url or request.path == companies_list_url or '/profile/api-key/edit/' in request.path %} active_link {% endif %}">
-                Подключение к WB
-            </a>
-                {% if not current_api_key %}
+            <li>
+                <a
+                        href="{{ companies_list_url }}"
+                        class="{% if request.path == create_api_key_url or request.path == companies_list_url or '/profile/api-key/edit/' in request.path %} active_link {% endif %}">
+                    Подключение к WB
+                </a>
+                {% if not current_api_key or not request.user.is_authenticated %}
                 <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
                 </svg>
-                {% endif %}</li>
+                {% endif %}
+            </li>
             {% url 'reports:reports_list' as reports_list_url %}
-            <li><a
-                    href="{{ reports_list_url }}"
-                    class="{% if request.path == reports_list_url %} active_link {% endif %}">
-                Финансовые отчеты
-            </a></li>
-            {% url 'users:reports_list' as products_list_url %}
-            <li><a
-                    href="{% url 'users:product_detail' product_article %}"
-                    class="{% if request.path == products_list_url %} active_link {% endif %}">
-                Склад
-            </a></li>
+            <li>
+                <a
+                        href="{{ reports_list_url }}"
+                        class="{% if request.path == reports_list_url %} active_link {% endif %}">
+                    Финансовые отчеты
+                </a>
+                {% if not request.user.is_authenticated %}
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
+                </svg>
+                {% endif %}
+            </li>
+            {% url 'users:empty_products' as empty_products_url %}
+            <li>
+                <a
+                        href="{% if request.user.is_authenticated and current_api_key.is_wb_data_loaded %}{% url 'users:product_detail' product_article %}{% else %}{% url 'users:empty_products' %}{% endif %}"
+                        class="{% if '/product/' in request.path or request.path == empty_products_url %} active_link {% endif %}">
+                    Склад
+                </a>
+                {% if not request.user.is_authenticated %}
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
+                </svg>
+                {% endif %}
+            </li>
             {% url 'users:costs_list' as costs_list_url %}
-            <li><a
-                    href="{{ costs_list_url }}"
-                    class="{% if request.path == costs_list_url %} active_link {% endif %}">
-                Мои расходы
-            </a></li>
-            <li><a
-                    href="{{ profile_taxes_url }}"
-                    class="{% if request.path == profile_taxes_url %} active_link {% endif %}">
-                Налоги
-            </a></li>
+            <li>
+                <a
+                        href="{{ costs_list_url }}"
+                        class="{% if request.path == costs_list_url %} active_link {% endif %}">
+                    Мои расходы
+                </a>
+                {% if not request.user.is_authenticated %}
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
+                </svg>
+                {% endif %}
+            </li>
+            <li>
+                <a
+                        href="{{ profile_taxes_url }}"
+                        class="{% if request.path == profile_taxes_url %} active_link {% endif %}">
+                    Налоги
+                </a>
+                {% if not request.user.is_authenticated %}
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
+                </svg>
+                {% endif %}
+            </li>
         </ul>
         {% if current_api_key %}
         <div class="data__header-report">

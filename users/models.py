@@ -70,14 +70,16 @@ class User(ExportModelOperationsMixin('user'), AbstractBaseUser, PermissionsMixi
 
 
 class Promocode(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="promocodes", verbose_name='Владелец')
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="promocodes", verbose_name='Владелец', null=True, blank=True
+    )
     value = models.CharField(max_length=65, unique=True, verbose_name="Значение промокода")
     discount_percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания промокода')
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Промокод пользователя - {self.owner.email}"
+        return f"Промокод - {self.value}, пользователя - {self.owner.email}"
 
     class Meta:
         verbose_name = 'Промокод'
@@ -258,8 +260,6 @@ class NetCost(ExportModelOperationsMixin('net_cost'), models.Model):
     amount = models.DecimalField(
         max_digits=13,
         decimal_places=2,
-        blank=True,
-        null=True,
         verbose_name='Значение себестоимости'
     )
     cost_date = models.DateField()
