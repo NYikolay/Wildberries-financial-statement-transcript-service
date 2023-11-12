@@ -10,16 +10,24 @@ from users.models import User, WBApiKey, TaxRate, NetCost, Promocode, SaleReport
 
 
 class LoginForm(forms.Form):
+    use_required_attribute = False
     email = forms.EmailField(
         required=True,
-        validators=[validate_email],
-        widget=forms.EmailInput(attrs={
+        error_messages={"invalid": _("Введён некорректный адресс электронной почты")},
+        widget=forms.TextInput(attrs={
             'class': "form__input",
+            'id': 'email',
             'placeholder': 'support_commery@mail.ru',
             'data-id': 'email'
         }))
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'password'}),
+        widget=forms.PasswordInput(
+            attrs={
+                'class': "form__input",
+                'data-id': 'password',
+                'id': 'password',
+            }
+        ),
         label="Пароль",
         required=True
     )
@@ -28,21 +36,35 @@ class LoginForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.label_suffix = ""
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+
+        validate_email(email)
+
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
-        email = cleaned_data['email']
-        password = cleaned_data['password']
+        email = cleaned_data.get('email')
+        password = cleaned_data.get('password')
+
+        if not email or not password:
+            return
+
         user = User.objects.filter(email__iexact=email).first()
 
         if not user:
             self.add_error("email", "Введён неверный Email")
+            return
         elif not user.check_password(password):
             self.add_error("password", "Введён неверный пароль")
+            return
         else:
             self.cleaned_data['user'] = user
 
 
 class UserRegisterForm(UserCreationForm):
+    use_required_attribute = False
     is_accepted_terms_of_offer = forms.BooleanField(
         error_messages={'required': 'Необходимо согласие с условиями Оферты'},
         widget=forms.CheckboxInput(attrs={'data-id': 'is_accepted_terms_of_offer'}),
@@ -51,12 +73,16 @@ class UserRegisterForm(UserCreationForm):
         initial=True
     )
     password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'password1'}),
-        label='Пароль'
+        error_messages={'required': 'Пароль обязателен для заполнения'},
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'password1', 'id': 'password1'}),
+        label='Пароль',
+        required=True
     )
     password2 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'password2'}),
-        label='Повторить пароль'
+        error_messages={'required': 'Необходимо повторить пароль'},
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'password2', 'id': 'password2'}),
+        label='Повторить пароль',
+        required=True
     )
 
     class Meta:
@@ -67,15 +93,17 @@ class UserRegisterForm(UserCreationForm):
             'phone': _('Контактный телефон')
         }
         widgets = {
-            'email': forms.EmailInput(attrs={
+            'email': forms.TextInput(attrs={
                 'class': "form__input",
                 'placeholder': 'support_commery@mail.ru',
-                'data-id': 'email'
+                'data-id': 'email',
+                'id': 'email'
             }),
             'phone': forms.TextInput(attrs={
                 'class': "form__input",
                 'placeholder': '8 (977) 438-99-99',
-                'data-id': 'phone'
+                'data-id': 'phone',
+                'id': 'phone'
             }),
         }
 
@@ -88,36 +116,56 @@ class UserRegisterForm(UserCreationForm):
             'data-id': 'promocode'
         }), label='Промокод')
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+
+        validate_email(email)
+
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
-        promo_code_value = cleaned_data['promocode']
+        promo_code_value = cleaned_data.get('promocode')
 
         if promo_code_value:
             promo_code = Promocode.objects.filter(value=promo_code_value).first()
 
             if not promo_code:
                 self.add_error('promocode', 'Указанный промокод не существует')
+                return
             else:
                 self.cleaned_data['promo_code'] = promo_code
 
 
 class PasswordResetEmailForm(forms.Form):
+    use_required_attribute = False
     email = forms.EmailField(
         required=True,
-        validators=[validate_email],
-        widget=forms.EmailInput(attrs={
+        widget=forms.TextInput(attrs={
             'class': "form__input",
             'placeholder': 'support_commery@mail.ru',
-            'data-id': 'email'
+            'data-id': 'email',
+            'id': 'email'
         }))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.label_suffix = ""
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+
+        validate_email(email)
+
+        return email
+
     def clean(self):
         cleaned_data = super().clean()
-        email = cleaned_data['email']
+        email = cleaned_data.get('email')
+
+        if not email:
+            return
+
         user = User.objects.filter(email=email).first()
 
         if not user:
@@ -128,13 +176,16 @@ class PasswordResetEmailForm(forms.Form):
 
 
 class UserPasswordResetForm(SetPasswordForm):
+    use_required_attribute = False
     new_password1 = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password1'}),
+        required=True
     )
     new_password2 = forms.CharField(
         label='Повторите пароль',
-        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password2'})
+        widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password2'}),
+        required=True
     )
 
     def __init__(self, *args, **kwargs):
@@ -143,6 +194,8 @@ class UserPasswordResetForm(SetPasswordForm):
 
 
 class TaxRateForm(forms.ModelForm):
+    use_required_attribute = False
+
     class Meta:
         model = TaxRate
         fields = ["tax_rate", "commencement_date"]
@@ -155,6 +208,8 @@ class TaxRateForm(forms.ModelForm):
                 'class': 'form__input',
                 'data-id': 'tax_rate',
                 'id': 'tax_rate',
+                'max': 100,
+                'step': '0.01',
                 'min': 0,
             }),
             'commencement_date': forms.DateInput(format='%Y-%m-%d', attrs={
@@ -165,12 +220,21 @@ class TaxRateForm(forms.ModelForm):
             })
         }
 
+    def clean_tax_rate(self):
+        tax_rate = self.cleaned_data['tax_rate']
+
+        if tax_rate > 100:
+            raise ValidationError("Значение налога не может быть более 100%")
+
+        return tax_rate
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.label_suffix = ""
 
 
 class CostsForm(forms.ModelForm):
+    use_required_attribute = False
 
     class Meta:
         model = SaleReport
@@ -185,6 +249,8 @@ class CostsForm(forms.ModelForm):
 
 
 class APIKeyForm(forms.ModelForm):
+    use_required_attribute = False
+
     class Meta:
         model = WBApiKey
         fields = ["api_key", "name"]
@@ -198,12 +264,22 @@ class APIKeyForm(forms.ModelForm):
                 'cols': 1,
                 'rows': 10,
                 'data-id': 'api_key',
-                'style': 'resize:none;'
+                'style': 'resize:none;',
+                'id': 'api_key'
             }),
             'name': forms.TextInput(attrs={
                 'class': 'form__input',
-                'data-id': 'name'
+                'data-id': 'name',
+                'id': 'name'
             }),
+        }
+        error_messages = {
+            'api_key': {
+                'required': _("Необходим API-ключ"),
+            },
+            'name': {
+                'required': _("Введите название подключения"),
+            },
         }
 
     def __init__(self, *args, **kwargs):
@@ -232,18 +308,22 @@ class UpdateAPIKeyForm(forms.ModelForm):
 
 
 class ChangeUserPasswordForm(forms.Form):
+    use_required_attribute = False
     old_password = forms.CharField(
         label='Старый пароль',
+        error_messages={'required': 'Старый пароль обязателен к заполнению'},
         widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'old_password'}),
         required=True
     )
     new_password = forms.CharField(
         label='Новый пароль',
+        error_messages={'required': 'Пароль обязателен к заполнению'},
         widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'new_password'}),
         required=True
     )
     reenter_password = forms.CharField(
         label='Повтор нового пароля',
+        error_messages={'required': 'Необходимо повторить пароль'},
         widget=forms.PasswordInput(attrs={'class': "form__input", 'data-id': 'reenter_password'}),
         required=True
     )
@@ -278,7 +358,8 @@ class ChangeUserPasswordForm(forms.Form):
 class LoadNetCostsFileForm(forms.Form):
     net_costs_file = forms.FileField(
         label='',
-        widget=forms.FileInput(attrs={'class': 'common__load-input', 'id': 'file-input'})
+        widget=forms.FileInput(attrs={'class': 'common__load-input', 'id': 'file-input'}),
+        required=True
     )
 
     def clean_net_costs_file(self):
@@ -288,6 +369,8 @@ class LoadNetCostsFileForm(forms.Form):
 
 
 class NetCostForm(forms.ModelForm):
+    use_required_attribute = False
+
     class Meta:
         model = NetCost
         fields = ["product", "amount", "cost_date"]
@@ -297,7 +380,10 @@ class NetCostForm(forms.ModelForm):
         }
         error_messages = {
             "amount": {
-                "required": _("Поле себестоимость обязательно для заполнения")
+                "required": _("Значение себестоимости обязательно для заполнения")
+            },
+            "cost_date": {
+                "required": _("Необходимо указать дату начала действия себестоимости")
             }
         }
         widgets = {

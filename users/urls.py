@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 
 from users.views import (
     LoginPageView, LogoutView, RegisterPageView,
@@ -8,12 +8,19 @@ from users.views import (
     PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView,
     ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView, ChangeCurrentApiKeyView, TaxRateListView,
     CreateTaxRateView, ChangeTaxRateView, DeleteTaxRateView, CostsListView, ChangeCostsView, CreateNetCostView,
-    UpdateNetCostView, DeleteNetCostView, EmptyProductsView
+    UpdateNetCostView, DeleteNetCostView, EmptyProductsView, ExecuteLoadingReportsFromWildberriesView, NotifySseUserView
 )
+
+import django_eventstream
 
 app_name = 'users'
 
 urlpatterns = [
+    path('user/<user_id>/events/', include(django_eventstream.urls), {
+        'format-channels': ['user-{user_id}']
+    }),
+    path('notify/user/', NotifySseUserView.as_view(), name='notify_user'),
+
     path('login/', LoginPageView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
 
@@ -54,6 +61,7 @@ urlpatterns = [
     path('set-net-costs/', SetNetCostsFromFileView.as_view(), name='set_net_costs'),
     path('export-net-costs-example/', ExportNetCostsExampleView.as_view(), name='export_net_costs_example'),
 
-    path('send-request-for-report/', LoadDataFromWBView.as_view(), name='send_request_for_report'),
+    # path('send-request-for-report/', LoadDataFromWBView.as_view(), name='send_request_for_report'),
+    path('load-reports/', ExecuteLoadingReportsFromWildberriesView.as_view(), name='load_reports'),
     path('sheck-reports-loading-status/', CheckReportsLoadingStatus.as_view(), name='check_reports_loading_status'),
 ]

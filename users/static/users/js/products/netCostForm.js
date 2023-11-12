@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const openCreateNetCostFormButton = document.getElementById('open-net-cost-form')
-    const openUpdateNetCostFormButtons = document.querySelectorAll('#open-update-net-cost-button')
+    const openCreateNetCostFormButton = document.getElementById('open-create-form')
+    const openUpdateNetCostFormButtons = document.querySelectorAll('#open-update-form')
+
     const createNetCostFormWrapper = document.getElementById('create-net-cost-from-wrapper')
     const closeCreateNetCostFormButton = document.getElementById('close-net-cost-form')
-    const updateNetCostFormWrapper = document.querySelectorAll('#update-net-cost-from-wrapper')
+    const amountInputs = document.querySelectorAll('#amount')
+
     const dateInputs = document.querySelectorAll('#cost_date')
+
+    let lastOpenedItem
 
     function setMaxAndMinValuesToDateInput() {
         for (let i = 0; i < dateInputs.length; i++) {
@@ -19,24 +23,38 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    const closeAllUpdateFormsExceptCurrent = (currentCostId) => {
-        updateNetCostFormWrapper.forEach((wrapper) => {
-            const wrapperCostId = wrapper.getAttribute("data-net-cost-id-form")
+    amountInputs.forEach((input) => {
+        input.addEventListener("input", () => {
+            let value = input.value;
+            const regex = /^(\d{0,11}(\.\d{0,2})?|\.\d{0,2})?$/;
 
-            if (wrapperCostId !== currentCostId) {
-                wrapper.classList.add("hidden")
+            if (!regex.test(value)) {
+                value = value.slice(0, -1);
+                input.value = value;
             }
         })
+    })
+
+    const hideLastOpenedItem = () => {
+        if (!lastOpenedItem) return
+        if (lastOpenedItem === openCreateNetCostFormButton ) {
+            openCreateNetCostFormButton.classList.remove("hidden")
+            createNetCostFormWrapper.classList.add("hidden")
+            return;
+        }
+
+        const netCostId = lastOpenedItem.getAttribute("data-net-cost-id")
+        const form = document.querySelector("[data-net-cost-id-form='" + netCostId + "']")
+
+        form.classList.add("hidden")
     }
 
     openCreateNetCostFormButton.addEventListener("click", (event) => {
+        hideLastOpenedItem()
+        lastOpenedItem = openCreateNetCostFormButton
+
         openCreateNetCostFormButton.classList.add("hidden")
         createNetCostFormWrapper.classList.remove("hidden")
-
-        // Close all tax change forms
-        updateNetCostFormWrapper.forEach((wrapper) => {
-            wrapper.classList.add("hidden")
-        })
     })
 
     closeCreateNetCostFormButton.addEventListener("click", (event) => {
@@ -46,16 +64,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
     openUpdateNetCostFormButtons.forEach((button) => {
         button.addEventListener("click", (event) => {
+            hideLastOpenedItem()
+            lastOpenedItem = button
+
             const netCostId = button.getAttribute("data-net-cost-id")
-            const form = document.querySelector("[data-net-cost-id-form='" + netCostId + "']")
+            const formWrapper = document.querySelector("[data-net-cost-id-form='" + netCostId + "']")
+            const closeFormWrapperButton = formWrapper.querySelector('#close-update-form')
 
-            closeAllUpdateFormsExceptCurrent(netCostId)
+            formWrapper.classList.remove("hidden")
 
-            if (form.classList.contains("hidden")) {
-                form.classList.remove("hidden")
-            } else if (!form.classList.contains("hidden")) {
-                form.classList.add("hidden")
-            }
+            closeFormWrapperButton.addEventListener("click", (event) => {
+                formWrapper.classList.add("hidden")
+            })
         })
     })
 

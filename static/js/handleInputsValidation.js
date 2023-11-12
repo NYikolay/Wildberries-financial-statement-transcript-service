@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const invalidInputs = document.querySelectorAll('.input__item-error')
+    const inputs = document.querySelectorAll('.form__item')
 
-    for (let i = 0; i < invalidInputs.length; i++) {
-        let currentInput = invalidInputs[i].getElementsByTagName('input')[0]
+    for (let i = 0; i < inputs.length; i++) {
+        let currentInput = inputs[i].getElementsByTagName('input')[0]
 
         if (!currentInput) {
-            currentInput = invalidInputs[i].getElementsByTagName('textarea')[0]
+            currentInput = inputs[i].getElementsByTagName('textarea')[0]
         }
 
         currentInput.addEventListener('input', (e) => {
-            if (e.target.value !== '') {
-                invalidInputs[i].classList.remove('input__item-error')
+            if (e.target.value !== '' && inputs[i].classList.contains("input__item-error")) {
+                inputs[i].classList.remove('input__item-error')
 
                 const divError = document.querySelector(`[data-id-error=${e.target.getAttribute('data-id')}]`)
 

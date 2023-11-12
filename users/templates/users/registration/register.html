@@ -7,10 +7,10 @@
 {% endblock %}
 {% block content %}
 <div class="form-wrapper">
-    <form action="." method="post" class="common-form">
+    <form action="." method="post" class="common-form" id="register-form">
         {% csrf_token %}
         <div class="form-items">
-            <div class="form__item {% if form.email.errors %} input__item-error {% endif %}">
+            <div class="form__item {% if form.email.errors %} input__item-error {% endif %}" id="email-item">
                 {{ form.email }}
                 <label for="{{ form.email.id_for_label }}">
                     {{ form.email.label }}
@@ -27,7 +27,7 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="form__item {% if form.password1.errors %} input__item-error {% endif %}">
+            <div class="form__item {% if form.password1.errors %} input__item-error {% endif %}" id="password1-item">
                 {{ form.password1 }}
                 <label for="{{ form.password1.id_for_label }}">
                     {{ form.password1.label }}
@@ -44,7 +44,7 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="form__item {% if form.password2.errors %} input__item-error {% endif %}">
+            <div class="form__item {% if form.password2.errors %} input__item-error {% endif %}" id="password2-item">
                 {{ form.password2 }}
                 {{ form.password2.label_tag }}
                 {% if form.password2.errors %}
@@ -98,12 +98,13 @@
             </div>
         </div>
         <div class="form_buttons">
-            <button class="accent-button" type="submit">Зарегестрироваться</button>
+            <button class="accent-button" type="submit">Зарегистрироваться</button>
             <a href="{% url 'users:login' %}" class="accent-link">Авторизоваться</a>
         </div>
-        <p class="text__accent-bold">Регистрируясь Вы соглашаетесь с условиями оферты</p>
+        <p class="text__accent-bold">Регистрируясь, Вы соглашаетесь с условиями оферты</p>
     </form>
 </div>
 
 <script src="{% static 'js/handleInputsValidation.js' %}"></script>
+<script src="{% static 'users/js/register.js' %}"></script>
 {% endblock %}

@@ -412,7 +412,7 @@ class SaleReport(ExportModelOperationsMixin('sale_report'), models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        verbose_name='Расходы поставщка'
+        verbose_name='Расходы поставщика'
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания в базе данных')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления в базе данных')

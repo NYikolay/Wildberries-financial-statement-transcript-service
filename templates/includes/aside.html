@@ -24,8 +24,8 @@
             <div class="sidebar__current-key__block">
                 <p class="text__accent-bold">
                     {{ current_api_key.name }}
-                    <button type="button" class="open__change-key__modal" id="open-change-key-modal" style="margin-left: 5px;">Изменить</button>
                 </p>
+                <button type="button" class="open__change-key__modal" id="open-change-key-modal">Изменить</button>
             </div>
             {% endif %}
             <ul class="nav-list">
@@ -68,7 +68,7 @@
                         Данные
                     </a>
                     {% endif %}
-                    {% if not request.user.is_authenticated or not current_api_key %}
+                    {% if not request.user.is_authenticated or not current_api_key or not is_filled_report_data or not is_filled_report_costs or not is_filled_net_cost or not is_filled_taxes %}
                     <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
                     </svg>
@@ -107,10 +107,12 @@
     </div>
 
     <footer>
-        <div class="site__theme-wrapper">
-            <input type="checkbox" class="site__theme" id="theme-checkbox" onchange="changeTheme(this)" />
-            <label for="theme-checkbox" id="theme-label" class="text__common-bold">Светлая тема</label>
-        </div>
+        {% if request.user.is_authenticated %}
+        <form action="{% url 'users:logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="text__common-bold logout-button">Выход</button>
+        </form>
+        {% endif %}
         <a href="{% url 'support:support' %}" class="footer__support-item">
             <svg width="19" height="19" viewBox="0 0 19 19" xmlns="http://www.w3.org/2000/svg">
                 <path class="img-svg" fill-rule="evenodd" clip-rule="evenodd" d="M5.32966 2.13807C7.73609 0.0775237 11.2924 0.077641 13.6937 2.14645C15.0673 3.32987 15.9132 5.00118 16.063 6.79286H16.4023C17.837 6.79286 19 7.95585 19 9.39051V10.9491C19 12.4042 17.8204 13.5839 16.3652 13.5839H15.7344C15.345 13.5839 15.0293 13.2682 15.0293 12.8788V12.3222H15.0108V7.36721C15.0108 5.67483 14.2734 4.0664 12.9913 2.96176C10.9939 1.24093 8.03336 1.23977 6.02961 2.95551C4.73625 4.06299 3.98925 5.68288 3.98925 7.38492V12.3222H3.9707V12.8788C3.9707 13.2682 3.65503 13.5839 3.26562 13.5839H2.63477C1.17962 13.5839 0 12.4042 0 10.9491V9.39051C0 7.95585 1.16301 6.79286 2.59766 6.79286H2.93857C3.0935 4.99621 3.94875 3.32051 5.32966 2.13807ZM7.57031 17.2948C7.57031 16.639 8.10198 16.1073 8.75781 16.1073H10.2422C10.898 16.1073 11.4297 16.639 11.4297 17.2948C11.4297 17.9506 10.898 18.4823 10.2422 18.4823H8.75781C8.10198 18.4823 7.57031 17.9506 7.57031 17.2948ZM5.90777 17.5917H6.93945V16.9608H5.90777C4.40337 16.9608 3.18383 15.7413 3.18383 14.2369H2.55297C2.55297 16.0897 4.05496 17.5917 5.90777 17.5917Z" fill="#5C659D"/>

@@ -45,6 +45,10 @@
     border: 1px solid var(--var-error-color);
 }
 
+.input-error {
+    border: 1px solid var(--var-error-color);
+}
+
 .input__item-error textarea {
     border: 1px solid var(--var-error-color);
 }
@@ -121,6 +125,12 @@
     display: flex;
     gap: 10px;
     align-items: center;
+}
+
+.form__between-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /*FORM STYLING END*/

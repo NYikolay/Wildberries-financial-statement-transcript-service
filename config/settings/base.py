@@ -12,6 +12,8 @@ environ.Env.read_env()
 
 SECRET_KEY = env("SECRET_KEY")
 SECRET_CODE = env("SECRET_CODE")
+SSE_NOTIFICATION_SECRET = env("SSE_NOTIFICATION_SECRET")
+DJANGO_DOCKER_HOST = "http://web:8000"
 
 # Application definition
 
@@ -30,9 +32,12 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'django_otp.plugins.otp_totp',
     'django_prometheus',
+    'channels',
+    'django_eventstream',
 ]
 
 MIDDLEWARE = [
+    'django_grip.GripMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -62,13 +67,13 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'users.context_processors.user_additional_data_context.user_additional_data',
                 'users.context_processors.user_additional_data_context.current_path',
-                'users.context_processors.user_additional_data_context.user_last_report_date',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 
 # Database
@@ -132,6 +137,9 @@ CACHES = {
         'LOCATION': env("CACHE_LOCATION"),
     }
 }
+
+# DJANGO EVENT STREAM
+EVENTSTREAM_STORAGE_CLASS = 'django_eventstream.storage.DjangoModelStorage'
 
 # REDIS SETTINGS
 REDIS_HOST = env("REDIS_HOST")

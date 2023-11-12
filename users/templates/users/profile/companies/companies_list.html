@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'users/css/companies.css' %}">
 {% endblock %}
 {% block content %}
-{% if not companies %}
+{% if not companies or not current_api_key %}
 <div class="company-container">
     <div class="common__content-wrapper common__content-medium">
         <div class="common__content-container">
@@ -40,7 +40,7 @@
             </div>
             <p class="text__common-bold" style="word-break: break-all">Название подключения: {{ company.name }}</p>
             <div class="company__buttons-wrapper">
-                <a class="accent-button" href="{% url 'users:api_key_edit' company.id %}">Редактировать</a>
+                <a class="accent-link" href="{% url 'users:api_key_edit' company.id %}">Редактировать</a>
                 <div id="delete-company" class="companies__delete-button">
                     <p class="text__common-bold">Остановить</p>
                     <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">

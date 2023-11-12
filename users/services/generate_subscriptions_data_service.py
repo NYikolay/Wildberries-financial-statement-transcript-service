@@ -105,7 +105,7 @@ def get_user_subscriptions_data(request_user) -> dict:
     :param request_user: Current authorized user
     :return: Returns a list containing the dictionaries
     """
-    subscriptions_types = SubscriptionType.objects.exclude(type=SubscriptionTypes.TEST)
+    subscriptions_types = SubscriptionType.objects.exclude(type=SubscriptionTypes.TEST).order_by('duration')
 
     active_user_discount = UserDiscount.objects.filter(
         user=request_user,

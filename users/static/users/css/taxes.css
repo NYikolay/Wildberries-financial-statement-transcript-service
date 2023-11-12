@@ -49,6 +49,16 @@
     gap: 10px;
 }
 
+.taxes__add-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.taxes__add-link:hover {
+    display: flex;
+}
+
 .change__taxes-button {
     display: flex;
     align-items: center;

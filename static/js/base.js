@@ -5,7 +5,7 @@ function changeTheme(event) {
     localStorage.setItem("color-theme", colorTheme);
 
     if (colorTheme === "light") {
-         document.body.setAttribute('data-color-theme', colorTheme);
+        document.body.setAttribute('data-color-theme', colorTheme);
         event.checked = true;
     } else {
         document.body.setAttribute('data-color-theme', colorTheme);
@@ -31,4 +31,4 @@ const setColorTheme = () => {
     }
 }
 
-setColorTheme();
+setColorTheme()

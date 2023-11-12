@@ -1,0 +1,35 @@
+<div class="tax_form-wrapper hidden" id="add-tax-rate-from">
+    <form action="{% url 'users:create_tax_rate' %}" method="post" class="tax_form">
+        {% csrf_token %}
+        <div class="form-items">
+            <div class="form__item {% if form.tax_rate.errors %} input__item-error {% endif %}">
+                {{ form.tax_rate }}
+                {{ form.tax_rate.label_tag }}
+                {% if form.tax_rate.errors %}
+                <div class="form__item-error form__item-error-fixed__width" data-id-error="tax_rate">
+                    {{ form.tax_rate.errors }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="form__item {% if form.commencement_date.errors %} input__item-error {% endif %}">
+                {{ form.commencement_date }}
+                {{ form.commencement_date.label_tag }}
+                {% if form.commencement_date.errors %}
+                <div class="form__item-error form__item-error-fixed__width" data-id-error="commencement_date">
+                    {{ form.commencement_date.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form__between-buttons">
+            <button type="submit" class="accent-button">
+                Сохранить
+            </button>
+            <button type="button" id="close-tax-form">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
+                </svg>
+            </button>
+        </div>
+    </form>
+</div>

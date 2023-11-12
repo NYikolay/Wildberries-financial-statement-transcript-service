@@ -3,9 +3,9 @@ import socket
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "web"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "web", "bd04-31-24-90-80.ngrok-free.app"]
 
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = ['https://bd04-31-24-90-80.ngrok-free.app']
 
 INTERNAL_IPS = ['127.0.0.1']
 

@@ -1,0 +1,28 @@
+<div data-item-id-form="{{ cost.object.id }}" class="costs__form-wrapper hidden" id="update-form-wrapper">
+    <form action="{% url 'users:change_costs' cost.object.create_dt|date:'Y-m-d' %}" method="post" class="costs-form">
+        {% csrf_token %}
+        <div class="form-items">
+            <div class="form__item {% if cost.costs_form.supplier_costs.errors %} input__item-error {% endif %}">
+                {{ cost.costs_form.supplier_costs }}
+                {{ cost.costs_form.supplier_costs.label_tag }}
+                {% if cost.costs_form.supplier_costs.errors %}
+                <div class="form__item-error form__item-error-fixed__width" data-id-error="supplier_costs">
+                    {{ cost.costs_form.supplier_costs.errors }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form__between-buttons">
+            <button type="submit" class="accent-button">Сохранить</button>
+            <button type="button" id="close-update-form">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7963 0.203749C12.5246 -0.0679164 12.0841 -0.0679164 11.8125 0.203749L6.5 5.51621L1.18754 0.203749C0.915872 -0.0679164 0.475415 -0.0679164 0.203749 0.203749C-0.0679164 0.475415 -0.0679164 0.915873 0.203749 1.18754L5.51621 6.5L0.203749 11.8125C-0.0679164 12.0841 -0.0679164 12.5246 0.203749 12.7963C0.475415 13.0679 0.915874 13.0679 1.18754 12.7963L6.5 7.48379L11.8125 12.7963C12.0841 13.0679 12.5246 13.0679 12.7963 12.7963C13.0679 12.5246 13.0679 12.0841 12.7963 11.8125L7.48379 6.5L12.7963 1.18754C13.0679 0.915873 13.0679 0.475415 12.7963 0.203749Z" fill="#5C659D"/>
+                </svg>
+            </button>
+        </div>
+    </form>
+    <form action="{% url 'users:change_costs' cost.object.create_dt|date:'Y-m-d' %}?forDelete=true" method="post" class="costs-form">
+        {% csrf_token %}
+        <button type="submit" class="text__accent-bold delete_costs-button">Удалить</button>
+    </form>
+</div>

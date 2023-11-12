@@ -52,7 +52,12 @@
         {% block content %}{% endblock %}
     </main>
 
-    <div class="messages-wrapper">
+    <div
+            id="toast-data-wrapper"
+            dashboard-url="{% url 'reports:reports_list' %}"
+            reports-url="{% url 'reports:reports_list' %}"
+            incorrect-reports-exists="{{ is_incorrect_reports }}"
+            {% if request.user.is_authenticated %}data-user-id="{{ request.user.id }}"{% endif %}>
         {% include 'includes/messages.html' %}
     </div>
 
@@ -60,8 +65,9 @@
 
 </div>
 
-<script src="{% static 'js/base.js' %}"></script>
-<script src="{% static 'js/messages.js' %}"></script>
+<script src="{% static 'js/toast.js' %}"></script>
+{% if request.user.is_authenticated and current_api_key %}
 <script src="{% static 'js/changeApiKey.js' %}"></script>
+{% endif %}
 </body>
 </html>

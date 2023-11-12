@@ -107,7 +107,6 @@ services:
       - prometheus_data:/prometheus
     command: --config.file=/etc/prometheus/prometheus.yaml
 
-
 volumes:
   media_volume:
   postgres_data:
