@@ -35,7 +35,8 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('returns_payment_lost_marriage_sum'),
         sales_object_figures.get('partial_compensation_marriage_sum'),
         sales_object_figures.get('sales_advance_payment_goods_without_payment_sum'),
-        sales_object_figures.get('returns_advance_payment_goods_without_payment_sum')
+        sales_object_figures.get('returns_advance_payment_goods_without_payment_sum'),
+        sales_object_figures.get('compensation_for_subs_goods_sum')
     )
 
     retail_amount_revenue: float = calculate_revenue(
@@ -50,8 +51,10 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('retail_returns_payment_lost_marriage_sum'),
         sales_object_figures.get('retail_partial_compensation_marriage_sum'),
         sales_object_figures.get('retail_sales_advance_payment_goods_without_payment_sum'),
-        sales_object_figures.get('retail_returns_advance_payment_goods_without_payment_sum')
+        sales_object_figures.get('retail_returns_advance_payment_goods_without_payment_sum'),
+        sales_object_figures.get('retail_compensation_for_subs_goods')
     )
+
     sales_quantity: float = calculate_sales_quantity(
         sales_object_figures.get('sales_quantity_sum'),
         sales_object_figures.get('strono_sales_quantity_sum'),
@@ -61,7 +64,8 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('returns_payment_lost_marriage_quantity_sum'),
         sales_object_figures.get('partial_compensation_marriage_quantity_sum'),
         sales_object_figures.get('sales_advance_payment_goods_without_payment_quantity_sum'),
-        sales_object_figures.get('returns_advance_payment_goods_without_payment_quantity_sum')
+        sales_object_figures.get('returns_advance_payment_goods_without_payment_quantity_sum'),
+        sales_object_figures.get('quantity_compensation_for_subs_goods')
     )
 
     returns_quantity: float = calculate_returns_quantity(
@@ -96,7 +100,9 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('commission_sales_advance_payment_goods_without_payment_sum'),
         sales_object_figures.get('commission_returns_advance_payment_goods_without_payment_sum'),
         sales_object_figures.get('commission_reimbursement_of_transportation_costs'),
-        sales_object_figures.get('commission_overstatement_of_logistics_costs')
+        sales_object_figures.get('commission_overstatement_of_logistics_costs'),
+        sales_object_figures.get('compensation_for_subs_goods_sum'),
+        sales_object_figures.get('commission_compensation_for_subs_goods'),
     )
 
     logistics: float = calculate_logistics(sales_object_figures.get('logistic_sum'))
@@ -115,7 +121,8 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('tax_returns_payment_lost_marriage_sum'),
         sales_object_figures.get('tax_cost_partial_compensation_marriage_sum'),
         sales_object_figures.get('tax_cost_sales_advance_payment_goods_without_payment_sum'),
-        sales_object_figures.get('tax_cost_returns_advance_payment_goods_without_payment_sum')
+        sales_object_figures.get('tax_cost_returns_advance_payment_goods_without_payment_sum'),
+        sales_object_figures.get('tax_compensation_for_subs_goods')
     )
 
     net_costs: float = calculate_net_costs(
@@ -130,7 +137,8 @@ def get_calculated_financials_by_weeks(
         sales_object_figures.get('net_cost_returns_payment_lost_marriage_sum'),
         sales_object_figures.get('net_cost_partial_compensation_marriage_sum'),
         sales_object_figures.get('net_cost_sales_advance_payment_goods_without_payment_sum'),
-        sales_object_figures.get('net_cost_returns_advance_payment_goods_without_payment_sum')
+        sales_object_figures.get('net_cost_returns_advance_payment_goods_without_payment_sum'),
+        sales_object_figures.get('net_cost_compensation_for_subs_goods')
     )
 
     marginality: float = calculate_marginality(net_costs, retail_amount_revenue)

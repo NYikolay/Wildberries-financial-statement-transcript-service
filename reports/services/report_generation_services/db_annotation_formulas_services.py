@@ -11,7 +11,7 @@ def get_retail_revenue_formula_annotation_obj():
             F('retail_returns_payment_lost_marriage_sum') +
             F('retail_partial_compensation_marriage_sum') +
             F('retail_sales_advance_payment_goods_without_payment_sum') -
-            F('retail_returns_advance_payment_goods_without_payment_sum'),
+            F('retail_returns_advance_payment_goods_without_payment_sum') + F('retail_compensation_for_subs_goods'),
             output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()
@@ -29,7 +29,7 @@ def get_revenue_formula_annotation_obj():
             F('returns_payment_lost_marriage_sum') +
             F('partial_compensation_marriage_sum') +
             F('sales_advance_payment_goods_without_payment_sum') -
-            F('returns_advance_payment_goods_without_payment_sum'),
+            F('returns_advance_payment_goods_without_payment_sum') + F('compensation_for_subs_goods_sum'),
             output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()
@@ -57,7 +57,7 @@ def get_sales_quantity_formula_annotation_obj():
             F('marriage_payment_quantity_sum') + F('sales_payment_lost_marriage_quantity_sum') -
             F('returns_payment_lost_marriage_quantity_sum') + F('partial_compensation_marriage_quantity_sum') +
             F('sales_advance_payment_goods_without_payment_quantity_sum') -
-            F('returns_advance_payment_goods_without_payment_quantity_sum'),
+            F('returns_advance_payment_goods_without_payment_quantity_sum') + F('quantity_compensation_for_subs_goods'),
             output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()
@@ -110,7 +110,13 @@ def get_commission_formula_annotation_obj():
                     F('commission_sales_advance_payment_goods_without_payment_sum') -
                     F('commission_returns_advance_payment_goods_without_payment_sum')
             ) -
-            (F('commission_reimbursement_of_transportation_costs') + F('commission_overstatement_of_logistics_costs')),
+            (
+                    F('commission_reimbursement_of_transportation_costs') +
+                    F('commission_overstatement_of_logistics_costs')
+            ) +
+            (
+                F('compensation_for_subs_goods_sum') - F('commission_compensation_for_subs_goods')
+            ),
             output_field=FloatField()),
         Value(0.0),
         output_field=FloatField(),
@@ -127,7 +133,7 @@ def get_net_costs_formula_annotation_obj():
             F('net_cost_marriage_payment_sum') + F('net_cost_sales_payment_lost_marriage_sum') -
             F('net_cost_returns_payment_lost_marriage_sum') + F('net_cost_partial_compensation_marriage_sum') +
             F('net_cost_sales_advance_payment_goods_without_payment_sum') -
-            F('net_cost_returns_advance_payment_goods_without_payment_sum'),
+            F('net_cost_returns_advance_payment_goods_without_payment_sum') + F('net_cost_compensation_for_subs_goods'),
             output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()
