@@ -40,7 +40,8 @@ def get_revenue_by_filter(
         retail_sales_advance_payment_goods_without_payment_sum=sum_aggregation_objs_dict.get(
             'retail_sales_advance_payment_goods_without_payment_sum'),
         retail_returns_advance_payment_goods_without_payment_sum=sum_aggregation_objs_dict.get(
-            'retail_returns_advance_payment_goods_without_payment_sum')
+            'retail_returns_advance_payment_goods_without_payment_sum'),
+        retail_compensation_for_subs_goods=sum_aggregation_objs_dict.get('retail_compensation_for_subs_goods')
     ).annotate(
         total_filter_revenue=get_retail_revenue_formula_annotation_obj()
     ).values(filter_name, 'total_filter_revenue')
