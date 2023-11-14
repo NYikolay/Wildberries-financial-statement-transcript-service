@@ -5,7 +5,7 @@ from users.views import (
     LoadDataFromWBView,
     ChangePasswordView, CompaniesListView, ProductDetailView,
     DeleteApiKeyView, ConfirmRegistrationView, ConfirmEmailPageView, PasswordResetView, PasswordResetConfirmView,
-    PasswordResetDoneView, CheckReportsLoadingStatus, SetNetCostsFromFileView, ExportNetCostsExampleView,
+    PasswordResetDoneView, SetNetCostsFromFileView, ExportNetCostsExampleView,
     ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView, ChangeCurrentApiKeyView, TaxRateListView,
     CreateTaxRateView, ChangeTaxRateView, DeleteTaxRateView, CostsListView, ChangeCostsView, CreateNetCostView,
     UpdateNetCostView, DeleteNetCostView, EmptyProductsView, ExecuteLoadingReportsFromWildberriesView, NotifySseUserView
@@ -63,5 +63,4 @@ urlpatterns = [
 
     # path('send-request-for-report/', LoadDataFromWBView.as_view(), name='send_request_for_report'),
     path('load-reports/', ExecuteLoadingReportsFromWildberriesView.as_view(), name='load_reports'),
-    path('sheck-reports-loading-status/', CheckReportsLoadingStatus.as_view(), name='check_reports_loading_status'),
 ]

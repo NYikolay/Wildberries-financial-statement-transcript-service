@@ -36,7 +36,7 @@
                 {% for p in products %}
                 <a href="{% url 'users:product_detail' p.nm_id %}?page={{ products.number }}">
                     <div class="product__item {% if p.nm_id == product.nm_id %}product__item-active{% endif %}">
-                        <img class="product_image" src="{% if p.image %}{{ p.image }}{% else %}{% static 'images/empty_photo2.png' %}{% endif %}" alt="">
+                        <img class="product_image" src="{% if p.image %}{{ p.image }}{% else %}{% static 'images/empty_photo2.png' %}{% endif %}" alt="Артикул {{ p.nm_id }}">
                         <div class="product__item-description">
                             <div class="product__item-description__inner">
                                 <p class="text__accent-bold">{{ p.product_name }}</p>

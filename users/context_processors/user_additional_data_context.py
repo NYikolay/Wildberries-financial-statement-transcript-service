@@ -1,5 +1,5 @@
 from users.models import ClientUniqueProduct, SaleReport, TaxRate, IncorrectReport
-from django.db.models import Q, Count, Exists
+from django.db.models import Q, Count, Exists, ExpressionWrapper, BooleanField, Case, When, IntegerField
 from django.urls import reverse
 
 
@@ -23,8 +23,11 @@ def user_additional_data(request):
                 Q(supplier_costs__isnull=True)
             ).exists()
 
-            is_filled_net_cost = not ClientUniqueProduct.objects.annotate(net_cost_count=Count('cost_prices')).filter(
-                net_cost_count=0).exists()
+            is_filled_net_cost = all(ClientUniqueProduct.objects.filter(
+                api_key=current_api_key
+            ).annotate(
+                has_net_cost=ExpressionWrapper(Q(cost_prices__isnull=False), output_field=BooleanField())
+            ).distinct().values_list('has_net_cost', flat=True))
 
             is_filled_taxes = current_api_key.taxes.filter(api_key=current_api_key).exists()
 

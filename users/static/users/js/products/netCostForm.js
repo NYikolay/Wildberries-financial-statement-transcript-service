@@ -10,15 +10,26 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let lastOpenedItem
 
-    function setMaxAndMinValuesToDateInput() {
-        for (let i = 0; i < dateInputs.length; i++) {
-            dateInputs[i].max = new Date().toLocaleDateString('fr-ca')
+    function validateDatesInputs() {
+        const today = new Date().toLocaleDateString('fr-ca');
 
-            if (i !== 0) {
+        for (let i = 0; i < dateInputs.length; i++) {
+            let currentInput = dateInputs[i]
+            currentInput.max = today
+
+            const pastDate = dateInputs[i - 1]
+            const nextDate = dateInputs[i + 1]
+
+            if (nextDate && nextDate.value) {
+                const futureDateValue = dateInputs[i + 1].valueAsDate
+                futureDateValue.setDate(futureDateValue.getDate() - 1)
+                currentInput.max = futureDateValue.toLocaleDateString('fr-ca')
+            }
+
+            if (pastDate && pastDate.value) {
                 const pastDateValue = dateInputs[i - 1].valueAsDate
                 pastDateValue.setDate(pastDateValue.getDate() + 1)
-                dateInputs[i].min = pastDateValue.toLocaleDateString('fr-ca')
-
+                currentInput.min = pastDateValue.toLocaleDateString('fr-ca')
             }
         }
     }
@@ -79,5 +90,5 @@ document.addEventListener("DOMContentLoaded", function() {
         })
     })
 
-    setMaxAndMinValuesToDateInput()
+    validateDatesInputs()
 });

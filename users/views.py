@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count, Exists, OuterRef, ExpressionWrapper, BooleanField
+from django.db.models import Q, Count, Exists, OuterRef, ExpressionWrapper, BooleanField, F
 from django.views.generic.list import ListView
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -309,9 +309,17 @@ class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
                 current_api_key.save()
                 api_key.save()
 
+            if '/product/' in request.META.get('HTTP_REFERER', '/'):
+                product_article = ClientUniqueProduct.objects.filter(
+                    api_key=api_key).values_list('nm_id', flat=True).order_by('brand', 'nm_id').first()
+
+                return redirect('users:product_detail', article=product_article)
+
             return redirect(request.META.get('HTTP_REFERER', '/'))
 
         django_logger.error(f"Error while change Api Key. User - {request.user.email}")
+
+        messages.error(request, "Невозможно сменить подключение.")
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
@@ -863,35 +871,25 @@ class LoadDataFromWBView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-class CheckReportsLoadingStatus(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-
-    def get(self, request):
-        api_key_reports_loading_status = request.user.keys.filter(is_current=True).values('is_active_import').first()
-        return JsonResponse(
-            {
-                "status": api_key_reports_loading_status
-            }
-        )
-
-
 class ExportNetCostsExampleView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
-    model = NetCost
+    model = ClientUniqueProduct
 
     def get(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
 
-        net_costs_set = self.model.objects.filter(
-            product__api_key=current_api_key
-        ).values_list('product__nm_id', 'amount', 'cost_date')
+        products = self.model.objects.filter(
+            api_key=current_api_key
+        ).annotate(
+            net_cots_amount=F('cost_prices__amount'),
+            net_costs_date=F('cost_prices__cost_date')
+        ).values_list('nm_id', 'net_cots_amount', 'net_costs_date').order_by('nm_id', 'net_costs_date')
 
         response = HttpResponse(content_type='application/ms-excel')
         response['Content-Disposition'] = 'attachment; filename="net_costs_temp.xlsx"'
 
-        work_book = generate_excel_net_costs_example(net_costs_set)
+        work_book = generate_excel_net_costs_example(products)
         work_book.save(response)
         return response
 
@@ -915,9 +913,10 @@ class SetNetCostsFromFileView(LoginRequiredMixin, View):
                 )
                 messages.error(
                     request,
-                    'Ошиба обработки файла. Пожалуйста, обратитесь в службу поддержки.'
+                    'Ошиба обработки файла. Пожалуйста, обратитесь в службу поддержки'
                 )
                 return redirect(request.META.get('HTTP_REFERER', '/'))
+
             if handled_file_result.get('status') is False:
                 messages.error(request, handled_file_result.get('message'))
                 return redirect(request.META.get('HTTP_REFERER', '/'))
