@@ -4,4 +4,6 @@
 {% include "includes/headers/unquthorized_profile_header.html" %}
 {% elif is_data_url %}
 {% include "includes/headers/data_header.html" %}
+{% elif is_dashboard_url %}
+{% include "includes/headers/dashboard_header.html" %}
 {% endif %}

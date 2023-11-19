@@ -361,18 +361,9 @@ def get_report_db_inter_data(
         filter_period_conditions
     )
 
-    empty_user_data_statuses_dict = get_empty_db_values(
-        current_user,
-        current_api_key,
-        filter_period_conditions
-    )
-
     return {
         'sale_objects_by_weeks': sale_objects_by_weeks,
         'supplier_costs_sum_list': supplier_costs_sum_list,
         'wb_costs_sum_list': wb_costs_sum_list,
-        'is_empty_reports_values': empty_user_data_statuses_dict.get('is_empty_reports_values'),
-        'is_empty_netcosts_values': empty_user_data_statuses_dict.get('is_empty_netcosts_values'),
-        'is_exists_tax_values': empty_user_data_statuses_dict.get('is_exists_tax_values'),
         'products_count_by_period': products_count_by_period,
     }

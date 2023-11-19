@@ -58,6 +58,26 @@ class ReportsListView(ListView):
         return context
 
 
+class DashboardMainView(View):
+    template_name = 'reports/dashboard_main.html'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+
+        try:
+            report = get_full_user_report(request.user, current_api_key, [])
+        except Exception as err:
+            django_logger.critical(
+                f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
+                                    'Пожалуйста, свяжитесь со службой поддержки')
+            return redirect('users:reports_list')
+
+        return render(request, self.template_name, {"report": report})
+
+
 class DashboardView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'

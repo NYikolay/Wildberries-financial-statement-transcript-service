@@ -41,25 +41,22 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'brand_name')
     stocks_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'office_name')
+    category_share_in_revenue_dict: dict = get_share_in_revenue(
+        current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'subject_name')
 
-    abc_xyz = get_calculated_financials_by_barcodes(
-        current_user, current_api_key, filter_period_conditions,
-        general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
-        general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'),
-        totals.get('revenue_total'),
-        report_intermediate_data.get('products_count_by_period')
-    )
+    # abc_xyz = get_calculated_financials_by_barcodes(
+    #     current_user, current_api_key, filter_period_conditions,
+    #     general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
+    #     general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'),
+    #     totals.get('revenue_total'),
+    #     report_intermediate_data.get('products_count_by_period')
+    # )
 
     return {
         **totals,
-        'is_empty_reports_values': report_intermediate_data.get('is_empty_reports_values'),
-        'is_empty_netcosts_values': report_intermediate_data.get('is_empty_netcosts_values'),
-        'is_exists_tax_values': report_intermediate_data.get('is_exists_tax_values'),
         'brands_share_in_revenue_dict': json.dumps(brands_share_in_revenue_dict, ensure_ascii=False),
         'stocks_share_in_revenue_dict': json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False),
-        'products_calculated_values': json.dumps(abc_xyz.get('products_calculated_values')),
-        'abc_report': abc_xyz.get('abc_report'),
-        'abc_xyz_report': abc_xyz.get('abc_xyz_report'),
+        'category_share_in_revenue_dict': json.dumps(category_share_in_revenue_dict, ensure_ascii=False),
     }
 
 
