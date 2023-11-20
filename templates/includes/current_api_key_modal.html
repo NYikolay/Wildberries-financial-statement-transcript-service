@@ -7,11 +7,12 @@
             <input
                     type="checkbox"
                     name="api_key_id"
+                    data-checkbox-type="change-api-key"
                     id="key-checkbox-{{ key.id }}"
                     value="{{ key.id }}"
                     {% if key.is_current %}checked{% endif %}
-                    class="change__key-checkbox__input">
-            <label for="key-checkbox-{{ key.id }}" class="change__key-checkbox">
+                    class="custom__checkbox-input">
+            <label for="key-checkbox-{{ key.id }}" class="custom-checkbox">
                 {{ key.name }}
             </label>
         </div>

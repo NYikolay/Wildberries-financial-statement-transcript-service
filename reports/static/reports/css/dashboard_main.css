@@ -1,5 +1,6 @@
 .filter-wrapper {
     display: flex;
+    position: relative;
 }
 
 .filter-button {
@@ -17,6 +18,20 @@
     font-size: 12px;
     font-weight: normal;
     line-height: 18px;
+}
+
+.filter__content-wrapper {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    top: 50px;
+    left: 0;
+    border-radius: 7px;
+    z-index: 900;
+    padding: 15px 20px 20px 20px;
+    width: 253px;
+    background-color: var(--var-bg-modal-color);
 }
 
 .dashboard-wrapper {

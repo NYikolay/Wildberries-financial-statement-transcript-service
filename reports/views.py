@@ -65,7 +65,19 @@ class DashboardMainView(View):
         current_api_key = request.user.keys.filter(is_current=True).first()
 
         try:
-            report = get_full_user_report(request.user, current_api_key, [])
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
+        except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Ошибка фильтрации периода')
+            return redirect('reports:dashboard')
+
+        filters_data: dict = get_filters_db_data(current_api_key)
+
+        try:
+            report = get_full_user_report(request.user, current_api_key, current_filter_data)
         except Exception as err:
             django_logger.critical(
                 f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
@@ -75,7 +87,13 @@ class DashboardMainView(View):
                                     'Пожалуйста, свяжитесь со службой поддержки')
             return redirect('users:reports_list')
 
-        return render(request, self.template_name, {"report": report})
+        return render(
+            request, self.template_name, {
+                "report": report,
+                'filters_data': filters_data,
+                'current_filter_data': current_filter_data
+            }
+        )
 
 
 class DashboardView(LoginRequiredMixin, View):

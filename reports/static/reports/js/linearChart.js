@@ -98,7 +98,7 @@ const getLineChartConfig = (data) => {
                     border: {
                         color: "#424B80"
                     },
-                    offset: true,
+                    offset: reportByWeeksData.length !== 1,
                     ticks: {
                         color: "#5C659D",
                         font: {
@@ -126,12 +126,12 @@ const getLineChartConfig = (data) => {
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
-
                             if (label) {
                                 label += ': ';
                             }
+
                             if (context.parsed.y !== null) {
-                                label += context.parsed.y.toLocaleString('ru')
+                                label += Math.round(context.parsed.y).toLocaleString('ru')
                             }
                             return label;
                         }
@@ -171,6 +171,10 @@ const handleChartRendering = (itemDescription, indicatorItem) => {
     reportByWeeksData.forEach((report) => {
         currentData.push(report[itemDescription.backendName])
     })
+
+    if (reportByWeeksData.length === 1) {
+        currentData.push(0)
+    }
 
     const chartData = getLineChartData(itemDescription.text, chartLabels, currentData)
     const chartConfig = getLineChartConfig(chartData)
