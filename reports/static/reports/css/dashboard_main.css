@@ -52,6 +52,7 @@
     display: flex;
     flex-direction: column;
     align-self: flex-start;
+    height: 110px;
     cursor: pointer;
     align-items: center;
     gap: 10px;
@@ -145,13 +146,13 @@
     border-bottom: 1px solid var(--var-border-color);
 }
 
-.penalties-table tbody td {
+.penalties-table td {
     font-weight: normal;
     color: var(--var-accent-text-color);
     font-size: 10px;
     line-height: 15px;
-    margin-top: 7px;
-    margin-bottom: 7px;
+    padding-top: 7px;
+    padding-bottom: 7px;
 }
 
 .download_link {

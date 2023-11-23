@@ -3,10 +3,11 @@
     <div class="data_header">
         <ul class="header-nav">
             {% url 'reports:dashboard_main' as dashboard_main_url %}
+            {% url 'reports:demo_dashboard_main' as demo_dashboard_main_url %}
             <li>
                 <a
                         href="{{ dashboard_main_url }}"
-                        class="{% if request.path == dashboard_main_url %} active_link {% endif %}">
+                        class="{% if request.path == dashboard_main_url or request.path == demo_dashboard_main_url %} active_link {% endif %}">
                     Сводный отчёт
                 </a>
             </li>

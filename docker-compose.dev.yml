@@ -14,6 +14,20 @@ services:
       - .env
     ports:
       - "5432:5432"
+  pgbouncer:
+    image: bitnami/pgbouncer:latest
+    container_name: commery_pgbouncer
+    environment:
+      - POSTGRESQL_USERNAME=${DB_USER}
+      - PGBOUNCER_DATABASE=${DB_NAME}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_HOST=${DB_HOST}
+      - POSTGRESQL_DATABASE=${DB_NAME}
+      - POSTGRESQL_PORT=${DB_PORT}
+      - PGBOUNCER_POOL_MODE=${POOL_MODE}
+      - PGBOUNCER_MAX_CLIENT_CONN=${MAX_CLIENT_CONN}
+    depends_on:
+      - db
   web:
     build:
       dockerfile: Dockerfile

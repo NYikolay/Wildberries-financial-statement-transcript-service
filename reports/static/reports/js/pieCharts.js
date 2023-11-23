@@ -8,8 +8,14 @@ const shareInCategoryWrapper = document.getElementById("current-share-category")
 const shareInCategoryText = shareInCategoryWrapper.getElementsByTagName("p")[0]
 const shareInCategoryDataObject = JSON.parse(shareInCategoryCanvas.getAttribute('data-category-canvas'))
 
+const shareInStockCanvas = document.getElementById("shareShipmentGraph")
+const shareInStockWrapper = document.getElementById("current-share-stock")
+const shareInStockText = shareInStockWrapper.getElementsByTagName("p")[0]
+const shareInStockDataObject = JSON.parse(shareInStockCanvas.getAttribute('data-stock-canvas'))
+
 let currentShareInBrandSelectedElementIndex
 let currentShareInCategorySelectedElementIndex
+let currentShareInStockSelectedElementIndex
 
 const shareInBrandDataSetArraysObject = {
     labels: [],
@@ -17,6 +23,11 @@ const shareInBrandDataSetArraysObject = {
 }
 
 const shareInCategoryDataSetArraysObject = {
+    labels: [],
+    data: []
+}
+
+const shareInStockDataSetArraysObject = {
     labels: [],
     data: []
 }
@@ -29,6 +40,11 @@ for (let [key, value] of Object.entries(shareInBrandDataObject)) {
 for (let [key, value] of Object.entries(shareInCategoryDataObject)) {
     shareInCategoryDataSetArraysObject.labels.push(key)
     shareInCategoryDataSetArraysObject.data.push(Math.round(value))
+}
+
+for (let [key, value] of Object.entries(shareInStockDataObject)) {
+    shareInStockDataSetArraysObject.labels.push(key)
+    shareInStockDataSetArraysObject.data.push(Math.round(value))
 }
 
 const updateSelectedChartItem = (chart, elementIndex) => {
@@ -53,16 +69,22 @@ const showCurrentItemText = (element, text) => {
     element.innerText = text
 }
 
-const setInitialChartActivePiece = (chart, values, isCategory) => {
+const setInitialChartActivePiece = (chart, values, isCategory, isBrand) => {
     const maxValue = Math.max(...values)
     const maxIndex = values.indexOf(maxValue)
 
     if (isCategory) {
         currentShareInCategorySelectedElementIndex = maxIndex
         shareInCategoryText.innerText = shareInCategoryDataSetArraysObject.labels[maxIndex]
-    } else {
+        showCurrentItemText(shareInCategoryText, shareInCategoryDataSetArraysObject.labels[maxIndex])
+    } else if (isBrand) {
         currentShareInBrandSelectedElementIndex = maxIndex
         shareInCategoryText.innerText = shareInBrandDataSetArraysObject.labels[maxIndex]
+        showCurrentItemText(shareInBrandText, shareInBrandDataSetArraysObject.labels[maxIndex])
+    } else {
+        currentShareInStockSelectedElementIndex = maxIndex
+        shareInStockText.innerText = shareInStockDataSetArraysObject.labels[maxIndex]
+        showCurrentItemText(shareInStockText, shareInStockDataSetArraysObject.labels[maxIndex])
     }
 
     updateSelectedChartItem(chart, maxIndex)
@@ -102,6 +124,11 @@ const shareBrandsData = getCanvasData(
 const shareCategoryData = getCanvasData(
     "Доля категории в выручке", shareInCategoryDataSetArraysObject.labels,
     shareInCategoryDataSetArraysObject.data, shareInCategoryDataSetArraysObject.data.length
+)
+
+const shareStockData = getCanvasData(
+    "Доля отгрузок в выручке", shareInStockDataSetArraysObject.labels,
+    shareInStockDataSetArraysObject.data, shareInStockDataSetArraysObject.data.length
 )
 
 const shareBrandsConfig = {
@@ -168,6 +195,11 @@ const shareCategoryConfig = {
             enabled: false
         },
         plugins: {
+            emptyDoughnut: {
+                color: 'rgba(255, 128, 0, 0.5)',
+                width: 2,
+                radiusDecrease: 20
+            },
             tooltip: {
                 enabled: false
             },
@@ -190,8 +222,53 @@ const shareCategoryConfig = {
     plugins: [ChartDataLabels]
 }
 
+const shareStockConfig = {
+    type: 'doughnut',
+    data: shareStockData,
+    options: {
+        onClick: (click, element, chart) => {
+            const currentElementIndex = element[0].index
+            currentShareInStockSelectedElementIndex = currentElementIndex
+
+            updateSelectedChartItem(chart, currentElementIndex)
+            showCurrentItemText(shareInStockText, shareInStockDataSetArraysObject.labels[currentElementIndex])
+        },
+        responsive: true,
+        tooltips: {
+            enabled: false
+        },
+        plugins: {
+            emptyDoughnut: {
+                color: 'rgba(255, 128, 0, 0.5)',
+                width: 2,
+                radiusDecrease: 20
+            },
+            tooltip: {
+                enabled: false
+            },
+            legend: {
+                display: false,
+            },
+            datalabels: {
+                formatter: (value, categories) => value > 8 ? `${value}%` : '',
+                color: function(context) {
+                    return context.active || currentShareInStockSelectedElementIndex === context.dataIndex ? "#FFFFFF" : "#5C659D";
+                },
+                font: {
+                    family: "'Open Sans', sans-serif",
+                    size: 14,
+                    weight: "bold"
+                }
+            }
+        }
+    },
+    plugins: [ChartDataLabels]
+}
+
 const shareInBrandChart = new Chart(shareInBrandCanvas, shareBrandsConfig)
 const shareInCategoryChart = new Chart(shareInCategoryCanvas, shareCategoryConfig)
+const shareInStockChart = new Chart(shareInStockCanvas, shareStockConfig)
 
-setInitialChartActivePiece(shareInBrandChart, shareInBrandDataSetArraysObject.data)
-setInitialChartActivePiece(shareInCategoryChart, shareInCategoryDataSetArraysObject.data, true)
+setInitialChartActivePiece(shareInBrandChart, shareInBrandDataSetArraysObject.data, false, true)
+setInitialChartActivePiece(shareInCategoryChart, shareInCategoryDataSetArraysObject.data, true, false)
+setInitialChartActivePiece(shareInStockChart, shareInCategoryDataSetArraysObject.data, false, false)

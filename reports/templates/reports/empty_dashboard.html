@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{% static 'reports/css/dashboard_main.css' %}">
 {% endblock %}
 {% block content %}
+
 {% include 'reports/includes/graph_filters.html' %}
 <div class="dashboard-wrapper">
     <div class="indicators-container">
@@ -243,11 +244,7 @@
             </div>
             <div class="share__graph-item">
                 <h1>Доля отгрузок в выручке</h1>
-                <canvas id="shareShipmentGraph" data-stock-canvas="{{ report.stocks_share_in_revenue_dict }}"></canvas>
-                <div style="display: flex; align-items: center; gap: 10px;" id="current-share-stock">
-                    <div class="gradient-dot"></div>
-                    <p class="text__accent truncate-text">Название склада</p>
-                </div>
+                <canvas height="200" id="shareShipmentGraph" data-stock-canvas="{{ report.stocks_share_in_revenue_dict }}"></canvas>
             </div>
         </div>
 
@@ -272,16 +269,14 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for penalty in report.penalties %}
                 <tr class="tr-content">
-                    <td class="penalty__type-text">{{ penalty.bonus_type_name }}</td>
-                    <td>{{ penalty.total_sum|floatformat:0|floatformat:"-3g" }}</td>
-                    <td>{{ penalty.week_num }}</td>
-                    <td>{{ penalty.date_from|date:'d.m.Y' }}-
-                        {{ penalty.date_to|date:'d.m.Y' }}</td>
-                    <td>{{ penalty.realizationreport_id }}</td>
+                    <td class="penalty__type-text">Выявленные расхождения в карточке товара после приемки на складе WB</td>
+                    <td>1 000 000</td>
+                    <td>Тест</td>
+                    <td>01.01.2023-
+                        08.01.2023</td>
+                    <td>1111122533658</td>
                 </tr>
-                {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -292,6 +287,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script src="{% static 'reports/js/linearChart.js' %}"></script>
 <script src="{% static 'reports/js/pieCharts.js' %}"></script>
-<!--<script src="{% static 'reports/js/barChart.js' %}"></script>-->
+<script src="{% static 'reports/js/barChart.js' %}"></script>
 <script src="{% static 'reports/js/filterByPeriod.js' %}"></script>
 {% endblock %}

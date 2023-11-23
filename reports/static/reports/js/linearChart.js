@@ -165,6 +165,16 @@ const renderChart = (chartConfig) => {
     pastChart = new Chart(lineCanvas, chartConfig)
 }
 
+const getIndicatorSign = (indicatorText) => {
+    if (indicatorText === reportStaticValues.profitability.text || indicatorText === reportStaticValues.marginality.text) {
+        return '%'
+    } else if (indicatorText === reportStaticValues.salesCount.text || indicatorText === reportStaticValues.returnsCount.text) {
+        return ''
+    } else {
+        return ' руб.'
+    }
+}
+
 const handleChartRendering = (itemDescription, indicatorItem) => {
     let currentData = []
 
@@ -180,7 +190,10 @@ const handleChartRendering = (itemDescription, indicatorItem) => {
     const chartConfig = getLineChartConfig(chartData)
 
     renderChart(chartConfig)
-    currentIndicatorTitle.innerText = `${itemDescription.text} (${indicatorItem.getAttribute("data-item-total")} руб.)`
+
+    const indicatorSign = getIndicatorSign(itemDescription.text)
+
+    currentIndicatorTitle.innerText = `${itemDescription.text} (${indicatorItem.getAttribute("data-item-total")}${indicatorSign})`
     changeCurrentIndicatorStyles(indicatorItem)
 }
 

@@ -65,13 +65,11 @@ def current_path(request):
     ]
 
     dashboard_urls = [
-        reverse("reports:dashboard_main")
+        reverse("reports:dashboard_main"), reverse("reports:demo_dashboard_main")
     ]
 
     return {
         "is_profile_url": request.path in profile_urls or any(list(map(lambda url: url in request.path, profile_urls))),
         "is_data_url": request.path in data_urls or any(list(map(lambda url: url in request.path, data_urls))),
-        "is_dashboard_url": request.path in dashboard_urls or any(
-            list(map(lambda url: url in request.path, dashboard_urls))
-        ),
+        "is_dashboard_url": request.path in dashboard_urls
     }

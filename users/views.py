@@ -309,11 +309,15 @@ class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
                 current_api_key.save()
                 api_key.save()
 
-            if '/product/' in request.META.get('HTTP_REFERER', '/'):
+            if ('/product/' in request.META.get('HTTP_REFERER', '/')
+                    or '/products/' in request.META.get('HTTP_REFERER', '/')):
                 product_article = ClientUniqueProduct.objects.filter(
                     api_key=api_key).values_list('nm_id', flat=True).order_by('brand', 'nm_id').first()
 
-                return redirect('users:product_detail', article=product_article)
+                if product_article:
+                    return redirect('users:product_detail', article=product_article)
+
+                return redirect('users:empty_products')
 
             return redirect(request.META.get('HTTP_REFERER', '/'))
 

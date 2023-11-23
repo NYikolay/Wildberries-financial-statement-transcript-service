@@ -1,6 +1,9 @@
 import json
 from typing import List
 from django.db import connection
+from django.db.models import (
+    Sum, Q, FloatField, F)
+from django.db.models.functions import Coalesce
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
 from reports.services.report_generation_services.generating_financials_by_barcodes import \
@@ -13,6 +16,7 @@ from reports.services.report_generation_services.generating_sum_aggregation_objs
 from reports.services.report_generation_services.get_financials_by_barcode_services import \
     get_total_financials_by_barcode
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
+from users.models import SaleObject
 
 
 def get_full_user_report(current_user, current_api_key, period_filter_data: List[dict]) -> dict:
@@ -44,6 +48,20 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
     category_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'subject_name')
 
+    penalties = SaleObject.objects.filter(
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+        penalty__gt=0
+    ).values('bonus_type_name', 'realizationreport_id', 'week_num').annotate(
+        total_sum=Coalesce(
+            Sum('penalty'),
+            0,
+            output_field=FloatField()),
+        date_to=F('date_to'),
+        date_from=F('date_from'),
+    ).order_by('-date_from')
+
     # abc_xyz = get_calculated_financials_by_barcodes(
     #     current_user, current_api_key, filter_period_conditions,
     #     general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
@@ -57,6 +75,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
         'brands_share_in_revenue_dict': json.dumps(brands_share_in_revenue_dict, ensure_ascii=False),
         'stocks_share_in_revenue_dict': json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False),
         'category_share_in_revenue_dict': json.dumps(category_share_in_revenue_dict, ensure_ascii=False),
+        'penalties': penalties
     }
 
 
