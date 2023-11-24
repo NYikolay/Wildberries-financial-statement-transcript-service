@@ -10,11 +10,11 @@ from reports.services.report_generation_services.db_annotation_formulas_services
 
 
 def get_financials_annotation_objects() -> dict:
-    revenue_by_article = get_retail_revenue_formula_annotation_obj()
+    revenue = get_retail_revenue_formula_annotation_obj()
     interim_revenue = get_revenue_formula_annotation_obj()
     share_in_revenue = get_share_in_revenue_formula_annotation_obj()
-    sales_quantity = get_sales_quantity_formula_annotation_obj()
-    returns_quantity = get_returns_quantity_formula_annotation_obj()
+    sales_amount = get_sales_quantity_formula_annotation_obj()
+    returns_amount = get_returns_quantity_formula_annotation_obj()
     commission = get_commission_formula_annotation_obj()
     net_costs_sum = get_net_costs_formula_annotation_obj()
     product_marginality = get_marginality_formula_annotation_obj()
@@ -23,14 +23,38 @@ def get_financials_annotation_objects() -> dict:
     rom = get_rom_formula_annotation_obj()
 
     return {
-        "revenue_by_article": revenue_by_article,
+        "revenue": revenue,
         "interim_revenue": interim_revenue,
         "share_in_revenue": share_in_revenue,
         "net_costs_sum": net_costs_sum,
         "product_marginality": product_marginality,
         "share_in_number": share_in_number,
-        'sales_quantity': sales_quantity,
-        'returns_quantity': returns_quantity,
+        'sales_amount': sales_amount,
+        'returns_amount': returns_amount,
+        'commission': commission,
+        'total_payable': total_payable,
+        'rom': rom
+    }
+
+
+def get_product_financials_annotations_objects() -> dict:
+    revenue = get_retail_revenue_formula_annotation_obj()
+    interim_revenue = get_revenue_formula_annotation_obj()
+    sales_amount = get_sales_quantity_formula_annotation_obj()
+    returns_amount = get_returns_quantity_formula_annotation_obj()
+    commission = get_commission_formula_annotation_obj()
+    net_costs_sum = get_net_costs_formula_annotation_obj()
+    product_marginality = get_marginality_formula_annotation_obj()
+    total_payable = get_total_payable_formula_annotation_obj()
+    rom = get_rom_formula_annotation_obj()
+
+    return {
+        "revenue": revenue,
+        "interim_revenue": interim_revenue,
+        "net_costs_sum": net_costs_sum,
+        "marginality": product_marginality,
+        'sales_amount': sales_amount,
+        'returns_amount': returns_amount,
         'commission': commission,
         'total_payable': total_payable,
         'rom': rom

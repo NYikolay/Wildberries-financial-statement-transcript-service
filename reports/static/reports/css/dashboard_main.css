@@ -1,45 +1,3 @@
-.filter-wrapper {
-    display: flex;
-    position: relative;
-}
-
-.filter-button {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    cursor: pointer;
-    border: 1px solid var(--var-border-color);
-    align-self: flex-start;
-    border-radius: 7px;
-    padding: 9px 20px;
-}
-
-.filter-button h1 {
-    font-size: 12px;
-    font-weight: normal;
-    line-height: 18px;
-}
-
-.filter__content-wrapper {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    top: 50px;
-    left: 0;
-    border-radius: 7px;
-    z-index: 900;
-    padding: 15px 20px 20px 20px;
-    width: 253px;
-    background-color: var(--var-bg-modal-color);
-}
-
-.dashboard-wrapper {
-    display: flex;
-    margin-top: 11px;
-    gap: 20px;
-}
-
 /*INDICATORS BLOCK STYLING START*/
 .indicators-container {
     display: flex;
@@ -47,30 +5,6 @@
     gap: 11px;
     flex-shrink: 0;
     flex-basis: 272px;
-}
-.indicator-item {
-    display: flex;
-    flex-direction: column;
-    align-self: flex-start;
-    height: 110px;
-    cursor: pointer;
-    align-items: center;
-    gap: 10px;
-    border-radius: 7px;
-    padding: 10px;
-    background-color: var(--var-content-bg-gradient);
-    border: 1px solid var(--var-border-color);
-}
-
-.indicator__item-text__wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.indicator_static-wrapper {
-    display: flex;
-    align-items: flex-end;
 }
 /*INDICATORS BLOCK STYLING END*/
 
@@ -153,15 +87,6 @@
     line-height: 15px;
     padding-top: 7px;
     padding-bottom: 7px;
-}
-
-.download_link {
-    display: flex;
-    color: var(--var-text-active-color);
-    align-items: center;
-    gap: 10px;
-    font-size: 10px;
-    line-height: 13px;
 }
 
 .penalties-header {

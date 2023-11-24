@@ -24,7 +24,10 @@ const reportStaticValues = {
     netCost: {text: "Себестоимость", backendName: "net_costs_sum"},
     tax: {text: "Налог", backendName: "tax"},
     wbCosts: {text: "Расходы на WB", backendName: "wb_costs"},
-    costsWithoutWb: {text: "Расходы вне WB", backendName: "supplier_costs"}
+    costsWithoutWb: {text: "Расходы вне WB", backendName: "supplier_costs"},
+    rom: {text: "ROM", backendName: "rom"},
+    totalPayable: {text: "Валовая прибыль", backendName: "total_payable"}
+
 }
 
 
@@ -166,7 +169,7 @@ const renderChart = (chartConfig) => {
 }
 
 const getIndicatorSign = (indicatorText) => {
-    if (indicatorText === reportStaticValues.profitability.text || indicatorText === reportStaticValues.marginality.text) {
+    if (indicatorText === reportStaticValues.profitability.text || indicatorText === reportStaticValues.marginality.text || indicatorText === reportStaticValues.rom.text) {
         return '%'
     } else if (indicatorText === reportStaticValues.salesCount.text || indicatorText === reportStaticValues.returnsCount.text) {
         return ''

@@ -40,7 +40,7 @@ def get_revenue_formula_annotation_obj():
 
 def get_share_in_revenue_formula_annotation_obj():
     share_in_revenue_annotation_obj = Coalesce(Case(
-        When(total_revenue__gt=0, then=((F('revenue_by_article') / F('total_revenue')) * 100)),
+        When(total_revenue__gt=0, then=((F('revenue') / F('total_revenue')) * 100)),
         default=Value(0.0),
         output_field=FloatField()),
         Value(0.0),
@@ -144,7 +144,7 @@ def get_net_costs_formula_annotation_obj():
 
 def get_marginality_formula_annotation_obj():
     marginality_annotation_obj = Coalesce(Case(
-        When(net_costs_sum__gt=0, then=((F('revenue_by_article') - F('net_costs_sum')) / F('revenue_by_article')) * 100),
+        When(net_costs_sum__gt=0, then=((F('revenue') - F('net_costs_sum')) / F('revenue')) * 100),
         default=Value(0.0), output_field=FloatField()),
         Value(0.0),
         output_field=FloatField()
@@ -169,7 +169,7 @@ def get_total_payable_formula_annotation_obj():
     total_payable_annotation_obj = Coalesce(
         ExpressionWrapper(
             F('interim_revenue') - F('commission') -
-            F('logistic_sum') - F('penalty_sum') -
+            F('logistics') - F('penalty') -
             F('additional_payment_sum') - F('net_costs_sum'),
             output_field=FloatField()),
         Value(0.0),

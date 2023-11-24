@@ -1,10 +1,11 @@
-from users.models import ClientUniqueProduct, SaleReport, TaxRate, IncorrectReport
+from users.models import ClientUniqueProduct, SaleReport, TaxRate, IncorrectReport, SaleObject
 from django.db.models import Q, Count, Exists, ExpressionWrapper, BooleanField, Case, When, IntegerField
 from django.urls import reverse
 
 
 def user_additional_data(request):
     data = {}
+    dashboard_urls = [reverse("reports:dashboard_main"), reverse("reports:demo_dashboard_main"), '/dashboard/product/']
 
     if request.user.is_authenticated:
         current_api_key = request.user.keys.filter(is_current=True).first()
@@ -43,6 +44,13 @@ def user_additional_data(request):
             data['product_article'] = product_article
             data['is_incorrect_reports'] = is_incorrect_reports
 
+            if request.path in dashboard_urls or '/dashboard/product/' in request.path:
+                random_product_barcode = SaleObject.objects.filter(
+                    api_key=current_api_key
+                ).values('barcode').order_by('barcode').first()
+
+                data['random_product_barcode'] = random_product_barcode['barcode']
+
         data['current_api_key'] = current_api_key
         data['api_keys'] = api_keys
 
@@ -65,11 +73,12 @@ def current_path(request):
     ]
 
     dashboard_urls = [
-        reverse("reports:dashboard_main"), reverse("reports:demo_dashboard_main")
+        reverse("reports:dashboard_main"), reverse("reports:demo_dashboard_main"),
+        '/dashboard/barcode/', reverse("reports:demo_dashboard_by_barcode")
     ]
 
     return {
         "is_profile_url": request.path in profile_urls or any(list(map(lambda url: url in request.path, profile_urls))),
         "is_data_url": request.path in data_urls or any(list(map(lambda url: url in request.path, data_urls))),
-        "is_dashboard_url": request.path in dashboard_urls
+        "is_dashboard_url": request.path in dashboard_urls or '/dashboard/barcode/' in request.path
     }

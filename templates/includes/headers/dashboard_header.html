@@ -11,11 +11,12 @@
                     Сводный отчёт
                 </a>
             </li>
-            {% url 'reports:reports_list' as reports_list_url %}
+            {% url 'reports:dashboard_by_barcodes' random_product_barcode as dashboard_by_barcodes_url %}
+            {% url 'reports:demo_dashboard_by_barcode' as demo_dashboard_by_barcode_url %}
             <li>
                 <a
-                        href="{{ reports_list_url }}"
-                        class="{% if request.path == reports_list_url %} active_link {% endif %}">
+                        href="{% if request.user.is_authenticated and current_api_key and current_api_key.is_wb_data_loaded %} {{ dashboard_by_barcodes_url }} {% else %} {{ demo_dashboard_by_barcode_url }} {% endif %}"
+                        class="{% if '/dashboard/barcode/' in request.path or request.path == demo_dashboard_by_barcode_url %} active_link {% endif %}">
                     Потоварно
                 </a>
             </li>
