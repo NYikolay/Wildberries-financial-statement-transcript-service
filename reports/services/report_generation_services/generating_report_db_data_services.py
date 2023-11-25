@@ -70,7 +70,7 @@ def get_calculated_financials_by_products(
                     'delivery_rub',
                     filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
         ),
-        penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
+        penalty=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField()),
         total_revenue=Value(total_revenue, output_field=FloatField()),
         total_products_count=Value(total_products_count, output_field=FloatField()),
@@ -78,7 +78,7 @@ def get_calculated_financials_by_products(
     ).values('nm_id', 'barcode', 'ts_name', 'image', 'product_name',
              'revenue', 'share_in_revenue',
              'product_marginality', 'share_in_number',
-             'sales_amount', 'returns_amount', 'commission', 'penalty_sum',
+             'sales_amount', 'returns_amount', 'commission', 'penalty',
              'additional_payment_sum', 'logistics', 'total_payable', 'rom', 'net_costs_sum')
 
     return calculated_financials

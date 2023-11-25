@@ -1,4 +1,5 @@
 import datetime
+import json
 from collections import defaultdict
 from typing import Union, List
 
@@ -234,7 +235,8 @@ def get_calculated_financials_by_barcodes(
         net_costs_sum_aggregations_objs,
         total_revenue: float,
         total_products_count: int,
-        financials_annotations_objs
+        financials_annotations_objs,
+        convert_products_data_to_json: bool
 ) -> dict:
     """
     The function returns the calculated financials by barcodes. Calls the functions required for the calculations.
@@ -253,6 +255,7 @@ def get_calculated_financials_by_barcodes(
     :param total_products_count: Number of items received from SaleObject() model objects as a result of
     reports.services.report_generation_services.generating_report_db_data_service.get_report_db_inter_data
     :param financials_annotations_objs:
+    :param convert_products_data_to_json:
     :return: Dictionary containing the calculated values of ABC XYZ analysis
     """
 
@@ -275,8 +278,13 @@ def get_calculated_financials_by_barcodes(
         abc_xyz_report.get('merged_abc_xyz_df'), how='left'
     ).replace(np.nan, None).sort_values('revenue', ascending=False)
 
+    if convert_products_data_to_json:
+        products_values = json.dumps(final_products_values.to_dict('records'), ensure_ascii=False)
+    else:
+        products_values = final_products_values.to_dict('records')
+
     return {
-        "products_calculated_values": final_products_values.to_dict('records'),
+        "products_calculated_values": products_values,
         "abc_xyz_report": abc_xyz_report.get('final_abc_xyz_df'),
         "abc_report": abc_report.get('total_abc')
     }

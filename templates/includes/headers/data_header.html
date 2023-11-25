@@ -8,7 +8,7 @@
             <li>
                 <a
                         href="{{ companies_list_url }}"
-                        class="{% if request.path == create_api_key_url or request.path == companies_list_url or '/profile/api-key/edit/' in request.path %} active_link {% endif %}">
+                        class="{% if request.path == create_api_key_url or request.path == companies_list_url or request.resolver_match.view_name == 'users:api_key_edit' %} active_link {% endif %}">
                     Подключение к WB
                 </a>
                 {% if not current_api_key or not request.user.is_authenticated %}
@@ -34,7 +34,7 @@
             <li>
                 <a
                         href="{% if request.user.is_authenticated and current_api_key.is_wb_data_loaded %}{% url 'users:product_detail' product_article %}{% else %}{% url 'users:empty_products' %}{% endif %}"
-                        class="{% if '/product/' in request.path or request.path == empty_products_url %} active_link {% endif %}">
+                        class="{% if request.resolver_match.view_name == 'users:product_detail' or request.path == empty_products_url %} active_link {% endif %}">
                     Склад
                 </a>
                 {% if not request.user.is_authenticated or not current_api_key.is_wb_data_loaded or not is_filled_net_cost %}

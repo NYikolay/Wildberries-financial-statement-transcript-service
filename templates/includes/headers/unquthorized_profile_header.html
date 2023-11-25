@@ -14,7 +14,7 @@
         {% url 'users:password_reset_done' as password_reset_done_url %}
         <li><a
                 href="{{ password_reset_url }}"
-                class="{% if request.path == password_reset_url or request.path == password_reset_done_url or '/password-reset/confirm/' in request.path %} active_link {% endif %}">
+                class="{% if request.path == password_reset_url or request.path == password_reset_done_url or request.resolver_match.view_name == 'users:password_reset_confirm' %} active_link {% endif %}">
             Сброс пароля
         </a></li>
         {% url 'support:support' as support_url %}

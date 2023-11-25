@@ -20,7 +20,7 @@ from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
 from reports.services.handle_report_additional_data_filte_service import create_reports_additional_data
 from reports.services.report_generation_services.get_demo_dashboard_data_services import get_demo_dashboard_data, \
-    get_demo_dashboard_by_barcode_data
+    get_demo_dashboard_by_barcode_data, get_demo_xyz_abc_data
 
 from users.models import SaleReport, IncorrectReport, UnloadedReports, WBApiKey, SaleObject
 
@@ -71,6 +71,14 @@ class DemoDashboardByBarcodeView(View):
 
     def get(self, request):
         report = get_demo_dashboard_by_barcode_data()
+        return render(request, self.template_name, {"report": report})
+
+
+class DemoDashboardAbcXyzView(View):
+    template_name = 'reports/demo_abc_xyz.html'
+
+    def get(self, request):
+        report = get_demo_xyz_abc_data()
         return render(request, self.template_name, {"report": report})
 
 
@@ -125,7 +133,7 @@ class DashboardByBarcode(RedirectUnauthenticatedToDemo, View):
         is_barcode_exists = SaleObject.objects.filter(api_key=current_api_key, barcode=barcode).exists()
 
         if not is_barcode_exists:
-            return Http404
+            raise Http404('Данного баркода не существует')
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
             return redirect(self.reverse_redirect_demo_url)
@@ -168,6 +176,53 @@ class DashboardByBarcode(RedirectUnauthenticatedToDemo, View):
         return render(request, self.template_name, context)
 
 
+class DashboardAbcXyzView(RedirectUnauthenticatedToDemo, View):
+    template_name = 'reports/dashboard_abc_xyz.html'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_abc_xyz'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+
+        if not current_api_key or not current_api_key.is_wb_data_loaded:
+            return redirect(self.reverse_redirect_demo_url)
+
+        try:
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
+        except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Ошибка фильтрации периода')
+            return redirect('reports:dashboard_main')
+
+        try:
+            report_by_barcodes = get_report_by_barcodes(
+                request.user,
+                current_api_key,
+                current_filter_data,
+                True
+            )
+        except Exception as err:
+            django_logger.critical(
+                f'It is impossible to calculate statistics in the barcodes detail for a user - {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Невозможно рассчитать статистику для баркода. '
+                                    'Пожалуйста, свяжитесь со службой поддержки')
+            return redirect('reports:dashboard_main')
+
+        filters_data: dict = get_filters_db_data(current_api_key)
+
+        context = {
+            'report': report_by_barcodes,
+            'filters_data': filters_data,
+            'current_filter_data': current_filter_data,
+        }
+
+        return render(request, self.template_name, context)
+
+
 class ExportReportByBarcodesView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
@@ -200,7 +255,7 @@ class ExportReportByBarcodesView(LoginRequiredMixin, View):
         response['Content-Disposition'] = \
             f'attachment; filename="barcodes_detail_report_{datetime.datetime.now().strftime("%d.%m.%Y")}.xlsx"'
 
-        report_by_barcodes_df = get_barcodes_detail_dataframe(report_by_barcodes)
+        report_by_barcodes_df = get_barcodes_detail_dataframe(report_by_barcodes.get('products_calculated_values'))
         report_by_barcodes_df.to_excel(response, index=False)
 
         return response

@@ -11,20 +11,21 @@
                     Сводный отчёт
                 </a>
             </li>
-            {% url 'reports:dashboard_by_barcodes' random_product_barcode as dashboard_by_barcodes_url %}
+            {% url 'reports:dashboard_by_barcode' random_product_barcode as dashboard_by_barcode_url %}
             {% url 'reports:demo_dashboard_by_barcode' as demo_dashboard_by_barcode_url %}
             <li>
                 <a
-                        href="{% if request.user.is_authenticated and current_api_key and current_api_key.is_wb_data_loaded %} {{ dashboard_by_barcodes_url }} {% else %} {{ demo_dashboard_by_barcode_url }} {% endif %}"
-                        class="{% if '/dashboard/barcode/' in request.path or request.path == demo_dashboard_by_barcode_url %} active_link {% endif %}">
+                        href="{% if request.user.is_authenticated and current_api_key and current_api_key.is_wb_data_loaded %} {{ dashboard_by_barcode_url }} {% else %} {{ demo_dashboard_by_barcode_url }} {% endif %}"
+                        class="{% if request.resolver_match.view_name == 'reports:dashboard_by_barcode' or request.path == demo_dashboard_by_barcode_url %} active_link {% endif %}">
                     Потоварно
                 </a>
             </li>
-            {% url 'users:empty_products' as empty_products_url %}
+            {% url 'reports:dashboard_abc_xyz' as dashboard_abc_xyz_url %}
+            {% url 'reports:demo_dashboard_abc_xyz' as demo_dashboard_abc_xyz_url %}
             <li>
                 <a
-                        href="{% if request.user.is_authenticated and current_api_key.is_wb_data_loaded %}{% url 'users:product_detail' product_article %}{% else %}{% url 'users:empty_products' %}{% endif %}"
-                        class="{% if '/product/' in request.path or request.path == empty_products_url %} active_link {% endif %}">
+                        href="{% if request.user.is_authenticated and current_api_key and current_api_key.is_wb_data_loaded %} {{ dashboard_abc_xyz_url }} {% else %} {{ demo_dashboard_abc_xyz_url }} {% endif %}"
+                        class="{% if request.path == dashboard_abc_xyz_url or request.path == demo_dashboard_abc_xyz_url %} active_link {% endif %}">
                     ABC-XYZ анализ
                 </a>
             </li>

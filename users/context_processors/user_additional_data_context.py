@@ -5,7 +5,12 @@ from django.urls import reverse
 
 def user_additional_data(request):
     data = {}
-    dashboard_urls = [reverse("reports:dashboard_main"), reverse("reports:demo_dashboard_main"), '/dashboard/product/']
+    current_url = request.resolver_match.view_name
+    dashboard_urls = [
+        "reports:dashboard_main",
+        "reports:dashboard_by_barcode",
+        "reports:dashboard_abc_xyz"
+    ]
 
     if request.user.is_authenticated:
         current_api_key = request.user.keys.filter(is_current=True).first()
@@ -44,7 +49,7 @@ def user_additional_data(request):
             data['product_article'] = product_article
             data['is_incorrect_reports'] = is_incorrect_reports
 
-            if request.path in dashboard_urls or '/dashboard/product/' in request.path:
+            if current_url in dashboard_urls:
                 random_product_barcode = SaleObject.objects.filter(
                     api_key=current_api_key
                 ).values('barcode').order_by('barcode').first()
@@ -58,27 +63,30 @@ def user_additional_data(request):
 
 
 def current_path(request):
+    current_url = request.resolver_match.view_name
+
     profile_urls = [
-        reverse("users:change_password"),
-        reverse("users:profile_subscriptions"),
-        reverse("users:register"), reverse("users:password_reset"), reverse("users:password_reset_done"),
-        reverse("users:login"), reverse("users:email_confirmation_info"), reverse("support:support"),
-        '/password-reset/confirm/'
+        "users:change_password",
+        "users:profile_subscriptions",
+        "users:register", "users:password_reset", "users:password_reset_done",
+        "users:login", "users:email_confirmation_info", "support:support",
+        "users:password_reset_confirm"
     ]
 
     data_urls = [
-        reverse("reports:reports_list"), reverse("users:create_api_key"), reverse("users:companies_list"),
-        '/profile/api-key/edit/', reverse("users:profile_taxes"), reverse("users:costs_list"), '/product/',
-        reverse("users:empty_products")
+        "reports:reports_list", "users:create_api_key", "users:companies_list",
+        "users:api_key_edit", "users:profile_taxes", "users:costs_list", "users:product_detail",
+        "users:empty_products"
     ]
 
     dashboard_urls = [
-        reverse("reports:dashboard_main"), reverse("reports:demo_dashboard_main"),
-        '/dashboard/barcode/', reverse("reports:demo_dashboard_by_barcode")
+        "reports:dashboard_main", "reports:demo_dashboard_main",
+        "reports:dashboard_by_barcode", "reports:demo_dashboard_by_barcode", 'reports:dashboard_abc_xyz',
+        'reports:demo_dashboard_abc_xyz'
     ]
 
     return {
-        "is_profile_url": request.path in profile_urls or any(list(map(lambda url: url in request.path, profile_urls))),
-        "is_data_url": request.path in data_urls or any(list(map(lambda url: url in request.path, data_urls))),
-        "is_dashboard_url": request.path in dashboard_urls or '/dashboard/barcode/' in request.path
+        "is_profile_url": current_url in profile_urls,
+        "is_data_url": current_url in data_urls,
+        "is_dashboard_url": current_url in dashboard_urls
     }

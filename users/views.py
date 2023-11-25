@@ -301,7 +301,7 @@ class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
             if not api_key:
                 django_logger.error(f"Changing api key with incorrect id for user - {request.user.email}")
                 messages.error(request, "Невозможно сменить подключение. Передан некорректный Api ключ")
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+                return redirect("users:companies_list")
 
             with transaction.atomic():
                 current_api_key.is_current = False
@@ -309,22 +309,13 @@ class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
                 current_api_key.save()
                 api_key.save()
 
-            if ('/product/' in request.META.get('HTTP_REFERER', '/')
-                    or '/products/' in request.META.get('HTTP_REFERER', '/')):
-                product_article = ClientUniqueProduct.objects.filter(
-                    api_key=api_key).values_list('nm_id', flat=True).order_by('brand', 'nm_id').first()
-
-                if product_article:
-                    return redirect('users:product_detail', article=product_article)
-
-                return redirect('users:empty_products')
-
-            return redirect(request.META.get('HTTP_REFERER', '/'))
+            messages.success(request, "Подключение было успешно изменено.")
+            return redirect("users:companies_list")
 
         django_logger.error(f"Error while change Api Key. User - {request.user.email}")
 
         messages.error(request, "Невозможно сменить подключение.")
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect("users:companies_list")
 
 
 class CompaniesListView(ListView):

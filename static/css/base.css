@@ -157,6 +157,10 @@ h1 {
     fill: var(--var-commont-icon-color);
 }
 
+.active-svg {
+    fill: var(--var-accent-text-color);
+}
+
 .active-border {
     border: 1px solid var(--var-border-active-color) !important;
 }
@@ -504,6 +508,7 @@ footer {
 .tooltip {
     position: relative;
     display: inline-block;
+    cursor: pointer;
 }
 
 .tooltip .tooltiptext {

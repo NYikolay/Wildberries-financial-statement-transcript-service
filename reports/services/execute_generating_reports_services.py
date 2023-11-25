@@ -73,7 +73,12 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
     }
 
 
-def get_report_by_barcodes(current_user, current_api_key, period_filter_data: List[dict]):
+def get_report_by_barcodes(
+        current_user,
+        current_api_key,
+        period_filter_data: List[dict],
+        convert_products_data_to_json: bool = False
+):
     filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
     general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
     financials_annotations_objs: dict = get_financials_annotation_objects()
@@ -101,10 +106,11 @@ def get_report_by_barcodes(current_user, current_api_key, period_filter_data: Li
         general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'),
         total_revenue.get('total_revenue'),
         products_count_by_period,
-        financials_annotations_objs
+        financials_annotations_objs,
+        convert_products_data_to_json
     )
 
-    return report_by_barcodes.get('products_calculated_values')
+    return report_by_barcodes
 
 
 def get_report_by_barcode(current_user, current_api_key, period_filter_data: List[dict], barcode):
