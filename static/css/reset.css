@@ -20,6 +20,10 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
+input:autofill {
+  background: transparent;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
     background: transparent;
     bottom: 0;

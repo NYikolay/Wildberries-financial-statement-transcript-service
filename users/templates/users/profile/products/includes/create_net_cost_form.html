@@ -1,5 +1,5 @@
 <div class="create__net-cost__wrapper hidden" id="create-net-cost-from-wrapper">
-    <form action="{% url 'users:product_net_cost_create' %}" method="post" class="net__cost-from">
+    <form action="{% url 'users:product_net_cost_create' %}?page={{ request.GET.page }}" method="post" class="net__cost-from">
         {% csrf_token %}
         <div class="form-items">
             {{ net_cost_form.product.as_hidden }}

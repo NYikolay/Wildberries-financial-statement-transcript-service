@@ -6,6 +6,7 @@
     gap: 11px;
     flex-shrink: 0;
     flex-basis: 271px;
+    scrollbar-width: none;
 }
 
 .report-container {

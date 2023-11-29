@@ -22,7 +22,7 @@
         <a href="{% url 'reports:dashboard_by_barcode' p.barcode %}">
             <div class="product__item {% if p.barcode == current_barcode %} product__item-active {% endif %}">
                 {% if p.image %}
-                <img class="product-image" src="{{ p.image }}" alt="Артикул {{ p.nm_id }}">
+                <img class="product-image" data-src="{{ p.image }}" alt="Артикул {{ p.nm_id }}">
                 {% else %}
                 <div class="empty__product-image__wrapper">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,8 +47,8 @@
     </div>
     <div class="report-container">
         <div class="indicators-container">
-            <div class="indicator-item" data-item-description="revenue" data-item-total='{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+            <div class="indicator-item" data-is-active="true" data-item-description="revenue" data-item-total='{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}'>
+                <canvas width="110" height="45" data-chart-description="revenue" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -63,7 +63,7 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="rom" data-item-total='{{ report.totals.rom_total }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="rom" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.rom_total }}%</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -78,7 +78,7 @@
                 </div>
             </div>
             <div class="indicator-item " data-item-description="salesCount" data-item-total='{{ report.totals.sales_amount_total|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="salesCount" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.sales_amount_total|floatformat:"-3g" }}</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -93,7 +93,7 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="commission" data-item-total='{{ report.totals.commission_total|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="commission" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.commission_total|floatformat:"-3g" }}</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -108,7 +108,7 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="penalty" data-item-total='{{ report.totals.penalty_total|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="penalty" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.penalty_total|floatformat:"-3g" }}</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -123,10 +123,10 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="totalPayable" data-item-total='{{ report.totals.total_payable|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="totalPayable" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.total_payable|floatformat:"-3g" }}</h1>
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 7px;">
                         <p class="text__common-normal">Валовая прибыль</p>
                         <div class="tooltip">
                             <svg width="13" height="13" viewBox="0 0 13 13" fill="#5C659D" xmlns="http://www.w3.org/2000/svg">
@@ -138,7 +138,7 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="marginality" data-item-total='{{ report.totals.marginality_total }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="marginality" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.marginality_total }}%</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -153,7 +153,7 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="returnsCount" data-item-total='{{ report.totals.returns_amount_total|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="returnsCount" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.returns_amount_total|floatformat:"-3g" }}</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -168,7 +168,7 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="logistics" data-item-total='{{ report.totals.logistics_total|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="logistics" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.logistics_total|floatformat:"-3g" }}</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -183,9 +183,9 @@
                 </div>
             </div>
             <div class="indicator-item" data-item-description="additionalPayment" data-item-total='{{ report.totals.penalty_total|floatformat:"-3g" }}'>
-                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <canvas width="110" height="45" data-chart-description="additionalPayment" class="indicator-chart"></canvas>
                 <div class="indicator__item-text__wrapper">
-                    <h1 class="dark_h1">{{ report.totals.penalty_total|floatformat:"-3g" }}</h1>
+                    <h1 class="dark_h1">{{ report.totals.additional_payment_sum_total|floatformat:"-3g" }}</h1>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <p class="text__common-normal">Доплаты</p>
                         <div class="tooltip">
@@ -207,6 +207,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="{% static 'reports/js/indicatorsBarChart.js' %}"></script>
 <script src="{% static 'reports/js/linearChart.js' %}"></script>
+<script src="{% static 'js/lazyLoadImg.js' %}"></script>
 <script src="{% static 'reports/js/filterByPeriod.js' %}"></script>
 {% endblock %}

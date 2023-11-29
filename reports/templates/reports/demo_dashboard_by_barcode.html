@@ -47,7 +47,7 @@
     </div>
     <div class="report-container">
         <div class="indicators-container">
-            <div class="indicator-item" data-item-description="revenue" data-item-total='{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}'>
+            <div class="indicator-item" data-is-active="true" data-item-description="revenue" data-item-total='{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}'>
                 {% include 'reports/includes/inactive_indicator_item.html' %}
                 <div class="indicator__item-text__wrapper">
                     <h1 class="dark_h1">{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}</h1>
@@ -207,6 +207,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="{% static 'reports/js/demoIndicators.js' %}"></script>
 <script src="{% static 'reports/js/linearChart.js' %}"></script>
 <script src="{% static 'reports/js/filterByPeriod.js' %}"></script>
 {% endblock %}

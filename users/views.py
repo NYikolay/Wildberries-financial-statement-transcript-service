@@ -1,4 +1,3 @@
-import json
 import time
 import logging
 import pytz
@@ -7,20 +6,20 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Count, Exists, OuterRef, ExpressionWrapper, BooleanField, F
+from django.db.models import Q, ExpressionWrapper, BooleanField, F
 from django.views.generic.list import ListView
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import View, CreateView, UpdateView, DeleteView, DetailView
 from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode, urlencode
 from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
+from django.http import JsonResponse, HttpResponse
 
 from config.settings.base import REDIS_HOST, REDIS_PORT, SSE_NOTIFICATION_SECRET
 from payments.models import SubscriptionTypes
@@ -38,20 +37,23 @@ from users.services.generate_subscriptions_data_service import get_user_subscrip
 from users.services.generate_excel_net_costs_example_service import generate_excel_net_costs_example
 from users.services.generate_last_report_date_service import get_last_report_date
 from users.services.handle_uploaded_netcosts_excel_service import handle_uploaded_net_costs
+from users.services.services import get_reverse_with_query
 from users.services.wb_request_handling_services.execute_request_data_handling import \
     execute_wildberries_request_data_handling
 from users.tasks import execute_wildberries_reports_loading
 from users.token import account_activation_token, password_reset_token
 from django.views.decorators.csrf import csrf_exempt
 
-import redis
-from celery.result import AsyncResult
 from django_eventstream import send_event
 
 django_logger = logging.getLogger('django_logger')
 
 
-redis_instance = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=3)
+class TermsOfferView(View):
+    template_name = 'users/terms_offer.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
 
 
 class NotifySseUserView(View):
@@ -217,10 +219,12 @@ class LoginPageView(RedirectAuthenticatedUser, View):
 
                 self.request.session['new_email'] = form.cleaned_data['email']
                 self.request.session['email_message_timestamp'] = time.time()
-
+                messages.error(request, "Указанный Email существует, но он не был подтверждён. "
+                                        "Пожалуйста, профдите процедуру активации аккаунта")
                 return redirect('users:email_confirmation_info')
 
             login(request, user)
+            messages.success(request, "Вход был выполнен успешно")
             return redirect('users:profile_subscriptions')
 
         context = {'form': form}
@@ -356,10 +360,12 @@ class UpdateApiKeyView(LoginRequiredMixin, View):
         company = get_object_or_404(WBApiKey, pk=api_key_id, user=request.user)
         form = self.form_class(data=request.POST, instance=company)
 
+        decrypted_api_key = company.api_key
+
         if form.is_valid():
             api_key_obj = form.save(commit=False)
 
-            if api_key_obj.api_key != company.api_key:
+            if decrypted_api_key != api_key_obj.api_key:
                 api_key_obj.api_key = get_encrypted_key(form.cleaned_data['api_key'])
 
             api_key_obj.save()
@@ -696,7 +702,8 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         products = self.model.objects.filter(
             api_key__user=self.request.user, api_key__is_current=True
         ).annotate(
-            has_net_cost=ExpressionWrapper(Q(cost_prices__isnull=False), output_field=BooleanField())
+            has_net_cost=ExpressionWrapper(Q(cost_prices__isnull=False) & Q(cost_prices__amount__gt=0),
+                                           output_field=BooleanField())
         ).values('image', 'nm_id', 'product_name', 'has_net_cost').distinct().order_by('brand', 'nm_id')
 
         paginator = self.paginator_class(products, 4)
@@ -741,7 +748,14 @@ class CreateNetCostView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         messages.success(self.request, 'Себестоимость успешно создана')
-        return reverse_lazy("users:product_detail", args=(self.object.product.nm_id,))
+
+        url = get_reverse_with_query(
+            "users:product_detail",
+            {"article": self.object.product.nm_id},
+            {'page': self.request.GET.get('page')}
+        )
+
+        return url
 
 
 class UpdateNetCostView(LoginRequiredMixin, UpdateView):
@@ -768,7 +782,14 @@ class UpdateNetCostView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, 'Себестоимость успешно изменена')
-        return reverse_lazy("users:product_detail", args=(self.object.product.nm_id,))
+
+        url = get_reverse_with_query(
+            "users:product_detail",
+            {"article": self.object.product.nm_id},
+            {'page': self.request.GET.get('page')}
+        )
+
+        return url
 
 
 class DeleteNetCostView(LoginRequiredMixin, DeleteView):
@@ -787,7 +808,14 @@ class DeleteNetCostView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         messages.success(self.request, 'Себестоимость успешно удалена')
-        return reverse_lazy("users:product_detail", args=(self.object.product.nm_id,))
+
+        url = get_reverse_with_query(
+            "users:product_detail",
+            {"article": self.object.product.nm_id},
+            {'page': self.request.GET.get('page')}
+        )
+
+        return url
 
 
 class ExecuteLoadingReportsFromWildberriesView(LoginRequiredMixin, SubscriptionRequiredMixin, View):

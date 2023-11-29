@@ -48,7 +48,7 @@
     {% include 'includes/headers/headers_container.html' %}
 
     <!-- Main Content -->
-    <main>
+    <main {% if is_dashboard_url %}style="padding-top: 84px;"{% endif %}>
         {% block content %}{% endblock %}
     </main>
 

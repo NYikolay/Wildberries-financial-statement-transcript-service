@@ -32,6 +32,7 @@
 html {
     height: 100%;
     font-size: 10px;
+    scrollbar-width: none;
 }
 
 body {
@@ -40,6 +41,8 @@ body {
     font-weight: bold;
     overflow-x: hidden;
     background-color: var(--var-bgcolor);
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 header {

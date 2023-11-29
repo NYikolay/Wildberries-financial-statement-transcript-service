@@ -9,12 +9,12 @@
 <form action="." method="post" class="common-form">
     {% csrf_token %}
     <h1>Подтверждение почты</h1>
-    <p style="max-width: 455px">
-        На адрес {{ email }} направлено письмо со ссылкой для подтверждения регистрации. Перейдите по ссылке в письме и авторизуйтесь в сервисе.
+    <p style="max-width: 455px" class="text__accent">
+        На адрес <b>{{ email }}</b> направлено письмо со ссылкой для подтверждения регистрации. Перейдите по ссылке в письме и авторизуйтесь в сервисе.
     </p>
     <div class="form_buttons">
-        <button class="form__accent-button" id="resend_email-btn" type="submit">Повторная отправка</button>
-        <p class="resend_email-counter">Получить новое письмо можно через <span class="counter" style="text-decoration: underline">60</span> секунд</p>
+        <button class="accent-button" id="resend_email-btn" type="submit">Повторная отправка</button>
+        <p class="resend_email-counter text__accent">Получить новое письмо можно через <span class="counter" style="text-decoration: underline">60</span> секунд</p>
     </div>
 </form>
 

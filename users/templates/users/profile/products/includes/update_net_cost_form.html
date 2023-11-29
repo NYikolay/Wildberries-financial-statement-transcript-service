@@ -1,5 +1,5 @@
 <div class="create__net-cost__wrapper hidden" id="update-net-cost-from-wrapper" data-net-cost-id-form="{{ net_cost.object.id }}">
-    <form action="{% url 'users:product_net_cost_update' net_cost.object.id %}" method="post" class="net__cost-from">
+    <form action="{% url 'users:product_net_cost_update' net_cost.object.id %}?page={{ request.GET.page }}" method="post" class="net__cost-from">
         {% csrf_token %}
         <div class="form-items">
             {{ net_cost.form.product.as_hidden }}
@@ -31,7 +31,7 @@
             </button>
         </div>
     </form>
-    <form action="{% url 'users:product_net_cost_delete' net_cost.object.id %}" method="post">
+    <form action="{% url 'users:product_net_cost_delete' net_cost.object.id %}?page={{ request.GET.page }}" method="post">
         {% csrf_token %}
         <button type="submit" class="text__accent-bold" style="text-decoration: underline">
             Удалить

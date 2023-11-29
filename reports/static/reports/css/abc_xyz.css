@@ -6,6 +6,7 @@
     max-height: calc(100vh - 225px);
     gap: 11px;
     flex: 1;
+    scrollbar-width: none;
 }
 
 .abx__xyz-wrapper__inner {

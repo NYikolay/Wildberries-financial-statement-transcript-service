@@ -9,8 +9,6 @@ from reports.services.report_generation_services.generate_period_filters_service
     generate_period_filter_conditions
 from reports.services.report_generation_services.generating_report_db_data_services import \
     get_calculated_financials_by_products, get_barcodes_revenues_by_weeks
-from reports.services.report_generation_services.generating_sum_aggregation_objs_services import \
-    get_financials_annotation_objects
 
 import pandas as pd
 import numpy as np

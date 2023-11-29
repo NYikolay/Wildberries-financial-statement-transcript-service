@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 from typing import List
 
@@ -14,15 +13,18 @@ from reports.forms import LoadReportAdditionalDataFrom
 from reports.mixins import RedirectUnauthenticatedToDemo
 from reports.services.execute_generating_reports_services import get_full_user_report, get_report_by_barcode, \
     get_report_by_barcodes
-from reports.services.generating_export_dataframe import get_barcodes_detail_dataframe
+from reports.services.generating_export_dataframe import get_barcodes_detail_dataframe, get_penalties_dataframe
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
 from reports.services.handle_report_additional_data_filte_service import create_reports_additional_data
+from reports.services.report_generation_services.generate_period_filters_services import \
+    generate_period_filter_conditions
+from reports.services.report_generation_services.generating_report_db_data_services import get_penalties
 from reports.services.report_generation_services.get_demo_dashboard_data_services import get_demo_dashboard_data, \
     get_demo_dashboard_by_barcode_data, get_demo_xyz_abc_data
 
-from users.models import SaleReport, IncorrectReport, UnloadedReports, WBApiKey, SaleObject
+from users.models import SaleReport, IncorrectReport, SaleObject
 
 django_logger = logging.getLogger('django_logger')
 
@@ -96,24 +98,24 @@ class DashboardMainView(RedirectUnauthenticatedToDemo, View):
             current_filter_data: List[dict] = get_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
-                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                f'Unable to filter data by period in the DashboardMainView for the user- {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Ошибка фильтрации периода')
             return redirect('reports:dashboard_main')
 
-        filters_data: dict = get_filters_db_data(current_api_key)
-
         try:
             report = get_full_user_report(request.user, current_api_key, current_filter_data)
         except Exception as err:
             django_logger.critical(
-                f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
+                f'It is impossible to calculate statistics in the DashboardMainView for a user - {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
                                     'Пожалуйста, свяжитесь со службой поддержки')
             return redirect('reports:reports_list')
+
+        filters_data: dict = get_filters_db_data(current_api_key)
 
         return render(
             request, self.template_name, {
@@ -142,7 +144,7 @@ class DashboardByBarcode(RedirectUnauthenticatedToDemo, View):
             current_filter_data: List[dict] = get_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
-                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                f'Unable to filter data by period in the DashboardByBarcode for the user- {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Ошибка фильтрации периода')
@@ -157,7 +159,7 @@ class DashboardByBarcode(RedirectUnauthenticatedToDemo, View):
             )
         except Exception as err:
             django_logger.critical(
-                f'It is impossible to calculate statistics in the barcodes detail for a user - {request.user.email}',
+                f'It is impossible to calculate statistics in the DashboardByBarcode for a user - {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Невозможно рассчитать статистику для баркода. '
@@ -190,7 +192,7 @@ class DashboardAbcXyzView(RedirectUnauthenticatedToDemo, View):
             current_filter_data: List[dict] = get_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
-                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                f'Unable to filter data by period in the DashboardAbcXyzView for the user- {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Ошибка фильтрации периода')
@@ -205,7 +207,7 @@ class DashboardAbcXyzView(RedirectUnauthenticatedToDemo, View):
             )
         except Exception as err:
             django_logger.critical(
-                f'It is impossible to calculate statistics in the barcodes detail for a user - {request.user.email}',
+                f'It is impossible to calculate statistics in the DashboardAbcXyzView for a user - {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Невозможно рассчитать статистику для баркода. '
@@ -223,18 +225,22 @@ class DashboardAbcXyzView(RedirectUnauthenticatedToDemo, View):
         return render(request, self.template_name, context)
 
 
-class ExportReportByBarcodesView(LoginRequiredMixin, View):
+class ExportReportByBarcodesView(RedirectUnauthenticatedToDemo, LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_by_barcode'
 
     def get(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
+
+        if not current_api_key or not current_api_key.is_wb_data_loaded:
+            return redirect(self.reverse_redirect_demo_url)
 
         try:
             current_filter_data: List[dict] = get_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
-                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                f'Unable to filter data by period in the ExportReportByBarcodesView for the user- {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Ошибка фильтрации периода')
@@ -244,7 +250,7 @@ class ExportReportByBarcodesView(LoginRequiredMixin, View):
             report_by_barcodes = get_report_by_barcodes(request.user, current_api_key, current_filter_data)
         except Exception as err:
             django_logger.critical(
-                f'It is impossible to calculate statistics in the barcodes detail for a user - {request.user.email}',
+                f'It is impossible to calculate statistics in the ExportReportByBarcodesView for a user - {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Невозможно рассчитать статистику для товаров. '
@@ -256,6 +262,41 @@ class ExportReportByBarcodesView(LoginRequiredMixin, View):
             f'attachment; filename="barcodes_detail_report_{datetime.datetime.now().strftime("%d.%m.%Y")}.xlsx"'
 
         report_by_barcodes_df = get_barcodes_detail_dataframe(report_by_barcodes.get('products_calculated_values'))
+        report_by_barcodes_df.to_excel(response, index=False)
+
+        return response
+
+
+class ExportPenaltiesListView(RedirectUnauthenticatedToDemo, LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_main'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+
+        if not current_api_key or not current_api_key.is_wb_data_loaded:
+            return redirect(self.reverse_redirect_demo_url)
+
+        try:
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
+        except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Ошибка фильтрации периода')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        filter_period_conditions: dict = generate_period_filter_conditions(current_filter_data)
+
+        penalties = get_penalties(request.user, current_api_key, filter_period_conditions)
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = \
+            f'attachment; filename="penalties_{datetime.datetime.now().strftime("%d.%m.%Y")}.xlsx"'
+
+        report_by_barcodes_df = get_penalties_dataframe(penalties)
         report_by_barcodes_df.to_excel(response, index=False)
 
         return response

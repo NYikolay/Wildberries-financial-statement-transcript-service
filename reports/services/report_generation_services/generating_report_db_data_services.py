@@ -320,6 +320,24 @@ def get_wb_costs_sum(current_user, current_api_key, filter_period_conditions):
     return wb_costs_sum
 
 
+def get_penalties(current_user, current_api_key, filter_period_conditions):
+    penalties = SaleObject.objects.filter(
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+        penalty__gt=0
+    ).values('bonus_type_name', 'realizationreport_id', 'week_num').annotate(
+        total_sum=Coalesce(
+            Sum('penalty'),
+            0,
+            output_field=FloatField()),
+        date_to=F('date_to'),
+        date_from=F('date_from'),
+    ).order_by('-date_from')
+
+    return penalties
+
+
 def get_report_db_inter_data(
         current_user,
         current_api_key,

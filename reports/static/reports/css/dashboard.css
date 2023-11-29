@@ -71,6 +71,7 @@
     flex-direction: column;
     align-self: flex-start;
     height: 110px;
+    width: 130px;
     cursor: pointer;
     align-items: center;
     gap: 10px;
@@ -89,4 +90,18 @@
 .indicator_static-wrapper {
     display: flex;
     align-items: flex-end;
+}
+
+#chart {
+  width: 100px;
+  height: 45px;
+  background-color: #f2f2f2;
+  padding: 10px;
+}
+
+.bar {
+  background-color: #007bff;
+  margin-bottom: 10px;
+  color: black;
+  padding: 5px;
 }

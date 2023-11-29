@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
         toastContainer.insertAdjacentHTML('beforeend',
             `<p class="toast" 
                     style="background-color: ${background};
+                    cursor: pointer;
                     animation-duration: ${length}">
                     ${message}
             </p>`
@@ -25,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const toast = toastContainer.lastElementChild;
         toast.addEventListener('animationend', () => toast.remove())
+        toast.addEventListener("click", () => toast.remove())
     }
 
     if (toastError) {

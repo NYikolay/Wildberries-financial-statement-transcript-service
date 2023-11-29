@@ -1,8 +1,10 @@
 /*INDICATORS BLOCK STYLING START*/
 .indicators-container {
     display: flex;
+    align-self: flex-start;
     flex-wrap: wrap;
-    gap: 11px;
+    column-gap: 11px;
+    row-gap: 11px;
     flex-shrink: 0;
     flex-basis: 272px;
 }

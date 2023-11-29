@@ -35,3 +35,22 @@ def get_barcodes_detail_dataframe(report_by_barcodes):
     )
 
     return report_by_barcodes_df
+
+
+def get_penalties_dataframe(penalties_data):
+    penalties_df = pd.DataFrame(penalties_data)
+
+    penalties_df.rename(
+        columns={
+            "bonus_type_name": "Обоснование штрафов и доплат",
+            "nm_id": "Артикул",
+            "realizationreport_id": "Номер отчёта",
+            "week_num": "Неделя",
+            "total_sum": "Сумма",
+            "date_from": "Дата начала отчетного периода",
+            "date_to": "Дата конца отчетного периода"
+        },
+        inplace=True
+    )
+
+    return penalties_df

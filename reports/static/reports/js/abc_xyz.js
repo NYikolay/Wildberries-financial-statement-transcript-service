@@ -1,26 +1,27 @@
-const productsWrapper = document.getElementById("products-wrapper")
-const productsDataArray = JSON.parse(productsWrapper.getAttribute('data-products'))
-const groupOpenButtons = document.querySelectorAll('.abc__xyz-item')
-const initialGroupButton = document.querySelector('[data-group="A"]')
-let lastOpenedGroupButton
+document.addEventListener("DOMContentLoaded", function () {
+    const productsWrapper = document.getElementById("products-wrapper")
+    const productsDataArray = JSON.parse(productsWrapper.getAttribute('data-products'))
+    const groupOpenButtons = document.querySelectorAll('.abc__xyz-item')
+    const initialGroupButton = document.querySelector('[data-group="A"]')
+    let lastOpenedGroupButton
 
-const newProductsDataArray = {
-    "A": [],
-    "B": [],
-    "C": [],
-    "AX": [],
-    "AY": [],
-    "BX": [],
-    "AZ": [],
-    "BY": [],
-    "CX": [],
-    "BZ": [],
-    "CY": [],
-    "CZ": [],
-    "None": []
-}
+    const newProductsDataArray = {
+        "A": [],
+        "B": [],
+        "C": [],
+        "AX": [],
+        "AY": [],
+        "BX": [],
+        "AZ": [],
+        "BY": [],
+        "CX": [],
+        "BZ": [],
+        "CY": [],
+        "CZ": [],
+        "None": []
+    }
 
-const emptyImageHtml = `
+    const emptyImageHtml = `
          <div class="empty__product-image__wrapper">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="40" height="40" fill="#32396B"/>
@@ -29,32 +30,31 @@ const emptyImageHtml = `
          </div>
 `
 
-for (let i = 0; i < productsDataArray.length; i++) {
-    const abcGroup = productsDataArray[i].group_abc
-    const abcxyzGroup = productsDataArray[i].final_group
-    newProductsDataArray[abcGroup].push(productsDataArray[i])
-    if (abcxyzGroup) {
-        newProductsDataArray[abcxyzGroup].push(productsDataArray[i])
+    for (let i = 0; i < productsDataArray.length; i++) {
+        const abcGroup = productsDataArray[i].group_abc
+        const abcxyzGroup = productsDataArray[i].final_group
+        newProductsDataArray[abcGroup].push(productsDataArray[i])
+        if (abcxyzGroup) {
+            newProductsDataArray[abcxyzGroup].push(productsDataArray[i])
+        }
     }
-}
 
-const removeChildNodes = (parent) => {
-    while (parent.firstElementChild) {
-        parent.removeChild(parent.firstElementChild);
+    const removeChildNodes = (parent) => {
+        while (parent.firstElementChild) {
+            parent.removeChild(parent.firstElementChild);
+        }
     }
-}
 
+    const createProductItems = (productGroup) => {
+        for (let i = 0; i < newProductsDataArray[productGroup].length; i++) {
+            let productItem = document.createElement("div")
+            productItem.classList.add("product__item")
+            productItem.classList.add("product__item-width")
 
-const createProductItems = (productGroup) => {
-    for (let i = 0; i < newProductsDataArray[productGroup].length; i++) {
-        let productItem = document.createElement("div")
-        productItem.classList.add("product__item")
-        productItem.classList.add("product__item-width")
+            const image = newProductsDataArray[productGroup][i].image
 
-        const image = newProductsDataArray[productGroup][i].image
-
-        productItem.innerHTML = `
-            ${ image ? `<img class="product-image" src="${image}" alt="Артикул ${newProductsDataArray[productGroup][i].nm_id}">` : emptyImageHtml}
+            productItem.innerHTML = `
+            ${image ? `<img class="product-image" src="${image}" alt="Артикул ${newProductsDataArray[productGroup][i].nm_id}">` : emptyImageHtml}
             <div class="product__item-description">
                 <div class="product__item-description__inner">
                     <p class="text__accent-bold">${newProductsDataArray[productGroup][i].product_name}</p>
@@ -67,58 +67,59 @@ const createProductItems = (productGroup) => {
             </div>
         `
 
-        productsWrapper.appendChild(productItem)
+            productsWrapper.appendChild(productItem)
+        }
     }
-}
 
-const setGroupButtonContentActiveStyles = (button) => {
-    const titles = button.getElementsByTagName("h1")
-    const svg = button.getElementsByTagName("path")[0]
+    const setGroupButtonContentActiveStyles = (button) => {
+        const titles = button.getElementsByTagName("h1")
+        const svg = button.getElementsByTagName("path")[0]
 
-    svg.classList.remove("img-svg")
-    svg.classList.add("active-svg")
+        svg.classList.remove("img-svg")
+        svg.classList.add("active-svg")
 
-    for (let i = 0; i < titles.length; i++) {
-        titles[i].classList.remove("dark_h1")
+        for (let i = 0; i < titles.length; i++) {
+            titles[i].classList.remove("dark_h1")
+        }
     }
-}
 
-const removeGroupButtonContentActiveStyles = (button) => {
-    const titles = button.getElementsByTagName("h1")
-    const svg = button.getElementsByTagName("path")[0]
+    const removeGroupButtonContentActiveStyles = (button) => {
+        const titles = button.getElementsByTagName("h1")
+        const svg = button.getElementsByTagName("path")[0]
 
-    svg.classList.remove("active-svg")
-    svg.classList.add("img-svg")
+        svg.classList.remove("active-svg")
+        svg.classList.add("img-svg")
 
-    for (let i = 0; i < titles.length; i++) {
-        titles[i].classList.add("dark_h1")
+        for (let i = 0; i < titles.length; i++) {
+            titles[i].classList.add("dark_h1")
+        }
     }
-}
 
-const renderInitialGroup = () => {
-    lastOpenedGroupButton = initialGroupButton
-    const buttonGroup = initialGroupButton.getAttribute('data-group')
+    const renderInitialGroup = () => {
+        lastOpenedGroupButton = initialGroupButton
+        const buttonGroup = initialGroupButton.getAttribute('data-group')
 
-    initialGroupButton.classList.add("active-border")
-    setGroupButtonContentActiveStyles(initialGroupButton)
-    createProductItems(buttonGroup)
-}
-
-groupOpenButtons.forEach((button) => {
-    const buttonGroup = button.getAttribute('data-group')
-
-    button.addEventListener("click", event => {
-        lastOpenedGroupButton.classList.remove("active-border")
-        removeGroupButtonContentActiveStyles(lastOpenedGroupButton)
-
-        lastOpenedGroupButton = button
-
-        button.classList.add("active-border")
-        setGroupButtonContentActiveStyles(button)
-
-        removeChildNodes(productsWrapper)
+        initialGroupButton.classList.add("active-border")
+        setGroupButtonContentActiveStyles(initialGroupButton)
         createProductItems(buttonGroup)
-    })
-})
+    }
 
-renderInitialGroup()
+    groupOpenButtons.forEach((button) => {
+        const buttonGroup = button.getAttribute('data-group')
+
+        button.addEventListener("click", event => {
+            lastOpenedGroupButton.classList.remove("active-border")
+            removeGroupButtonContentActiveStyles(lastOpenedGroupButton)
+
+            lastOpenedGroupButton = button
+
+            button.classList.add("active-border")
+            setGroupButtonContentActiveStyles(button)
+
+            removeChildNodes(productsWrapper)
+            createProductItems(buttonGroup)
+        })
+    })
+
+    renderInitialGroup()
+})

@@ -10,7 +10,7 @@ from reports.services.report_generation_services.generating_financials_by_barcod
     get_calculated_financials_by_barcodes
 from reports.services.report_generation_services.generating_report_db_data_services import get_report_db_inter_data, \
     get_sale_objects_by_barcode_by_weeks, get_products_count_by_period, get_total_revenue, \
-    get_calculated_financials_by_products
+    get_calculated_financials_by_products, get_penalties
 from reports.services.report_generation_services.generating_share_in_revenue_by_filter_service import \
     get_share_in_revenue
 from reports.services.report_generation_services.generating_sum_aggregation_objs_services import \
@@ -50,19 +50,7 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
     category_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'subject_name')
 
-    penalties = SaleObject.objects.filter(
-        filter_period_conditions,
-        owner=current_user,
-        api_key=current_api_key,
-        penalty__gt=0
-    ).values('bonus_type_name', 'realizationreport_id', 'week_num').annotate(
-        total_sum=Coalesce(
-            Sum('penalty'),
-            0,
-            output_field=FloatField()),
-        date_to=F('date_to'),
-        date_from=F('date_from'),
-    ).order_by('-date_from')
+    penalties = get_penalties(current_user, current_api_key, filter_period_conditions)
 
     return {
         **totals,

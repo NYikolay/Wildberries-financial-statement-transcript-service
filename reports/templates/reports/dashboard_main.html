@@ -9,8 +9,13 @@
 {% include 'reports/includes/graph_filters.html' %}
 <div class="dashboard-wrapper">
     <div class="indicators-container">
-        <div class="indicator-item" data-item-description="revenue" data-item-total='{{ report.revenue_total|floatformat:0|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+        <div
+                class="indicator-item"
+                data-is-active="true"
+                data-item-description="revenue"
+                data-item-total='{{ report.revenue_total|floatformat:0|floatformat:"-3g" }}'
+        >
+            <canvas width="110" height="45" data-chart-description="revenue" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.revenue_total|floatformat:0|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -25,7 +30,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="profit" data-item-total='{{ report.profit_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas id="indicatorChart" width="110" height="45" data-chart-description="profit" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.profit_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -40,7 +45,7 @@
             </div>
         </div>
         <div class="indicator-item " data-item-description="profitability" data-item-total='{{ report.profitability_total }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="profitability" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.profitability_total }}%</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -55,7 +60,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="marginality" data-item-total='{{ report.marginality_total }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="marginality" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.marginality_total }}%</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -70,7 +75,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="salesCount" data-item-total='{{ report.sales_amount_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="salesCount" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.sales_amount_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -85,7 +90,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="returnsCount" data-item-total='{{ report.returns_amount_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="returnsCount" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.returns_amount_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -100,7 +105,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="commission" data-item-total='{{ report.commission_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="commission" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.commission_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -115,7 +120,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="logistics" data-item-total='{{ report.logistics_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="logistics" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.logistics_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -130,7 +135,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="wbCosts" data-item-total='{{ report.wb_costs_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="wbCosts" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.wb_costs_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -145,7 +150,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="costsWithoutWb" data-item-total='{{ report.supplier_costs_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="costsWithoutWb" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.supplier_costs_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -160,7 +165,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="penalty" data-item-total='{{ report.penalty_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="penalty" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.penalty_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -175,7 +180,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="additionalPayment" data-item-total='{{ report.additional_payment_sum_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="additionalPayment" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.additional_payment_sum_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -190,7 +195,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="netCost" data-item-total='{{ report.net_costs_sum_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="netCost" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.net_costs_sum_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -205,7 +210,7 @@
             </div>
         </div>
         <div class="indicator-item" data-item-description="tax" data-item-total='{{ report.tax_total|floatformat:"-3g" }}'>
-            {% include 'reports/includes/inactive_indicator_item.html' %}
+            <canvas width="110" height="45" data-chart-description="tax" class="indicator-chart"></canvas>
             <div class="indicator__item-text__wrapper">
                 <h1 class="dark_h1">{{ report.tax_total|floatformat:"-3g" }}</h1>
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -255,7 +260,7 @@
         <div class="common__content-wrapper">
             <div class="penalties-header">
                 <h1>Список штрафов</h1>
-                <a class="download_link">
+                <a href="{% url 'reports:export_penalties' %}" class="download_link">
                     Скачать в xlsx
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C6.89264 0 7.21094 0.318298 7.21094 0.710938V7.70789L8.88744 6.00172C9.16263 5.72165 9.61276 5.71771 9.89281 5.99291C10.1729 6.2681 10.1768 6.71821 9.90163 6.99828L7.0684 9.88167C6.77171 10.1836 6.28577 10.1857 5.98646 9.88641L3.10276 7.00271C2.82512 6.72508 2.82512 6.27492 3.10276 5.99729C3.38039 5.71965 3.83054 5.71965 4.10818 5.99729L5.78906 7.67818V0.710938C5.78906 0.318298 6.10736 0 6.5 0ZM0.710938 8.63281C1.10358 8.63281 1.42188 8.95111 1.42188 9.34375V10.1055C1.42188 10.9188 2.08121 11.5781 2.89453 11.5781H10.1055C10.9188 11.5781 11.5781 10.9188 11.5781 10.1055V9.36914C11.5781 8.9765 11.8964 8.6582 12.2891 8.6582C12.6817 8.6582 13 8.9765 13 9.36914V10.1055C13 11.7041 11.7041 13 10.1055 13H2.89453C1.29593 13 0 11.7041 0 10.1055V9.34375C0 8.95111 0.318298 8.63281 0.710938 8.63281Z" fill="white"/>
@@ -291,6 +296,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="{% static 'reports/js/indicatorsBarChart.js' %}"></script>
 <script src="{% static 'reports/js/linearChart.js' %}"></script>
 <script src="{% static 'reports/js/pieCharts.js' %}"></script>
 <script src="{% static 'reports/js/filterByPeriod.js' %}"></script>

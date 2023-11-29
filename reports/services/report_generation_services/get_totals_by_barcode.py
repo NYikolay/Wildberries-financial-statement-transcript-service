@@ -33,11 +33,6 @@ def get_total_financials_by_barcode(sale_objects_by_weeks) -> dict:
     rom = calculate_rom(total_payable_sum, net_costs_sum)
 
     return {
-        'nm_id': sale_objects_by_weeks[0].get('nm_id'),
-        'barcode': sale_objects_by_weeks[0].get('barcode'),
-        'ts_name': sale_objects_by_weeks[0].get('ts_name'),
-        'image': sale_objects_by_weeks[0].get('image'),
-        'product_name': sale_objects_by_weeks[0].get('product_name'),
         'revenue_total': revenue,
         'sales_amount_total': sum(sales_amount_total),
         'returns_amount_total': sum(returns_amount_total),
