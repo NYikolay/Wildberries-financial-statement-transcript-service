@@ -13,7 +13,7 @@ environ.Env.read_env()
 SECRET_KEY = env("SECRET_KEY")
 SECRET_CODE = env("SECRET_CODE")
 SSE_NOTIFICATION_SECRET = env("SSE_NOTIFICATION_SECRET")
-ASGI_DJANGO_DOCKER_HOST = "http://web_asgi:9000"
+DJANGO_DOCKER_HOST = "http://web:8000"
 
 # Application definition
 
