@@ -10,7 +10,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 application = ProtocolTypeRouter({
     'http': URLRouter([
-        path('user/<user_id>/events/', AuthMiddlewareStack(
+        path('/events/user/<user_id>/', AuthMiddlewareStack(
             URLRouter(django_eventstream.routing.urlpatterns)
         ), {'format-channels': ['user-{user_id}']}),
 

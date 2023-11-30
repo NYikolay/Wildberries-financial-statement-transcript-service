@@ -121,6 +121,7 @@ txaio==23.1.1
 typing_extensions==4.5.0
 tzdata==2022.7
 urllib3==1.26.13
+uvicorn==0.24.0.post1
 vine==5.0.0
 wcwidth==0.2.5
 webencodings==0.5.1

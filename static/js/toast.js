@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (userId) {
-        let eventSource = new EventSource(`${window.location.origin}/user/${userId}/events/`)
+        let eventSource = new EventSource(`${window.location.origin}/events/user/${userId}/`)
 
         eventSource.onmessage = (event) => {
             const data = event.data

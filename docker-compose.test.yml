@@ -101,8 +101,20 @@ services:
     volumes:
       - static_volume:/commery_project/staticfiles
       - media_volume:/commery_project/media
+      - ./docker_nginx/certbot/conf:/etc/letsencrypt
+      - ./docker_nginx/certbot/www:/var/www/certbot
     ports:
-      - 80:80
+      - "80:80"
+      - "443:443"
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    depends_on:
+      - nginx
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./docker_nginx/certbot/conf:/etc/letsencrypt
+      - ./docker_nginx/certbot/www:/var/www/certbot
   grafana:
     image: grafana/grafana:8.5.2
     container_name: commery_grafana

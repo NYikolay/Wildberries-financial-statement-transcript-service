@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models import Q, UniqueConstraint
 from django.db import models
 from django.core import validators
+from django.utils.translation import gettext_lazy as _
 from payments.signals import result_received, fail_payment_signal
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -46,16 +47,14 @@ class User(ExportModelOperationsMixin('user'), AbstractBaseUser, PermissionsMixi
         default=UserRoles.client,
         verbose_name='Роль пользователя'
     )
+
+    is_staff = models.BooleanField(default=False, verbose_name=_('Is staff'))
     is_active = models.BooleanField('active', default=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['is_accepted_terms_of_offer']
-
-    @property
-    def is_staff(self):
-        return self.is_superuser
 
     @property
     def is_subscribed(self):
