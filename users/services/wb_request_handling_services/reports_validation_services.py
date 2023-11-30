@@ -92,11 +92,7 @@ def check_additional_conditions(row: pd.Series) -> bool:
         pd.isna(rid),
         pd.isna(sticker_id),
         pd.isna(site_country),
-<<<<<<< HEAD
-    ]
-=======
         ]
->>>>>>> new_design
 
     if all(additional_condition_1) or all(additional_condition_2) or all(additional_condition_3):
         return True
@@ -133,7 +129,7 @@ def get_incorrect_reports(data_frame: pd.DataFrame) -> pd.DataFrame:
         'date_from', 'realizationreport_id', 'date_to', 'create_dt', 'gi_id', 'subject_name',
         'nm_id', 'brand_name', 'ts_name', 'barcode', 'doc_type_name', 'order_dt', 'sale_dt', 'quantity',
         'retail_price', 'retail_price_withdisc_rub', 'ppvz_for_pay', 'penalty', 'additional_payment',
-        'site_country', 'delivery_rub', 'rid', 'supplier_oper_name', 'retail_amount'
+        'site_country', 'srid', 'delivery_rub', 'rid', 'supplier_oper_name', 'retail_amount'
     ]
 
     incorrect_report_ids: Set[int] = set()

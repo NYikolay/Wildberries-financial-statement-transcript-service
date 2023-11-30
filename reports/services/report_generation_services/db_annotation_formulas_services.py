@@ -115,11 +115,7 @@ def get_commission_formula_annotation_obj():
                     F('commission_overstatement_of_logistics_costs')
             ) +
             (
-<<<<<<< HEAD
-                F('compensation_for_subs_goods_sum') - F('commission_compensation_for_subs_goods')
-=======
                     F('compensation_for_subs_goods_sum') - F('commission_compensation_for_subs_goods')
->>>>>>> new_design
             ),
             output_field=FloatField()),
         Value(0.0),
