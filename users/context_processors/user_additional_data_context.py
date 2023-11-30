@@ -5,7 +5,8 @@ from django.urls import reverse
 
 def user_additional_data(request):
     data = {}
-    current_url = request.resolver_match.view_name
+
+    current_url = request.resolver_match.view_name if request.resolver_match else ''
     dashboard_urls = [
         "reports:dashboard_main",
         "reports:dashboard_by_barcode",
@@ -63,7 +64,7 @@ def user_additional_data(request):
 
 
 def current_path(request):
-    current_url = request.resolver_match.view_name
+    current_url = request.resolver_match.view_name if request.resolver_match else ''
 
     profile_urls = [
         "users:change_password",

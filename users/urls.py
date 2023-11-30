@@ -18,7 +18,7 @@ app_name = 'users'
 
 urlpatterns = [
     path('terms-of-offer/', TermsOfferView.as_view(), name="terms_offer"),
-    path('user/<user_id>/events/', include(django_eventstream.urls), {
+    path('events/user/<user_id>/', include(django_eventstream.urls), {
         'format-channels': ['user-{user_id}']
     }),
     path('notify/user/', NotifySseUserView.as_view(), name='notify_user'),
