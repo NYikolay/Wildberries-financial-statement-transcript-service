@@ -23,30 +23,32 @@
                 Все
             </label>
         </div>
-        {% for filter_period in filters_data.filter_period_queryset %}
-        <div>
-            <input
-                    type="checkbox"
-                    {% if current_filter_data %}
-                    {% for filter_dict in current_filter_data %}
-                    {% if filter_period.year == filter_dict.year and filter_period.week_num in filter_dict.week_nums %}
-                    checked
-                    {% endif %}
-                    {% endfor %}
-                    {% else %}
-                    checked
-                    {% endif %}
-                    id="filter-checkbox-{{ filter_period.year }}-{{ filter_period.week_num}}"
-                    name="filter_checkbox"
-                    class="custom__checkbox-input"
-                    data-filter-type="period"
-                    data-filter-week="{{ filter_period.week_num }}"
-                    data-filter-year="{{ filter_period.year }}">
-            <label for="filter-checkbox-{{ filter_period.year }}-{{ filter_period.week_num}}" class="custom-checkbox">
-                {{ filter_period.week_num }} неделя ({{ filter_period.date_from|date:'d.m.Y'}}-{{filter_period.date_to|date:'d.m.Y'}})
-            </label>
+        <div class="filter__checkbox-wrapper">
+            {% for filter_period in filters_data.filter_period_queryset %}
+            <div>
+                <input
+                        type="checkbox"
+                        {% if current_filter_data %}
+                        {% for filter_dict in current_filter_data %}
+                        {% if filter_period.year == filter_dict.year and filter_period.week_num in filter_dict.week_nums %}
+                        checked
+                        {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        checked
+                        {% endif %}
+                        id="filter-checkbox-{{ filter_period.year }}-{{ filter_period.week_num}}"
+                        name="filter_checkbox"
+                        class="custom__checkbox-input"
+                        data-filter-type="period"
+                        data-filter-week="{{ filter_period.week_num }}"
+                        data-filter-year="{{ filter_period.year }}">
+                <label for="filter-checkbox-{{ filter_period.year }}-{{ filter_period.week_num}}" class="custom-checkbox">
+                    {{ filter_period.week_num }} неделя ({{ filter_period.date_from|date:'d.m.Y'}}-{{filter_period.date_to|date:'d.m.Y'}})
+                </label>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
         <div class="common__buttons-container">
             <button type="button" id="apply-filters" class="accent-button">Применить</button>
             <button type="button" class="common__cancel-button" id="close-filters">

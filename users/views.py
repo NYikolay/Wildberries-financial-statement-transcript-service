@@ -69,7 +69,7 @@ class NotifySseUserView(View):
             user_id = data['user_id']
             status = data['status']
             message = data['message']
-
+            time.sleep(1)
             send_event(
                 f'user-{user_id}',
                 'message',

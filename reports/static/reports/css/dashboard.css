@@ -40,6 +40,14 @@
     background-color: var(--var-bg-modal-color);
 }
 
+.filter__checkbox-wrapper {
+    overflow-y: auto;
+    display: flex;
+    max-height: 400px;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .download_link {
     display: flex;
     color: var(--var-text-active-color) !important;
@@ -93,15 +101,15 @@
 }
 
 #chart {
-  width: 100px;
-  height: 45px;
-  background-color: #f2f2f2;
-  padding: 10px;
+    width: 100px;
+    height: 45px;
+    background-color: #f2f2f2;
+    padding: 10px;
 }
 
 .bar {
-  background-color: #007bff;
-  margin-bottom: 10px;
-  color: black;
-  padding: 5px;
+    background-color: #007bff;
+    margin-bottom: 10px;
+    color: black;
+    padding: 5px;
 }
