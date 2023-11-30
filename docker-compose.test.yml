@@ -60,7 +60,7 @@ services:
     restart: always
     container_name: commery_django_asgi
     command: >
-      bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && uvicorn config.asgi:application --port 9000"
+      bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && uvicorn config.asgi:application --host 0.0.0.0:8000 --port 9000"
     volumes:
       - static_volume:/commery_project/staticfiles
       - media_volume:/commery_project/media
