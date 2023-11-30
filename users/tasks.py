@@ -7,7 +7,7 @@ from django.core.mail import EmailMessage
 
 from celery import shared_task, Task
 
-from config.settings.base import EMAIL_HOST_USER, SSE_NOTIFICATION_SECRET, DJANGO_DOCKER_HOST
+from config.settings.base import EMAIL_HOST_USER, SSE_NOTIFICATION_SECRET, ASGI_DJANGO_DOCKER_HOST
 
 from users.models import WBApiKey, User
 from users.services.generate_last_report_date_service import get_last_report_date
@@ -57,7 +57,7 @@ def execute_wildberries_reports_loading(self, current_key_id, current_user_id):
         current_api_key.save()
 
         requests.post(
-            f'{DJANGO_DOCKER_HOST}/notify/user/',
+            f'{ASGI_DJANGO_DOCKER_HOST}/notify/user/',
             data={
                 "secret": SSE_NOTIFICATION_SECRET,
                 "user_id": current_user.id,
@@ -75,7 +75,7 @@ def execute_wildberries_reports_loading(self, current_key_id, current_user_id):
         current_api_key.save()
 
         requests.post(
-            f'{DJANGO_DOCKER_HOST}/notify/user/',
+            f'{ASGI_DJANGO_DOCKER_HOST}/notify/user/',
             data={
                 "secret": SSE_NOTIFICATION_SECRET,
                 "user_id": current_user.id,
@@ -90,7 +90,7 @@ def execute_wildberries_reports_loading(self, current_key_id, current_user_id):
     current_api_key.save()
 
     requests.post(
-        f'{DJANGO_DOCKER_HOST}/notify/user/',
+        f'{ASGI_DJANGO_DOCKER_HOST}/notify/user/',
         data={
             "secret": SSE_NOTIFICATION_SECRET,
             "user_id": current_user.id,
