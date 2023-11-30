@@ -29,41 +29,45 @@
     <!-- /Yandex.Metrika counter -->
 
     <!-- Styles -->
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/messages.css' %}">
     {% block styles %}
     {% endblock %}
 </head>
 
 <body>
-<div class="wrapper">
-    <header class="header">
-        {% include 'includes/header.html'%}
-    </header>
-    <div class="subheader">
-        {% include 'includes/subheader.html' %}
+<div class="container">
+    <!-- Sidebar Section -->
+    {% include "includes/aside.html" %}
+    <!-- End of Sidebar Section -->
+
+    {% include 'includes/headers/headers_container.html' %}
+
+    <!-- Main Content -->
+    <main {% if is_dashboard_url %}style="padding-top: 84px;"{% endif %}>
+        {% block content %}{% endblock %}
+    </main>
+
+    <div
+            id="toast-data-wrapper"
+            dashboard-url="{% url 'reports:reports_list' %}"
+            reports-url="{% url 'reports:reports_list' %}"
+            incorrect-reports-exists="{{ is_incorrect_reports }}"
+            {% if request.user.is_authenticated %}data-user-id="{{ request.user.id }}"{% endif %}>
+        {% include 'includes/messages.html' %}
     </div>
-    <section class="main">
-        {% block content %}
-        {% endblock %}
-    </section>
-    <footer class="footer">
-        {% include 'includes/footer.html' %}
-    </footer>
+
+    {% include 'includes/current_api_key_modal.html' %}
+
 </div>
 
-<div class="messages-wrapper">
-    {% include 'includes/messages.html' %}
-</div>
-
-{% url 'reports:dashboard' as url %}
-{% if request.path == url %}
-<div class="barcode__detail-wrapper">
-    {% include 'includes/barcode_detail.html' %}
-</div>
-<script src="{% static 'reports/js/barcode_detail.js' %}"></script>
+<script src="{% static 'js/toast.js' %}"></script>
+{% if request.user.is_authenticated and current_api_key %}
+<script src="{% static 'js/changeApiKey.js' %}"></script>
 {% endif %}
-
-<script src="{% static 'js/messages.js' %}"></script>
 </body>
 </html>

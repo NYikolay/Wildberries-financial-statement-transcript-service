@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Подписка - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'users/css/subscriptions.css' %}">
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+{% endblock %}
+{% block content %}
+<div class="subscriptions-container">
+    {% if current_subscription %}
+    <div class="subscription_item-first">
+        <div class="common__content-wrapper active-border">
+            <div class="common__content-container">
+                <h1>Текущая</h1>
+                <div class="subscription-description">
+                    <ul class="subscription__description-list">
+                        <li><p class="text__accent-bold">Тариф: {% if current_subscription.type == 'Test' %} Пробный {% else %} {{ current_subscription.duration }} {{ current_subscription.duration_desc }} {% endif %}</p></li>
+                        <li><p class="text__accent-bold">Стоимость: {{ current_subscription.cost|floatformat:"-3g" }} руб. ({{ current_subscription.cost_for_week|floatformat:"-3g" }} руб./неделя)</p></li>
+                        <li><p class="text__accent-bold">Скидка: {% if current_subscription.type == 'Test' %} 100% {% else %} {{ current_subscription.build_in_discount|floatformat:"0" }}% {% endif %}</p></li>
+                        <li><p class="text__accent-bold">Описание: полный функционал сервиса</p></li>
+                    </ul>
+                    <div class="subscription__description_duration">
+                        <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect class="success__dot-icon" width="7" height="7" rx="3.5"/>
+                        </svg>
+                        <p class="text__accent-bold">Действует до {{ current_subscription.subscribed_to|date:"d.m.Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="subscription_item">
+        <div class="common__content-wrapper active-border">
+            <div class="common__content-container">
+                <h1>Текущая</h1>
+                <div class="subscription-description">
+                    <div class="subscription__description_duration">
+                        <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect class="error__dot-icon" width="7" height="7" rx="3.5"/>
+                        </svg>
+                        <p class="text__accent-bold">Закончилась</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% for subscription in subscriptions %}
+    <div class="subscription_item {% if subscription.duration == 3 %} gradient-border {% else %} primary-border {% endif %}">
+        <h1>{{ subscription.duration }} {{ subscription.duration_desc }}</h1>
+        <div class="subscription-description">
+            <ul class="subscription__description-list">
+                <li>Стоимость: {{ subscription.cost|floatformat:"-3g" }} руб. ({{ subscription.cost_for_week|floatformat:"-3g" }} руб./неделя)</li>
+                <li>Скидка: {{ subscription.build_in_discount|floatformat:"0" }}%</li>
+                <li>Описание: полный функционал сервиса</li>
+            </ul>
+            <form action="{% url 'payments:generate_robokassa_redirection' %}" method="post">
+                {% csrf_token %}
+                {{ subscription.form.as_p }}
+                <button class="accent-button" type="submit">Купить</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script src="{% static 'js/handleInputsValidation.js' %}"></script>
+{% endblock %}

@@ -28,12 +28,10 @@ class SaleReportForm(forms.ModelForm):
 
 
 class LoadReportAdditionalDataFrom(forms.Form):
-    report_data_file = forms.FileField(label='')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for visible in self.visible_fields():
-            visible.field.widget.attrs['class'] = 'file-load_input'
+    report_data_file = forms.FileField(
+        label='',
+        widget=forms.FileInput(attrs={'class': 'expenses__load-input', 'id': 'file-input'})
+    )
 
     def clean_report_data_file(self):
         if self.cleaned_data['report_data_file'].name.lower().split('.')[-1] != 'xlsx':

@@ -1,34 +1,13 @@
-<!doctype html>
+{% extends 'base.html' %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="{% static 'images/logo_commery4.png' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
-    <link rel="stylesheet" href="{% static 'css/error_page.css' %}">
-    <title>Commery</title>
-</head>
-<body>
-<div class="error_page-wrapper">
-    <div class="container">
-        <header class="error_page-header">
-            <a href="{% url 'reports:dashboard' %}"><img src="{% static 'images/logo_text.png' %}" alt=""></a>
-        </header>
-        <main class="error_page-main">
-            <div class="error_body">
-                <h1>Во время обработки запроса произошла ошибка.</h1>
-                <p>Вернитесь назад, а мы начнём решать возникшую задачу.</p>
-                <a href="javascript:history.back()">Назад</a>
-            </div>
-            <div class="error_page-img">
-                <img src="{% static 'images/500.jpg' %}" alt="" class="nlo_img">
-            </div>
-        </main>
-    </div>
+{% block title %}Договор-оферта Commery{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+<div>
+    <h1>Ошибка сервера</h1>
+    <p class="text__accent" style="margin-top: 11px;">На сервере произошла непредвиденная ошибка. Пожалуйста, подождите, она вскоре будет исправлена</p>
 </div>
-</body>
-</html>
+{% endblock %}

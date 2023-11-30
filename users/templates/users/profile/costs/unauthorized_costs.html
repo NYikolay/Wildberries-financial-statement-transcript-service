@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Мои расходы - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'users/css/costs.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="costs-wrapper">
+    <div class="common__content-wrapper costs-block">
+        <h1>Расходы поставщика вне WILDBERRIES</h1>
+        <div class="costs-head">
+            <div style="display: flex; align-items: center">
+                <p class="text__common-bold">Неделя</p>
+                <p class="text__common-bold">Даты</p>
+            </div>
+            <p class="text__common-bold">Расходы</p>
+        </div>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для внесения расходов нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+    </div>
+    <div style="flex-grow: 1;">
+        <p class="text__accent">
+            Сумма указанных расходов будет учтена при расчете прибыли от продаж (расходы не должны быть уже учтены в себестоимости)
+        </p>
+    </div>
+</div>
+
+{% endblock %}

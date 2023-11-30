@@ -1,4 +1,5 @@
 import datetime
+import json
 from collections import defaultdict
 from typing import Union, List
 
@@ -8,8 +9,6 @@ from reports.services.report_generation_services.generate_period_filters_service
     generate_period_filter_conditions
 from reports.services.report_generation_services.generating_report_db_data_services import \
     get_calculated_financials_by_products, get_barcodes_revenues_by_weeks
-from reports.services.report_generation_services.generating_sum_aggregation_objs_services import \
-    get_financials_annotation_objects
 
 import pandas as pd
 import numpy as np
@@ -56,7 +55,7 @@ def get_abc_group(row) -> str:
 
 def remove_zeros(group):
     nonzero_indices = lambda arr: np.where(arr)[0]
-    revenues = group['revenue_by_article'].to_numpy()
+    revenues = group['revenue'].to_numpy()
     indices = nonzero_indices(revenues)
     return group.iloc[indices[0]:indices[-1]+1] if len(indices) > 0 else pd.DataFrame(columns=group.columns)
 
@@ -92,23 +91,23 @@ def generate_abc_report_values(calculated_financials_by_products: QuerySet) -> d
         get_abc_group, axis=1)
 
     source_abc_df = pd.DataFrame(
-        [{'group_abc': 'A', 'revenue_by_article': 0, 'share_in_number': 0},
-         {'group_abc': 'B', 'revenue_by_article': 0, 'share_in_number': 0},
-         {'group_abc': 'C', 'revenue_by_article': 0, 'share_in_number': 0}]
+        [{'group_abc': 'A', 'revenue': 0, 'share_in_number': 0},
+         {'group_abc': 'B', 'revenue': 0, 'share_in_number': 0},
+         {'group_abc': 'C', 'revenue': 0, 'share_in_number': 0}]
     )
     # Aggregates data from DataFrame calculated_values_by_products with grouping by group_abc column and
-    # creates a new DataFrame total_abc_df containing group_abc, revenue_by_article, share_in_number
+    # creates a new DataFrame total_abc_df containing group_abc, revenue, share_in_number
     calculated_abc_df: pd.DataFrame = calculated_values_by_products.groupby('group_abc').agg({
-        'revenue_by_article': 'sum',
+        'revenue': 'sum',
         'share_in_number': 'sum'
-    }).reset_index()[['group_abc', 'revenue_by_article', 'share_in_number']]
+    }).reset_index()[['group_abc', 'revenue', 'share_in_number']]
 
     total_abc_df = pd.merge(source_abc_df, calculated_abc_df, on='group_abc', how='outer')
-    total_abc_df.drop(['revenue_by_article_x', 'share_in_number_x'], axis=1, inplace=True)
+    total_abc_df.drop(['revenue_x', 'share_in_number_x'], axis=1, inplace=True)
     total_abc_df.fillna(0, inplace=True)
     total_abc_df.rename(
-        columns={'revenue_by_article_y': 'revenue_by_article', 'share_in_number_y': 'share_in_number'}, inplace=True)
-    total_abc_df['revenue_by_article'] = total_abc_df['revenue_by_article'].round().astype(int)
+        columns={'revenue_y': 'revenue', 'share_in_number_y': 'share_in_number'}, inplace=True)
+    total_abc_df['revenue'] = total_abc_df['revenue'].round().astype(int)
     total_abc_df['share_in_number'] = total_abc_df['share_in_number'].round().astype(int)
 
     current_barcodes: List[int] = calculated_values_by_products.barcode.unique().tolist()
@@ -171,8 +170,8 @@ def generate_xyz_report_values(
     validated_revenues_by_weeks: pd.DataFrame = pd.concat(
         [remove_zeros(group) for _, group in groups], ignore_index=True)
 
-    # The following 3 lines calculate the mean and standard deviation of the revenue_by_article column
-    mean_std_df = validated_revenues_by_weeks.groupby('barcode').agg({'revenue_by_article': ['mean', 'std']})
+    # The following 3 lines calculate the mean and standard deviation of the revenue column
+    mean_std_df = validated_revenues_by_weeks.groupby('barcode').agg({'revenue': ['mean', 'std']})
     mean_std_df.columns = ['mean_revenue', 'std_revenue']
     mean_std_df = mean_std_df.reset_index()
 
@@ -217,7 +216,7 @@ def make_abc_xyz_data_set(calculated_abc_values_by_products: pd.DataFrame, xyz_r
 
     final_abc_xyz_df = pd.DataFrame()
     final_abc_xyz_df['values'] = merged_abc_xyz_df.groupby('final_group').agg(
-        {'revenue_by_article': 'sum'}
+        {'revenue': 'sum'}
     ).round().astype(int)
 
     return {
@@ -233,7 +232,9 @@ def get_calculated_financials_by_barcodes(
         sum_aggregation_objs_dict,
         net_costs_sum_aggregations_objs,
         total_revenue: float,
-        total_products_count: int
+        total_products_count: int,
+        financials_annotations_objs,
+        convert_products_data_to_json: bool
 ) -> dict:
     """
     The function returns the calculated financials by barcodes. Calls the functions required for the calculations.
@@ -251,31 +252,37 @@ def get_calculated_financials_by_barcodes(
     reports.services.report_generation_services.get_total_financials_service.get_total_financials()
     :param total_products_count: Number of items received from SaleObject() model objects as a result of
     reports.services.report_generation_services.generating_report_db_data_service.get_report_db_inter_data
+    :param financials_annotations_objs:
+    :param convert_products_data_to_json:
     :return: Dictionary containing the calculated values of ABC XYZ analysis
     """
-
-    annotations_objs: dict = get_financials_annotation_objects()
 
     calculated_financials_by_products: Union[QuerySet, List[dict]] = get_calculated_financials_by_products(
         current_user, current_api_key, filter_period_conditions,
         sum_aggregation_objs_dict, net_costs_sum_aggregations_objs,
-        total_revenue, total_products_count, annotations_objs
+        total_revenue, total_products_count, financials_annotations_objs
     )
 
     abc_report: dict = generate_abc_report_values(calculated_financials_by_products)
 
     xyz_report: pd.DataFrame = generate_xyz_report_values(
-        current_user, current_api_key, sum_aggregation_objs_dict, abc_report.get('current_barcodes'), annotations_objs
+        current_user, current_api_key, sum_aggregation_objs_dict,
+        abc_report.get('current_barcodes'), financials_annotations_objs
     )
 
     abc_xyz_report: dict = make_abc_xyz_data_set(abc_report.get('calculated_abc_values_by_products'), xyz_report)
 
     final_products_values: pd.DataFrame = abc_report.get('calculated_abc_values_by_products').merge(
         abc_xyz_report.get('merged_abc_xyz_df'), how='left'
-    ).replace(np.nan, None).sort_values('revenue_by_article', ascending=False)
+    ).replace(np.nan, None).sort_values('revenue', ascending=False)
+
+    if convert_products_data_to_json:
+        products_values = json.dumps(final_products_values.to_dict('records'), ensure_ascii=False)
+    else:
+        products_values = final_products_values.to_dict('records')
 
     return {
-        "products_calculated_values": final_products_values.to_dict('records'),
+        "products_calculated_values": products_values,
         "abc_xyz_report": abc_xyz_report.get('final_abc_xyz_df'),
         "abc_report": abc_report.get('total_abc')
     }

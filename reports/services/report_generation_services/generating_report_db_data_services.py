@@ -62,7 +62,7 @@ def get_calculated_financials_by_products(
         **net_costs_sum_aggregations_objs,
         image=Min('product__image'),
         product_name=Min('product__product_name'),
-        logistic_sum=(
+        logistics=(
                 Coalesce(Sum(
                     'delivery_rub',
                     filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
@@ -70,18 +70,67 @@ def get_calculated_financials_by_products(
                     'delivery_rub',
                     filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
         ),
-        penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
+        penalty=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
         additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField()),
         total_revenue=Value(total_revenue, output_field=FloatField()),
         total_products_count=Value(total_products_count, output_field=FloatField()),
         **annotations_objs,
     ).values('nm_id', 'barcode', 'ts_name', 'image', 'product_name',
-             'revenue_by_article', 'share_in_revenue',
+             'revenue', 'share_in_revenue',
              'product_marginality', 'share_in_number',
-             'sales_quantity', 'returns_quantity', 'commission', 'penalty_sum',
-             'additional_payment_sum', 'logistic_sum', 'total_payable', 'rom', 'net_costs_sum')
+             'sales_amount', 'returns_amount', 'commission', 'penalty',
+             'additional_payment_sum', 'logistics', 'total_payable', 'rom', 'net_costs_sum')
 
     return calculated_financials
+
+
+def get_sale_objects_by_barcode_by_weeks(
+        barcode,
+        current_user,
+        current_api_key,
+        filter_period_conditions,
+        sum_aggregation_objs_dict,
+        net_costs_sum_aggregations_objs,
+        annotations_objs,
+):
+    sale_objects_by_barcode_by_weeks = SaleObject.objects.filter(
+        ~Q(nm_id=99866376),
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+        barcode=barcode,
+    ).annotate(
+        net_cost=Subquery(
+            NetCost.objects.filter(
+                product=OuterRef('product'),
+                cost_date__lte=OuterRef('order_dt')
+            ).order_by('-cost_date').values('amount')[:1]
+        ),
+    ).order_by('date_from').values('year', 'week_num').annotate(
+        **sum_aggregation_objs_dict,
+        **net_costs_sum_aggregations_objs,
+        image=Min('product__image'),
+        product_name=Min('product__product_name'),
+        logistics=(
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
+                Coalesce(Sum(
+                    'delivery_rub',
+                    filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
+        ),
+        penalty=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
+        additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField()),
+        **annotations_objs,
+    ).values(
+        'nm_id', 'barcode', 'ts_name', 'image', 'product_name',
+        'revenue', 'marginality',
+        'sales_amount', 'returns_amount', 'commission',
+        'penalty', 'additional_payment_sum', 'logistics',
+        'total_payable', 'rom', 'net_costs_sum', 'week_num', 'year'
+    )
+
+    return sale_objects_by_barcode_by_weeks
 
 
 def get_total_revenue(
@@ -133,51 +182,10 @@ def get_barcodes_revenues_by_weeks(
         barcode__in=current_barcodes,
     ).order_by('week_num').values('week_num', 'year').annotate(
         **sum_aggregation_objs_dict,
-        revenue_by_article=annotations_objs.get('revenue_by_article')
-    ).order_by('-barcode').values('barcode', 'nm_id', 'year', 'week_num', 'revenue_by_article')
+        revenue=annotations_objs.get('revenue')
+    ).order_by('-barcode').values('barcode', 'nm_id', 'year', 'week_num', 'revenue')
 
     return revenues_queryset
-
-
-def get_sale_objects_by_barcode_by_weeks(
-        current_user,
-        current_api_key,
-        filter_period_conditions,
-        sum_aggregation_objs_dict,
-        net_costs_sum_aggregations_objs,
-        barcode,
-        nm_id
-):
-    sale_objects_by_barcode_by_weeks = SaleObject.objects.filter(
-        filter_period_conditions,
-        owner=current_user,
-        api_key=current_api_key,
-        barcode=barcode,
-        nm_id=nm_id
-    ).annotate(
-        net_cost=Subquery(
-            NetCost.objects.filter(
-                product=OuterRef('product'),
-                cost_date__lte=OuterRef('order_dt')
-            ).order_by('-cost_date').values('amount')[:1]
-        ),
-    ).order_by('date_from').values('year', 'week_num').annotate(
-        **sum_aggregation_objs_dict,
-        **net_costs_sum_aggregations_objs,
-        date_to=Max(F('date_to')),
-        date_from=Min(F('date_from')),
-        logistic_sum=(
-                Coalesce(Sum(
-                    'delivery_rub',
-                    filter=~Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField()) -
-                Coalesce(Sum(
-                    'delivery_rub',
-                    filter=Q(supplier_oper_name__icontains='Логистика сторно')), 0, output_field=FloatField())
-        ),
-        penalty_sum=Coalesce(Sum('penalty'), 0, output_field=FloatField()),
-        additional_payment_sum=Coalesce(Sum('additional_payment'), 0, output_field=FloatField())
-    )
-    return sale_objects_by_barcode_by_weeks
 
 
 def get_sale_objects_by_weeks(
@@ -312,6 +320,24 @@ def get_wb_costs_sum(current_user, current_api_key, filter_period_conditions):
     return wb_costs_sum
 
 
+def get_penalties(current_user, current_api_key, filter_period_conditions):
+    penalties = SaleObject.objects.filter(
+        filter_period_conditions,
+        owner=current_user,
+        api_key=current_api_key,
+        penalty__gt=0
+    ).values('bonus_type_name', 'realizationreport_id', 'week_num').annotate(
+        total_sum=Coalesce(
+            Sum('penalty'),
+            0,
+            output_field=FloatField()),
+        date_to=F('date_to'),
+        date_from=F('date_from'),
+    ).order_by('-date_from')
+
+    return penalties
+
+
 def get_report_db_inter_data(
         current_user,
         current_api_key,
@@ -361,18 +387,9 @@ def get_report_db_inter_data(
         filter_period_conditions
     )
 
-    empty_user_data_statuses_dict = get_empty_db_values(
-        current_user,
-        current_api_key,
-        filter_period_conditions
-    )
-
     return {
         'sale_objects_by_weeks': sale_objects_by_weeks,
         'supplier_costs_sum_list': supplier_costs_sum_list,
         'wb_costs_sum_list': wb_costs_sum_list,
-        'is_empty_reports_values': empty_user_data_statuses_dict.get('is_empty_reports_values'),
-        'is_empty_netcosts_values': empty_user_data_statuses_dict.get('is_empty_netcosts_values'),
-        'is_exists_tax_values': empty_user_data_statuses_dict.get('is_exists_tax_values'),
         'products_count_by_period': products_count_by_period,
     }

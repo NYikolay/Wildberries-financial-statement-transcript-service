@@ -92,7 +92,11 @@ def check_additional_conditions(row: pd.Series) -> bool:
         pd.isna(rid),
         pd.isna(sticker_id),
         pd.isna(site_country),
+<<<<<<< HEAD
     ]
+=======
+        ]
+>>>>>>> new_design
 
     if all(additional_condition_1) or all(additional_condition_2) or all(additional_condition_3):
         return True
@@ -140,8 +144,8 @@ def get_incorrect_reports(data_frame: pd.DataFrame) -> pd.DataFrame:
             if row.realizationreport_id not in incorrect_report_ids:
                 if not check_additional_conditions(row):
                     incorrect_report_ids.add(row.realizationreport_id)
-                    result_list.append((row.realizationreport_id, row.date_from, row.date_to))
+                    result_list.append((row.realizationreport_id, row.date_from, row.date_to, row.create_dt))
 
-    result_df = pd.DataFrame(result_list, columns=['realizationreport_id', 'date_from', 'date_to'])
+    result_df = pd.DataFrame(result_list, columns=['realizationreport_id', 'date_from', 'date_to', 'create_dt'])
 
     return result_df

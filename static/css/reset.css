@@ -3,7 +3,51 @@
     padding: 0;
     margin: 0;
     border: none;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Open Sans', sans-serif;
+}
+
+@-webkit-keyframes autofill {
+    0%,100% {
+        color: #666;
+        background: transparent;
+    }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input:autofill {
+  background: transparent;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+    transition: background-color 600000s 0s, color 600000s 0s;
+}
+input[data-autocompleted] {
+    background-color: transparent !important;
 }
 
 ::-webkit-scrollbar {
@@ -79,8 +123,7 @@ button,
 input[type="submit"] {
     display: inline-block;
     box-shadow: none;
-    background-color: transparent;
-    background: none;
+    background: transparent none;
     cursor: pointer;
 }
 
@@ -103,14 +146,4 @@ label {
 legend {
     display: block;
 }
-
-html {
-    height: 100%;
-}
-
-body {
-    background-color: #e2e8f0;
-    height: 100%;
-}
-
 /* RESET END */

@@ -19,13 +19,13 @@ admin.site.register(Promocode)
 class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'date_joined')
     search_fields = ['email']
-    list_display = ('email', 'date_joined', 'phone')
+    list_display = ('email', 'date_joined', 'phone', 'is_subscribed', 'is_active')
 
 
 @admin.register(SaleObject)
 class SaleObjectAdmin(admin.ModelAdmin):
     list_display = ('id', '__str__')
-    search_fields = ('nm_id', 'id', 'barcode', 'supplier_oper_name')
+    search_fields = ('nm_id', 'barcode', 'realizationreport_id', 'owner__email')
 
 
 @admin.register(Order)
@@ -74,7 +74,7 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'subscription_type', 'subscribed_from', 'subscribed_to', 'is_active')
 
     def is_active(self, obj):
-        result = True if obj.subscribed_to >= datetime.now() else False
+        result = 'Активна' if obj.subscribed_to >= datetime.now() else 'Не активна'
         return result
 
     is_active.short_description = "Активна ли подписка"

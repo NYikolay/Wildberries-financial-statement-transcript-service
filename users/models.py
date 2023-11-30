@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models import Q, UniqueConstraint
 from django.db import models
 from django.core import validators
+from django.utils.translation import gettext_lazy as _
 from payments.signals import result_received, fail_payment_signal
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -16,7 +17,7 @@ from users.managers import UserManager
 from postgres_copy import CopyManager
 from django_prometheus.models import ExportModelOperationsMixin
 
-cyrillic_exclusion = RegexValidator(r'^[^а-яА-Я]*$', 'Символы кириллицы в API ключе недопустимы')
+cyrillic_exclusion = RegexValidator(r'^[^а-яА-Я]*$', 'Символы кириллицы в API-ключе недопустимы')
 
 
 class UserRoles(models.TextChoices):
@@ -46,16 +47,14 @@ class User(ExportModelOperationsMixin('user'), AbstractBaseUser, PermissionsMixi
         default=UserRoles.client,
         verbose_name='Роль пользователя'
     )
+
+    is_staff = models.BooleanField(default=False, verbose_name=_('Is staff'))
     is_active = models.BooleanField('active', default=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['is_accepted_terms_of_offer']
-
-    @property
-    def is_staff(self):
-        return self.is_superuser
 
     @property
     def is_subscribed(self):
@@ -70,14 +69,16 @@ class User(ExportModelOperationsMixin('user'), AbstractBaseUser, PermissionsMixi
 
 
 class Promocode(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="promocodes", verbose_name='Владелец')
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="promocodes", verbose_name='Владелец', null=True, blank=True
+    )
     value = models.CharField(max_length=65, unique=True, verbose_name="Значение промокода")
     discount_percent = models.DecimalField(max_digits=4, decimal_places=2, default=0, verbose_name='Процент скидки')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания промокода')
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Промокод пользователя - {self.owner.email}"
+        return f"Промокод - {self.value}, пользователя - {self.owner.email}"
 
     class Meta:
         verbose_name = 'Промокод'
@@ -258,8 +259,6 @@ class NetCost(ExportModelOperationsMixin('net_cost'), models.Model):
     amount = models.DecimalField(
         max_digits=13,
         decimal_places=2,
-        blank=True,
-        null=True,
         verbose_name='Значение себестоимости'
     )
     cost_date = models.DateField()
@@ -412,7 +411,7 @@ class SaleReport(ExportModelOperationsMixin('sale_report'), models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        verbose_name='Расходы поставщка'
+        verbose_name='Расходы поставщика'
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания в базе данных')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления в базе данных')
@@ -441,6 +440,8 @@ class IncorrectReport(models.Model):
         verbose_name='Владелец отчёта'
     )
     realizationreport_id = models.BigIntegerField('Номер отчёта')
+    create_dt = models.DateTimeField('Дата формирования отчёта', null=True, blank=True)
+    week_num = models.IntegerField('Номер недели', null=True, blank=True)
     date_from = models.DateTimeField('Дата начала отчетного периода')
     date_to = models.DateTimeField('Дата конца отчетного периода')
 

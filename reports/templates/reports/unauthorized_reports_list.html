@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Список отчётов - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'reports/css/reports.css' %}">
+{% endblock %}
+{% block content %}
+<div class="reports-wrapper">
+    <div class="reports__content-container__medium">
+        <h1>Список отчетов</h1>
+        <table class="reports-table">
+            <thead>
+            <tr class="tr-header">
+                <th scope="col">Неделя</th>
+                <th scope="col">Даты</th>
+                <th scope="col">Дата формирования</th>
+                <th scope="col">№ отчета</th>
+                <th scope="col">Статус</th>
+            </tr>
+            </thead>
+        </table>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для загрузки нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+    </div>
+    <div class="reports__content-container">
+        <h1>Расходы на стороне WILDBERRIES</h1>
+        <table class="reports-table" style="width: 128px;">
+            <thead>
+            <tr class="tr-header">
+                <th scope="col" style="height: 50px">Статус</th>
+            </tr>
+            </thead>
+        </table>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для загрузки нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+    </div>
+</div>
+
+{% endblock %}

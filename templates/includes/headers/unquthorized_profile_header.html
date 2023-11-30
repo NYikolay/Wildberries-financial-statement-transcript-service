@@ -1,0 +1,27 @@
+{% load static %}
+<header>
+    <ul class="header-nav">
+        {% url 'users:login' as login_url %}
+        <li><a href="{{ login_url }}" class="{% if request.path == login_url %} active_link {% endif %}">Авторизация</a></li>
+        {% url 'users:register' as register_url %}
+        {% url 'users:email_confirmation_info' as url_register_confirm %}
+        <li><a
+                href="{{ register_url }}"
+                class="{% if request.path == register_url or request.path == url_register_confirm %} active_link {% endif %}">
+            Регистрация
+        </a></li>
+        {% url 'users:password_reset' as password_reset_url %}
+        {% url 'users:password_reset_done' as password_reset_done_url %}
+        <li><a
+                href="{{ password_reset_url }}"
+                class="{% if request.path == password_reset_url or request.path == password_reset_done_url or request.resolver_match.view_name == 'users:password_reset_confirm' %} active_link {% endif %}">
+            Сброс пароля
+        </a></li>
+        {% url 'support:support' as support_url %}
+        <li><a
+                href="{{ support_url }}"
+                class="{% if request.path == support_url %} active_link {% endif %}">
+            Поддержка
+        </a></li>
+    </ul>
+</header>

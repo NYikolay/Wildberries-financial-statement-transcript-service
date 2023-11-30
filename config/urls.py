@@ -8,10 +8,8 @@ import debug_toolbar
 from django_otp.admin import OTPAdminSite
 
 
-admin.site.__class__ = OTPAdminSite
 admin.site.site_header = 'Commery Administration'
 admin.site.site_title = 'Commery Administration'
-
 
 urlpatterns = [
     path('ai6_lo_orsur@d39!ss_k33_vjr!!l4sk3r0(uqrpo266s/', admin.site.urls),
@@ -22,7 +20,6 @@ urlpatterns = [
     path('', include('django_prometheus.urls')),
 ]
 
-
 handler400 = "config.views.handler400"
 handler403 = "config.views.handler403"
 handler404 = "config.views.handler404"
@@ -32,4 +29,6 @@ handler503 = "config.views.handler503"
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += path('__debug__/', include(debug_toolbar.urls)),
+    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+else:
+    admin.site.__class__ = OTPAdminSite

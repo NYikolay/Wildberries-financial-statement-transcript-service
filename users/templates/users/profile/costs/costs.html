@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Мои расходы - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+<link rel="stylesheet" href="{% static 'users/css/costs.css' %}">
+{% endblock %}
+{% block content %}
+
+<div class="costs-wrapper">
+    {% if not current_api_key.is_wb_data_loaded %}
+    <div class="common__content-wrapper costs-block">
+        <h1>Расходы поставщика вне WILDBERRIES</h1>
+        <div class="costs-head">
+            <div style="display: flex; align-items: center">
+                <p class="text__common-bold">Неделя</p>
+                <p class="text__common-bold">Даты</p>
+            </div>
+            <p class="text__common-bold">Расходы</p>
+        </div>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для внесения расходов нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+    </div>
+    <div style="flex-grow: 1;">
+        <p class="text__accent">
+            Сумма указанных расходов будет учтена при расчете прибыли от продаж (расходы не должны быть уже учтены в себестоимости)
+        </p>
+    </div>
+    {% else %}
+    <div class="common__content-wrapper costs-block">
+        <h1>Расходы поставщика вне WILDBERRIES</h1>
+        <div class="costs-head">
+            <div style="display: flex; align-items: center">
+                <p class="text__common-bold">Неделя</p>
+                <p class="text__common-bold">Даты</p>
+            </div>
+            <p class="text__common-bold">Расходы</p>
+        </div>
+        <div class="costs-body">
+            {% for cost in costs %}
+            <div class="costs__body-item">
+                <div style="display: flex; align-items: center; align-self: flex-start">
+                    <p class="text__accent">{{ cost.object.week_num }}</p>
+                    <p class="text__accent">{{ cost.object.date_from|date:"d.m.Y" }} - {{ cost.object.date_to|date:"d.m.Y" }}</p>
+                </div>
+                {% if cost.object.supplier_costs %}
+
+                <p class="text__accent" data-change-costs-id-text="{{ cost.object.id }}">
+                    {{ cost.object.supplier_costs|floatformat:"-2g" }}
+                </p>
+
+                <button type="button" id="open-change-form" data-item-id="{{ cost.object.id }}">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.991238 10.3348C0.991238 9.9599 1.14031 9.60042 1.40561 9.33553L7.96066 2.79049L10.2265 5.03627L5.22615 10.0101C5.03211 10.2032 5.03131 10.5169 5.22438 10.7109C5.41743 10.9049 5.73124 10.9057 5.92528 10.7127L12.5618 4.11122C13.1416 3.53455 13.1467 2.59806 12.5733 2.01512L11.0281 0.444228C10.4492 -0.144331 9.50151 -0.148606 8.91731 0.434706L0.705155 8.63432C0.253684 9.08509 2.22966e-07 9.69684 2.03099e-07 10.3348L0 12.232C-9.06287e-08 12.6561 0.343939 13 0.768209 13H2.51677C3.04211 13 3.55298 12.8279 3.97124 12.5101L4.38875 12.1929C4.60667 12.0273 4.64907 11.7164 4.48346 11.4986C4.31783 11.2807 4.0069 11.2383 3.78897 11.4039L3.37146 11.7211C3.12567 11.9079 2.82547 12.009 2.51677 12.009H0.991238V10.3348ZM10.9292 4.33729L11.8627 3.40868C12.056 3.21646 12.0576 2.90429 11.8665 2.70999L10.3214 1.1391C10.1284 0.942909 9.8125 0.941483 9.61777 1.13592L8.66204 2.09018L10.9292 4.33729ZM5.89784 12.4426C5.89784 12.1689 6.11974 11.9471 6.39345 11.9471H12.2665C12.5403 11.9471 12.7622 12.1689 12.7622 12.4426C12.7622 12.7163 12.5403 12.9381 12.2665 12.9381H6.39345C6.11974 12.9381 5.89784 12.7163 5.89784 12.4426Z" fill="#00C6FF"/>
+                    </svg>
+                </button>
+
+                {% include 'users/profile/costs/includes/update_costs_form.html' %}
+
+                {% else %}
+
+                {% include 'users/profile/costs/includes/create_costs_form.html' %}
+
+                <button class="costs__add-button" id="open-create-form" data-item-id="{{ cost.object.id }}">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C6.21954 0 5.99219 0.227355 5.99219 0.507812V5.99219H0.507812C0.227356 5.99219 0 6.21954 0 6.5C0 6.78046 0.227356 7.00781 0.507812 7.00781H5.99219V12.4922C5.99219 12.7726 6.21954 13 6.5 13C6.78046 13 7.00781 12.7726 7.00781 12.4922V7.00781H12.4922C12.7726 7.00781 13 6.78046 13 6.5C13 6.21954 12.7726 5.99219 12.4922 5.99219H7.00781V0.507812C7.00781 0.227355 6.78046 0 6.5 0Z" fill="#00C6FF"/>
+                    </svg>
+                    <p class="text__common-normal" style="color: var(--var-blue-accent-color)">Добавить</p>
+                </button>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div style="flex-grow: 1;">
+        <p class="text__accent">
+            Сумма указанных расходов будет учтена при расчете прибыли от продаж (расходы не должны быть уже учтены в себестоимости)
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<script src="{% static 'js/handleInputsValidation.js' %}"></script>
+<script src="{% static 'users/js/costs.js' %}"></script>
+{% endblock %}

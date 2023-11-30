@@ -1,13 +1,37 @@
 document.addEventListener("DOMContentLoaded", function () {
-    let phoneInput = document.querySelector('input[data-tel-input]')
-    const checkboxInput = document.getElementById('id_is_accepted_terms_of_offer')
+    const registerForm = document.getElementById('register-form')
+    const emailItem = document.getElementById('email-item')
+    const emailInput = document.getElementById('email')
+    const password1Input = document.getElementById('password1')
+    const password1Item = document.getElementById('password1-item')
+    const password2Input = document.getElementById('password2')
+    const password2Item = document.getElementById('password2-item')
+    let phoneInput = document.getElementById('phone')
 
-    checkboxInput.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            const divError = document.querySelector(`[data-id-error=${e.target.getAttribute('data-id')}]`)
-                if (divError) {
-                    divError.remove()
-                }
+    const formIsValid = () => {
+        if (!emailInput.value) {
+            emailItem.classList.add("input__item-error")
+            return false
+        }
+
+        if (!password1Input.value) {
+            password1Item.classList.add("input__item-error")
+            return false
+        }
+
+        if (!password2Input.value) {
+            password2Item.classList.add("input__item-error")
+            return false
+        }
+
+        return true
+    }
+
+    registerForm.addEventListener("submit", (event) => {
+        event.preventDefault()
+
+        if (formIsValid()) {
+            registerForm.submit()
         }
     })
 
