@@ -51,6 +51,27 @@ services:
       - .env
     depends_on:
       - db
+  web_asgi:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: "prod"
+    image: commery_docker:prod
+    restart: always
+    container_name: commery_django_asgi
+    command: >
+      bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && uvicorn config.asgi:application --port 9000"
+    volumes:
+      - static_volume:/commery_project/staticfiles
+      - media_volume:/commery_project/media
+      - .:/commery_project
+      - /var/web_logs:/commery_project/logs
+    expose:
+      - 9000
+    env_file:
+      - .env
+    depends_on:
+      - db
   redis:
     image: redis:6.0.17
     container_name: commery_redis
