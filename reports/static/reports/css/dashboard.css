@@ -43,7 +43,7 @@
 .filter__checkbox-wrapper {
     overflow-y: auto;
     display: flex;
-    max-height: 400px;
+    max-height: 450px;
     flex-direction: column;
     gap: 10px;
 }

@@ -57,7 +57,7 @@ def execute_wildberries_reports_loading(self, current_key_id, current_user_id):
         current_api_key.save()
 
         requests.post(
-            f'{ASGI_DJANGO_DOCKER_HOST}/events/notify/user/',
+            f'{ASGI_DJANGO_DOCKER_HOST}/notify/user/',
             data={
                 "secret": SSE_NOTIFICATION_SECRET,
                 "user_id": current_user.id,
@@ -75,7 +75,7 @@ def execute_wildberries_reports_loading(self, current_key_id, current_user_id):
         current_api_key.save()
 
         requests.post(
-            f'{ASGI_DJANGO_DOCKER_HOST}/events/notify/user/',
+            f'{ASGI_DJANGO_DOCKER_HOST}/notify/user/',
             data={
                 "secret": SSE_NOTIFICATION_SECRET,
                 "user_id": current_user.id,
@@ -90,7 +90,7 @@ def execute_wildberries_reports_loading(self, current_key_id, current_user_id):
     current_api_key.save()
 
     requests.post(
-        f'{ASGI_DJANGO_DOCKER_HOST}/events/notify/user/',
+        f'{ASGI_DJANGO_DOCKER_HOST}/notify/user/',
         data={
             "secret": SSE_NOTIFICATION_SECRET,
             "user_id": current_user.id,

@@ -21,7 +21,7 @@ urlpatterns = [
     path('events/user/<user_id>/', include(django_eventstream.urls), {
         'format-channels': ['user-{user_id}']
     }),
-    path('events/notify/user/', NotifySseUserView.as_view(), name='notify_user'),
+    path('notify/user/', NotifySseUserView.as_view(), name='notify_user'),
 
     path('login/', LoginPageView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
