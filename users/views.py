@@ -12,16 +12,16 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic import View, CreateView, UpdateView, DeleteView, DetailView
 from django.core.paginator import Paginator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode, urlencode
+from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
 
-from config.settings.base import REDIS_HOST, REDIS_PORT, SSE_NOTIFICATION_SECRET
+from config.settings.base import SSE_NOTIFICATION_SECRET
 from payments.models import SubscriptionTypes
 from payments.services.create_user_subscription_service import create_user_subscription
 from users.forms import (

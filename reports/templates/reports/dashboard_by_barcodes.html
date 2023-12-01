@@ -17,7 +17,7 @@
     </a>
 </div>
 <div class="dashboard-wrapper">
-    <div class="products-container">
+    <div class="products-container" id="productsContainer">
         {% for p in report.products_by_barcodes %}
         <a href="{% url 'reports:dashboard_by_barcode' p.barcode %}">
             <div class="product__item {% if p.barcode == current_barcode %} product__item-active {% endif %}">
@@ -210,5 +210,6 @@
 <script src="{% static 'reports/js/indicatorsBarChart.js' %}"></script>
 <script src="{% static 'reports/js/linearChart.js' %}"></script>
 <script src="{% static 'js/lazyLoadImg.js' %}"></script>
+<script src="{% static 'reports/js/setScrollPosition.js' %}"></script>
 <script src="{% static 'reports/js/filterByPeriod.js' %}"></script>
 {% endblock %}

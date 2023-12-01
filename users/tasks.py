@@ -7,7 +7,7 @@ from django.core.mail import EmailMessage
 
 from celery import shared_task, Task
 
-from config.settings.base import EMAIL_HOST_USER, SSE_NOTIFICATION_SECRET, DJANGO_DOCKER_HOST, ASGI_DJANGO_DOCKER_HOST
+from config.settings.base import EMAIL_HOST_USER, SSE_NOTIFICATION_SECRET, ASGI_DJANGO_DOCKER_HOST
 
 from users.models import WBApiKey, User
 from users.services.generate_last_report_date_service import get_last_report_date

@@ -13,8 +13,8 @@ environ.Env.read_env()
 SECRET_KEY = env("SECRET_KEY")
 SECRET_CODE = env("SECRET_CODE")
 SSE_NOTIFICATION_SECRET = env("SSE_NOTIFICATION_SECRET")
-DJANGO_DOCKER_HOST = "http://web:8000"
-ASGI_DJANGO_DOCKER_HOST = "http://webasgi:9000"
+SETTINGS_TYPE = env("SETTINGS_TYPE")
+ASGI_DJANGO_DOCKER_HOST = "http://webasgi:9000" if not SETTINGS_TYPE == "dev" else "http://web:8000"
 
 # Application definition
 
