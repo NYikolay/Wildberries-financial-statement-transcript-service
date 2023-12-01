@@ -17,7 +17,7 @@ class LoginForm(forms.Form):
         widget=forms.TextInput(attrs={
             'class': "form__input",
             'id': 'email',
-            'placeholder': 'support_commery@mail.ru',
+            'placeholder': 'address@email.ru',
             'data-id': 'email'
         }))
     password = forms.CharField(
@@ -95,13 +95,13 @@ class UserRegisterForm(UserCreationForm):
         widgets = {
             'email': forms.TextInput(attrs={
                 'class': "form__input",
-                'placeholder': 'support_commery@mail.ru',
+                'placeholder': 'address@email.ru',
                 'data-id': 'email',
                 'id': 'email'
             }),
             'phone': forms.TextInput(attrs={
                 'class': "form__input",
-                'placeholder': '8 (977) 438-99-99',
+                'placeholder': '8 (999) 111-22-33',
                 'data-id': 'phone',
                 'id': 'phone'
             }),

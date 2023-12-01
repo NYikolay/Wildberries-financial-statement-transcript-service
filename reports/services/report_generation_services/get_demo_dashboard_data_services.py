@@ -24,8 +24,8 @@ def get_demo_dashboard_data():
         'profitability_total': 0, "penalty_total": 0.0, "additional_payment_sum_total": 0.0,
         'reports_by_week': json.dumps(reports_by_week),
         'brands_share_in_revenue_dict': json.dumps({"Название бренда": 100}, ensure_ascii=False),
-        'stocks_share_in_revenue_dict': json.dumps({"Название категории": 100}, ensure_ascii=False),
-        'category_share_in_revenue_dict': json.dumps({"Название склада": 100}, ensure_ascii=False)
+        'stocks_share_in_revenue_dict': json.dumps({"Название склада": 100}, ensure_ascii=False),
+        'category_share_in_revenue_dict': json.dumps({"Название категории": 100}, ensure_ascii=False)
     }
 
 
