@@ -14,7 +14,7 @@ SECRET_KEY = env("SECRET_KEY")
 SECRET_CODE = env("SECRET_CODE")
 SSE_NOTIFICATION_SECRET = env("SSE_NOTIFICATION_SECRET")
 DJANGO_DOCKER_HOST = "http://web:8000"
-ASGI_DJANGO_DOCKER_HOST = "http://web_asgi"
+ASGI_DJANGO_DOCKER_HOST = "http://webasgi:9000"
 
 # Application definition
 

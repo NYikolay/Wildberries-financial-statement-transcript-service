@@ -51,7 +51,7 @@ services:
       - .env
     depends_on:
       - db
-  web_asgi:
+  webasgi:
     build:
       dockerfile: Dockerfile
       context: .
