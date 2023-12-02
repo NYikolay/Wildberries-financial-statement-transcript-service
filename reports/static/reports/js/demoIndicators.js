@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
             pastIndicatorItemTitle.classList.add("dark_h1")
             pastIndicatorItemText.classList.add("text__common-normal")
             pastIndicatorItemText.classList.remove("text__accent")
-            pastIndicatorItemSvg.style.fill = "#5C659D"
+
+            if (pastIndicatorItemSvg) {
+                pastIndicatorItemSvg.style.fill = "#5C659D"
+            }
 
             pastIndicatorItemStaticWrapper.innerHTML = `
                 <div style="width: 9px; height: 45px; background-color: #5C659D;"></div>
@@ -40,7 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
         indicatorItemTitle.classList.remove("dark_h1")
         indicatorItemText.classList.remove("text__common-normal")
         indicatorItemText.classList.add("text__accent")
-        indicatorItemSvg.style.fill = "#FFFFFF"
+        if (indicatorItemSvg) {
+            indicatorItemSvg.style.fill = "#FFFFFF"
+        }
         indicatorItem.childNodes[1].innerHTML = `
                 <div style="width: 9px; height: 45px; background: linear-gradient(180deg, #FC9E36 0%, #FD6DAB 100%);"></div>
                 <div style="width: 9px; height: 36px; background: linear-gradient(180deg, #00C5FF 0%, #0072FF 100%);"></div>

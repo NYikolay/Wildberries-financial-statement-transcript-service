@@ -125,7 +125,10 @@ document.addEventListener("DOMContentLoaded", function () {
             pastIndicatorItemTitle.classList.add("dark_h1")
             pastIndicatorItemText.classList.add("text__common-normal")
             pastIndicatorItemText.classList.remove("text__accent")
-            pastIndicatorItemSvg.style.fill = "#5C659D"
+
+            if (pastIndicatorItemSvg) {
+                pastIndicatorItemSvg.style.fill = "#5C659D"
+            }
         }
 
         const indicatorItemTitle = indicatorItem.querySelector('.dark_h1')
@@ -136,7 +139,10 @@ document.addEventListener("DOMContentLoaded", function () {
         indicatorItemTitle.classList.remove("dark_h1")
         indicatorItemText.classList.remove("text__common-normal")
         indicatorItemText.classList.add("text__accent")
-        indicatorItemSvg.style.fill = "#FFFFFF"
+
+        if (indicatorItemSvg) {
+            indicatorItemSvg.style.fill = "#FFFFFF"
+        }
     }
 
     const getCurrentCanvasGradient = (canvas) => {
