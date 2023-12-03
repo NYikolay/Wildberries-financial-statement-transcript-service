@@ -9,7 +9,7 @@ from users.views import (
     ProfileSubscriptionsPage, CreateApiKeyView, UpdateApiKeyView, ChangeCurrentApiKeyView, TaxRateListView,
     CreateTaxRateView, ChangeTaxRateView, DeleteTaxRateView, CostsListView, ChangeCostsView, CreateNetCostView,
     UpdateNetCostView, DeleteNetCostView, EmptyProductsView, ExecuteLoadingReportsFromWildberriesView,
-    NotifySseUserView, TermsOfferView
+    NotifySseUserView, TermsOfferView, PrivatePolicyView
 )
 
 import django_eventstream
@@ -18,6 +18,7 @@ app_name = 'users'
 
 urlpatterns = [
     path('terms-of-offer/', TermsOfferView.as_view(), name="terms_offer"),
+    path('private-policy/', PrivatePolicyView.as_view(), name="private_policy"),
     path('events/user/<user_id>/', include(django_eventstream.urls), {
         'format-channels': ['user-{user_id}']
     }),

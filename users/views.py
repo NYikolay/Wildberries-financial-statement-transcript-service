@@ -56,6 +56,13 @@ class TermsOfferView(View):
         return render(request, self.template_name)
 
 
+class PrivatePolicyView(View):
+    template_name = 'users/private_policy.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+
 class NotifySseUserView(View):
 
     @csrf_exempt
