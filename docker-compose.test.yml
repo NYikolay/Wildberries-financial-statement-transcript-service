@@ -156,6 +156,22 @@ services:
     depends_on:
       - loki
       - prometheus
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: followers-node-exporter
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--no-collector.powersupplyclass'
+    expose:
+      - 9100
   promtail:
     image: grafana/promtail:2.5.0
     container_name: commery_promtail
@@ -183,7 +199,12 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
-    command: --config.file=/etc/prometheus/prometheus.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
 
 volumes:
   static_volume:
