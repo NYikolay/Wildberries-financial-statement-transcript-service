@@ -28,6 +28,7 @@ def get_total_financials_by_barcode(sale_objects_by_weeks) -> dict:
     net_costs_sum = sum(net_costs_sum_total)
     revenue = sum(revenue_total)
     total_payable_sum = sum(total_payable)
+
     marginality = calculate_marginality(net_costs_sum, revenue)
     rom = calculate_rom(total_payable_sum, net_costs_sum)
 
