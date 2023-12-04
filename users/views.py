@@ -24,6 +24,7 @@ from django.http import JsonResponse, HttpResponse
 from config.settings.base import SSE_NOTIFICATION_SECRET
 from payments.models import SubscriptionTypes
 from payments.services.create_user_subscription_service import create_user_subscription
+from reports.models import GeneralInformationObj, InfoTypes
 from users.forms import (
     LoginForm, UserRegisterForm, APIKeyForm, ChangeUserPasswordForm, TaxRateForm,
     NetCostForm, PasswordResetEmailForm, UserPasswordResetForm, LoadNetCostsFileForm,
@@ -831,6 +832,11 @@ class ExecuteLoadingReportsFromWildberriesView(LoginRequiredMixin, SubscriptionR
 
     def post(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
+        disable_load_info = GeneralInformationObj.objects.filter(is_active=True).first()
+
+        if disable_load_info and disable_load_info.info_type == InfoTypes.reports:
+            messages.error(request, disable_load_info.info_message)
+            return redirect(request.META.get('HTTP_REFERER', '/'))
 
         if not current_api_key:
             messages.error(request, 'Для загрузки отчёта о продажах, пожалуйста, создайте API ключ Wildberries')
