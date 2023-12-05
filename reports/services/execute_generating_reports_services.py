@@ -1,8 +1,7 @@
 import json
 from typing import List, Union
 from django.db import connection
-from django.db.models import (
-    Sum, Q, FloatField, F, QuerySet)
+from django.db.models import (Q, F, QuerySet, Case, When, IntegerField)
 from django.db.models.functions import Coalesce
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
@@ -117,7 +116,7 @@ def get_report_by_barcode(current_user, current_api_key, period_filter_data: Lis
         nm_id__isnull=False,
     ).distinct('barcode', 'ts_name', 'nm_id').order_by('barcode').annotate(
         image=F('product__image'),
-        product_name=F('product__product_name')
+        product_name=F('product__product_name'),
     ).values('nm_id', 'barcode', 'ts_name', 'image', 'product_name')
 
     barcode_report_by_weeks: Union[QuerySet, List[dict]] = get_sale_objects_by_barcode_by_weeks(
