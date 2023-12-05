@@ -7,6 +7,8 @@
 }
 
 .product__item-width {
+    position: relative;
+    z-index: 0;
     width: 271px !important;
 }
 

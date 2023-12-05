@@ -159,7 +159,7 @@ services:
       - prometheus
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: followers-node-exporter
+    container_name: commery-node-exporter
     restart: always
     volumes:
       - /proc:/host/proc:ro

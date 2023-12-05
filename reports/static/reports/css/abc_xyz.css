@@ -9,6 +9,16 @@
     scrollbar-width: none;
 }
 
+.redirect__product-link {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
 .abx__xyz-wrapper__inner {
     position: relative;
     display: flex;

@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, ExpressionWrapper, BooleanField, F
+from django.db.models import Q, ExpressionWrapper, BooleanField, F, Case, When, IntegerField
 from django.views.generic.list import ListView
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -322,11 +322,11 @@ class ChangeCurrentApiKeyView(LoginRequiredMixin, View):
                 api_key.save()
 
             messages.success(request, "Подключение было успешно изменено.")
-            return redirect("users:companies_list")
+            return redirect("reports:dashboard_main")
 
         django_logger.error(f"Error while change Api Key. User - {request.user.email}")
 
-        messages.error(request, "Невозможно сменить подключение.")
+        messages.error(request, "Невозможно сменить подключение. Пожалуйста, обратитесь в службу поддержки")
         return redirect("users:companies_list")
 
 
@@ -710,9 +710,16 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         products = self.model.objects.filter(
             api_key__user=self.request.user, api_key__is_current=True
         ).annotate(
-            has_net_cost=ExpressionWrapper(Q(cost_prices__isnull=False) & Q(cost_prices__amount__gt=0),
-                                           output_field=BooleanField())
-        ).values('image', 'nm_id', 'product_name', 'has_net_cost').distinct().order_by('brand', 'nm_id')
+            has_net_cost=ExpressionWrapper(
+                Q(cost_prices__isnull=False) & Q(cost_prices__amount__gt=0),
+                output_field=BooleanField()
+            ),
+            is_current=Case(
+                When(nm_id=self.object.nm_id, then=1),
+                default=0,
+                output_field=IntegerField()
+            )
+        ).values('image', 'nm_id', 'product_name', 'has_net_cost').distinct().order_by('-is_current', 'brand', "nm_id")
 
         paginator = self.paginator_class(products, 4)
 

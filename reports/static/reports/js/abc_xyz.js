@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <p class="text__accent">Артикул: ${newProductsDataArray[productGroup][i].nm_id}</p>
                     <p class="text__accent">Размер: ${newProductsDataArray[productGroup][i].ts_name}</p>
                 </div>
+                <a href="/product/${newProductsDataArray[productGroup][i].nm_id}/" target="_blank" class="redirect__product-link"></a>
             </div>
         `
 
@@ -122,4 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
     })
 
     renderInitialGroup()
+
+    productsWrapper.removeAttribute("data-products")
 })
