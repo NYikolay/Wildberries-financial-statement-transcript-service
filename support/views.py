@@ -2,11 +2,19 @@ from django.shortcuts import render
 from django.views.generic import View, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponseBadRequest
-
+from django.db.models import F
 from config.settings.base import EMAIL_HOST_USER
 from support.forms import SupportRequestForm
 from support.tasks import send_user_report_to_chat
+from users.models import ClientUniqueProduct
 from users.tasks import send_email_verification
+
+
+class SupportInfoPage(View):
+    template_name = "support/support.html"
+
+    def get(self, request):
+        return render(request, self.template_name)
 
 
 class SupportRequestView(LoginRequiredMixin, View):

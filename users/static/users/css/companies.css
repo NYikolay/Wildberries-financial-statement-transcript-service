@@ -1,0 +1,95 @@
+.company-container {
+    display: flex;
+    gap: 20px;
+}
+
+.company__container-direction {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.company__buttons-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.companies__delete-button {
+    position: relative;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 15px;
+}
+
+.companies__delete-button h1 {
+    font-weight: bold;
+    color: var(--var-common-text-color);
+    font-size: 14px;
+    line-height: 21px;
+}
+
+.approve__company-delete__container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.delete__company-modal__container {
+    display: flex;
+    pointer-events: auto;
+    flex-direction: column;
+    gap: 11px;
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    top: 25px;
+    width: 260px;
+    border-radius: 7px;
+    padding: 15px 20px 20px 20px;
+    background-color: var(--var-bg-modal-color);
+}
+
+.company__delete-icon {
+    fill: var(--var-common-text-color);
+}
+
+.approve__delete-company__button {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.delete__company-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.company-form {
+    flex: 0 0 auto;
+    width: 468px;
+    border: 1px solid var(--var-border-color);
+    background: var(--var-content-bg-gradient);
+    border-radius: 7px;
+    padding: 20px 20px 20px 20px;
+}
+
+.company__instruction-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 11px;
+}
+
+.company__instructions-container {
+    overflow-y: auto;
+    max-height: calc(100vh - 175px);
+}
+
+.company__connection-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

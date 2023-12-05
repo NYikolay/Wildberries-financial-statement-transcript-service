@@ -19,13 +19,24 @@ admin.site.register(Promocode)
 class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'date_joined')
     search_fields = ['email']
-    list_display = ('email', 'date_joined', 'phone')
+    list_display = ('email', 'date_joined', 'phone', 'is_subscribed', 'is_active')
+    readonly_fields = ['email', 'date_joined', 'phone', 'is_subscribed', 'password']
 
 
 @admin.register(SaleObject)
 class SaleObjectAdmin(admin.ModelAdmin):
     list_display = ('id', '__str__')
-    search_fields = ('nm_id', 'id', 'barcode', 'supplier_oper_name')
+    search_fields = ('nm_id', 'barcode', 'realizationreport_id', 'owner__email')
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(
+            set([field.name for field in self.opts.local_fields] +
+                [field.name for field in self.opts.local_many_to_many]))
+
+        if 'is_submitted' in readonly_fields:
+            readonly_fields.remove('is_submitted')
+
+        return readonly_fields
 
 
 @admin.register(Order)
@@ -36,7 +47,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(WBApiKey)
 class WBApiKeyAdmin(admin.ModelAdmin):
-    search_fields = ('user', )
+    search_fields = ('user__email', )
     list_filter = (
         'last_reports_update',
         'is_wb_data_loaded',
@@ -52,6 +63,7 @@ class WBApiKeyAdmin(admin.ModelAdmin):
         'last_reports_update',
         'created_at'
     )
+    readonly_fields = ['api_key']
 
 
 @admin.register(ClientUniqueProduct)
@@ -66,6 +78,16 @@ class SaleReportAdmin(admin.ModelAdmin):
     search_fields = ['owner__email']
     list_display = ('owner', 'realizationreport_id', 'create_dt', 'week_num')
 
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(
+            set([field.name for field in self.opts.local_fields] +
+                [field.name for field in self.opts.local_many_to_many]))
+
+        if 'is_submitted' in readonly_fields:
+            readonly_fields.remove('is_submitted')
+
+        return readonly_fields
+
 
 @admin.register(UserSubscription)
 class UserSubscriptionAdmin(admin.ModelAdmin):
@@ -74,7 +96,7 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'subscription_type', 'subscribed_from', 'subscribed_to', 'is_active')
 
     def is_active(self, obj):
-        result = True if obj.subscribed_to >= datetime.now() else False
+        result = 'Активна' if obj.subscribed_to >= datetime.now() else 'Не активна'
         return result
 
     is_active.short_description = "Активна ли подписка"

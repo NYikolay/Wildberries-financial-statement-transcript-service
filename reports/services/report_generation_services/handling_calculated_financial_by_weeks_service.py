@@ -1,4 +1,3 @@
-
 from reports.services.report_generation_services.formula_calculation_service import (
     calculate_revenue, calculate_sales_quantity, calculate_returns_quantity, calculate_commission, calculate_logistics,
     calculate_supplier_costs, calculate_tax_value, calculate_net_costs, calculate_marginality, calculate_profit,
@@ -160,6 +159,7 @@ def get_calculated_financials_by_weeks(
     return {
         'date_from': sales_object_figures.get('date_from').strftime("%d.%m.%Y"),
         'date_to': sales_object_figures.get('date_to').strftime("%d.%m.%Y"),
+        'year': sales_object_figures.get('year'),
         'week_num': sales_object_figures.get('week_num'),
         'revenue': retail_amount_revenue,
         'sales_amount': sales_quantity,

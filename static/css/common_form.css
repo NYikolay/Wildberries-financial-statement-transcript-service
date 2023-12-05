@@ -1,0 +1,136 @@
+/*FORM STYLING*/
+
+.form-wrapper {
+    border: 1px solid var(--var-border-color);
+    background: var(--var-content-bg-gradient);
+    align-self: flex-start;
+    border-radius: 7px;
+    width: 708px;
+    padding: 15px 20px 20px 20px;
+}
+
+.common-form {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.form__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.form-items {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding-top: 20px;
+}
+
+.form__input {
+    width: 271px;
+    border-radius: 7px;
+    color: #5C659D;
+    font-size: 10px;
+    line-height: 13px;
+    font-weight: normal;
+    background-color: var(--var-bgcolor);
+    border: 1px solid var(--var-border-color);
+    padding: 12px 20px 12px 20px;
+}
+
+.input__item-error input {
+    border: 1px solid var(--var-error-color);
+}
+
+.input-error {
+    border: 1px solid var(--var-error-color);
+}
+
+.input__item-error textarea {
+    border: 1px solid var(--var-error-color);
+}
+
+.input__item-error p {
+    color: var(--var-error-color);
+}
+
+.form__item-error {
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.form__item-error-fixed__width {
+    max-width: 135px;
+}
+
+.form__item-error.hidden {
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.errorlist li {
+    color: var(--var-error-color);
+
+}
+
+.form__input:focus {
+    outline: none !important;
+    border: 1px solid var(--var-border-active-color);
+    color: var(--var-text-active-color);
+    transition: .4s;
+}
+
+.form__item label {
+    position: absolute;
+    left: 0;
+    color: var(--var-common-text-color);
+    top: -20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.form__item label path {
+    fill: var(--var-commont-icon-color);
+}
+
+.form__input:focus + label {
+    color: var(--var-text-active-color);
+    transition: .4s;
+}
+
+.form__input:focus + label path {
+    fill: var(--var-text-active-color);
+    transition: .4s;
+}
+
+.form__input::placeholder {
+    color: var(--var-common-text-color);
+}
+
+.form__input::-ms-input-placeholder {
+    color: var(--var-common-text-color);
+}
+
+.form_buttons {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.form__buttons-normal {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.form__between-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/*FORM STYLING END*/

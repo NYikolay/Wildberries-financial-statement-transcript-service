@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Склад - Commery{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'users/css/products.css' %}">
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/common_load.css' %}">
+{% endblock %}
+{% block content %}
+<div class="products-wrapper">
+    <div class="common__content-wrapper product__detail-wrapper">
+        <div class="product__detail-head">
+            <h1>Себестоимость товаров</h1>
+        </div>
+        <div class="product__detail-subheader">
+            <div style="width: 271px">
+            </div>
+            <div class="product__detail-costs__head">
+                <p class="text__common-bold">Себестоимость</p>
+                <p class="text__common-bold">Дата начала действия</p>
+            </div>
+        </div>
+        <p class="text__accent">Не загружено ни одного отчета WILDBERRIES. Для загрузки товаров нажмите на “Загрузить отчеты” в правом верхнем углу</p>
+    </div>
+</div>
+
+{% endblock %}

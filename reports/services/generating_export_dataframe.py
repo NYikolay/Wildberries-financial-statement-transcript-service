@@ -19,14 +19,14 @@ def get_barcodes_detail_dataframe(report_by_barcodes):
             'ts_name': 'Размер',
             'image': 'Картинка',
             'product_name': 'Наименование товара',
-            'logistic_sum': 'Логистика',
+            'logistics': 'Логистика',
             'penalty_sum': 'Штрафы',
             'additional_payment_sum': 'Доплаты',
-            'revenue_by_article': 'Выручка',
+            'revenue': 'Выручка',
             'share_in_revenue': 'Доля в выручке',
             'product_marginality': 'Маржинальность',
-            'sales_quantity': 'Продажи',
-            'returns_quantity': 'Возвраты',
+            'sales_amount': 'Продажи',
+            'returns_amount': 'Возвраты',
             'commission': 'Комиссия',
             'net_costs_sum': 'Себестоиомсть продаж',
             'total_payable': 'Валовая прибыль',
@@ -35,3 +35,22 @@ def get_barcodes_detail_dataframe(report_by_barcodes):
     )
 
     return report_by_barcodes_df
+
+
+def get_penalties_dataframe(penalties_data):
+    penalties_df = pd.DataFrame(penalties_data)
+
+    penalties_df.rename(
+        columns={
+            "bonus_type_name": "Обоснование штрафов и доплат",
+            "nm_id": "Артикул",
+            "realizationreport_id": "Номер отчёта",
+            "week_num": "Неделя",
+            "total_sum": "Сумма",
+            "date_from": "Дата начала отчетного периода",
+            "date_to": "Дата конца отчетного периода"
+        },
+        inplace=True
+    )
+
+    return penalties_df

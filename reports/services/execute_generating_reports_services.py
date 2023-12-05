@@ -1,18 +1,23 @@
 import json
-from typing import List
+from typing import List, Union
 from django.db import connection
+from django.db.models import (Q, F, QuerySet, Case, When, IntegerField)
+from django.db.models.functions import Coalesce
 from reports.services.report_generation_services.generate_period_filters_services import \
     generate_period_filter_conditions
 from reports.services.report_generation_services.generating_financials_by_barcodes import \
     get_calculated_financials_by_barcodes
 from reports.services.report_generation_services.generating_report_db_data_services import get_report_db_inter_data, \
-    get_sale_objects_by_barcode_by_weeks, get_products_count_by_period, get_total_revenue
+    get_sale_objects_by_barcode_by_weeks, get_products_count_by_period, get_total_revenue, \
+    get_calculated_financials_by_products, get_penalties
 from reports.services.report_generation_services.generating_share_in_revenue_by_filter_service import \
     get_share_in_revenue
-from reports.services.report_generation_services.generating_sum_aggregation_objs_services import get_aggregate_sum_dicts
-from reports.services.report_generation_services.get_financials_by_barcode_services import \
+from reports.services.report_generation_services.generating_sum_aggregation_objs_services import \
+    get_aggregate_sum_dicts, get_financials_annotation_objects, get_product_financials_annotations_objects
+from reports.services.report_generation_services.get_totals_by_barcode import \
     get_total_financials_by_barcode
 from reports.services.report_generation_services.get_total_financials_service import get_total_financials
+from users.models import SaleObject
 
 
 def get_full_user_report(current_user, current_api_key, period_filter_data: List[dict]) -> dict:
@@ -41,45 +46,29 @@ def get_full_user_report(current_user, current_api_key, period_filter_data: List
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'brand_name')
     stocks_share_in_revenue_dict: dict = get_share_in_revenue(
         current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'office_name')
+    category_share_in_revenue_dict: dict = get_share_in_revenue(
+        current_user, current_api_key, filter_period_conditions, totals.get('revenue_total'), 'subject_name')
 
-    abc_xyz = get_calculated_financials_by_barcodes(
-        current_user, current_api_key, filter_period_conditions,
-        general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
-        general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'),
-        totals.get('revenue_total'),
-        report_intermediate_data.get('products_count_by_period')
-    )
+    penalties = get_penalties(current_user, current_api_key, filter_period_conditions)
 
     return {
         **totals,
-        'is_empty_reports_values': report_intermediate_data.get('is_empty_reports_values'),
-        'is_empty_netcosts_values': report_intermediate_data.get('is_empty_netcosts_values'),
-        'is_exists_tax_values': report_intermediate_data.get('is_exists_tax_values'),
         'brands_share_in_revenue_dict': json.dumps(brands_share_in_revenue_dict, ensure_ascii=False),
         'stocks_share_in_revenue_dict': json.dumps(stocks_share_in_revenue_dict, ensure_ascii=False),
-        'products_calculated_values': json.dumps(abc_xyz.get('products_calculated_values')),
-        'abc_report': abc_xyz.get('abc_report'),
-        'abc_xyz_report': abc_xyz.get('abc_xyz_report'),
+        'category_share_in_revenue_dict': json.dumps(category_share_in_revenue_dict, ensure_ascii=False),
+        'penalties': penalties
     }
 
 
-def get_detail_report_by_barcode(current_user, current_api_key, period_filter_data: List[dict], barcode, nm_id):
+def get_report_by_barcodes(
+        current_user,
+        current_api_key,
+        period_filter_data: List[dict],
+        convert_products_data_to_json: bool = False
+):
     filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
     general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
-
-    sale_objects_by_weeks = get_sale_objects_by_barcode_by_weeks(
-        current_user, current_api_key, filter_period_conditions,
-        general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
-        general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'), barcode, nm_id)
-
-    totals = get_total_financials_by_barcode(sale_objects_by_weeks)
-
-    return totals
-
-
-def get_report_by_barcodes(current_user, current_api_key, period_filter_data: List[dict]):
-    filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
-    general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
+    financials_annotations_objs: dict = get_financials_annotation_objects()
 
     with connection.cursor() as cursor:
         sql = "SET JIT = OFF;"
@@ -103,11 +92,50 @@ def get_report_by_barcodes(current_user, current_api_key, period_filter_data: Li
         general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
         general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'),
         total_revenue.get('total_revenue'),
-        products_count_by_period
+        products_count_by_period,
+        financials_annotations_objs,
+        convert_products_data_to_json
     )
 
-    return report_by_barcodes.get('products_calculated_values')
+    return report_by_barcodes
 
+
+def get_report_by_barcode(current_user, current_api_key, period_filter_data: List[dict], barcode):
+    filter_period_conditions: dict = generate_period_filter_conditions(period_filter_data)
+    general_dict_aggregation_objs: dict = get_aggregate_sum_dicts()
+    annotations_objs: dict = get_product_financials_annotations_objects()
+
+    with connection.cursor() as cursor:
+        sql = "SET JIT = OFF;"
+        cursor.execute(sql)
+
+    products_by_barcodes = SaleObject.objects.filter(
+        ~Q(nm_id=99866376),
+        owner=current_user,
+        api_key=current_api_key,
+        nm_id__isnull=False,
+    ).distinct('barcode', 'ts_name', 'nm_id').order_by('barcode').annotate(
+        image=F('product__image'),
+        product_name=F('product__product_name'),
+    ).values('nm_id', 'barcode', 'ts_name', 'image', 'product_name')
+
+    barcode_report_by_weeks: Union[QuerySet, List[dict]] = get_sale_objects_by_barcode_by_weeks(
+        barcode,
+        current_user,
+        current_api_key,
+        filter_period_conditions,
+        general_dict_aggregation_objs.get('sum_aggregation_objs_dict'),
+        general_dict_aggregation_objs.get('net_costs_sum_aggregation_objs'),
+        annotations_objs,
+    )
+
+    totals: dict = get_total_financials_by_barcode(barcode_report_by_weeks)
+
+    return {
+        "totals": totals,
+        "report_by_weeks": json.dumps(list(barcode_report_by_weeks), ensure_ascii=False),
+        "products_by_barcodes": products_by_barcodes
+    }
 
 
 

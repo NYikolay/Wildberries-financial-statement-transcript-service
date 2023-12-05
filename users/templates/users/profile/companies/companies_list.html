@@ -1,161 +1,76 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Магазин - Commery{% endblock %}
-
+{% block title %} Подключения к WB - Commery{% endblock %}
 {% block styles %}
-    <link rel="stylesheet" href="{% static 'users/css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/common_form.css' %}">
+<link rel="stylesheet" href="{% static 'users/css/companies.css' %}">
 {% endblock %}
-
 {% block content %}
-<div class="container">
-    <div class="company_main-wrapper">
-        <div class="account_header-wrapper">
-            <div class="account_nav-menu" style="border-bottom: 1px solid #dbdbdb">
-                <ul class="account_nav-list">
-                    <li class="account_nav-item">
-                        <a href="{% url 'users:profile' %}" class="account_nav-link">
-                            Аккаунт
-                        </a>
-                    </li>
-                    <li class="account_nav-item">
-                        <a href="{% url 'users:companies_list' %}" class="account_nav-link nav_link-active">
-                            Магазин
-                        </a>
-                    </li>
-                </ul>
+{% if not companies or not current_api_key %}
+<div class="company-container">
+    <div class="common__content-wrapper common__content-medium">
+        <div class="common__content-container">
+            <h1>Подключение к WILDBERRIES по API</h1>
+            <div class="company__connection-block">
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect class="error__dot-icon" width="7" height="7" rx="3.5" />
+                </svg>
+                <p class="text__accent-bold">Отсутствует</p>
             </div>
+            <a href="{% url 'users:create_api_key' %}" class="accent-button">Создать подключение</a>
         </div>
-        {% if current_api_key %}
-        {% for key in api_keys %}
-        <div class="company_info-wrapper">
-            <div class="company_info-item">
-                <div class="company_info-header">
-                    <h1>{{ key.name }}</h1>
-                    <p>Название магазина</p>
-                </div>
-                <div class="company_info-middle">
-                    <div class="api_key-background"></div>
-                    <p>API ключ</p>
-                </div>
-                <div class="company_info-footer">
-                    <h1 class="footer_title">Налоги</h1>
-                    <div class="help_info-wrapper">
-                        <img src="{% static 'images/attention (2).svg' %}" alt="">
-                        <p>укажите ставку налога и она будет учтена при расчете прибыли от продаж</p>
-                    </div>
-                    {% if key.taxes.all %}
-                    {% for tax in key.taxes.all %}
-                    <div class="company_tax-item">
-                        <div class="tax_data-item">
-                            <h1>{{ tax.tax_rate|floatformat:0 }}%</h1>
-                            <p>Ставка налога</p>
-                        </div>
-                        <div class="tax_data-item">
-                            <h1>{{ tax.commencement_date|date:'d.m.Y' }}</h1>
-                            <p>Дата начала действия ставки</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="company_tax-item">
-                        <div class="tax_data-item">
-                            <h1>0%</h1>
-                            <p>Ставка налога</p>
-                        </div>
-                        <div class="tax_data-item">
-                            <h1>дд.мм.гггг</h1>
-                            <p>Дата начала действия ставки</p>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
+    </div>
+    <div>
+        <p class="text__accent">Для создания подключения используется API-ключ “Статистика” из Личного кабинета продавца WILDBERRIES. Данный типа ключа предоставляет доступ лишь к вашим Финансовым отчетам и ограничивает доступ к прочему функционалу Личного кабинета продавца.</p>
+        <br>
+        <p class="text__accent">Мы храним ваши ключи в зашифрованном виде на защищенных от несанкционированного проникновения серверах.</p>
+    </div>
+</div>
+{% else %}
+<div class="company__container-direction">
+    {% for company in companies %}
+    <div class="common__content-wrapper common__content-medium">
+        <div class="common__content-container">
+            <h1>Подключение к WILDBERRIES по API</h1>
+            <div class="company__connection-block">
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect class="success__dot-icon" width="7" height="7" rx="3.5" />
+                </svg>
+                <p class="text__accent-bold">Активно</p>
             </div>
-            <div class="company_info-links">
-                <form action="{% url 'users:company_delete' key.id %}" method="post" class="delete_company-form">
-                    {% csrf_token %}
-                    <button type="submit">удалить магазин</button>
-                </form>
-                <a href="{% url 'users:company_edit' key.id %}">Редактировать</a>
-            </div>
-        </div>
-        {% endfor %}
-
-        {% else %}
-        <div class="company_edit-wrapper">
-            <div class="company_edit-item">
-                <form action="." method="post" class="company_edit-form">
-                    {% csrf_token %}
-                    <div class="company-edit-body">
-                        <div class="company_edit-top">
-                            <div class="company_edit-name">
-                                <input type="text"
-                                       name="{{api_key_form.name.html_name}}"
-                                       value="{{api_key_form.api_key.value|default_if_none:''}}"
-                                       class="shop_name-input {% if api_key_form.name.errors %}invalid_input{% endif %}"
-                                       maxlength="65"
-                                       required=""
-                                       id="{{api_key_form.name.id_for_label}}"
-                                >
-                                <div class="middle_info-items">
-                                    <label for="id_name">Название магазина</label>
-                                    {{ api_key_form.name.errors }}
-                                </div>
-                            </div>
-                            <div class="company_edit-key">
-                                <textarea name="{{api_key_form.api_key.html_name}}"
-                                          cols="3"
-                                          rows="2"
-                                          class="api_key-input {% if api_key_form.api_key.errors %}invalid_input{% endif %}"
-                                          maxlength="655"
-                                          required=""
-                                          id="{{api_key_form.api_key.id_for_label}}">{{ api_key_form.api_key.value|default_if_none:'' }}</textarea>
-                                <div class="middle_info-items">
-                                    <label for="id_api_key">Api ключ. <a href="https://seller.wildberries.ru/supplier-settings/access-to-api" target="_blank" style="color: #ff8364">создать ключ статистики</a></label>
-                                    {{ api_key_form.api_key.errors }}
-                                    <a href="https://commery.ru/where-key" target="_blank">где взять ключ?</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="company_edit-middle">
-                            <h1 class="footer_title">Налоги</h1>
-                            <div class="help_info-wrapper">
-                                <img src="{% static 'images/attention (2).svg' %}" alt="">
-                                <p>укажите ставку налога и она будет учтена при расчете прибыли от продаж</p>
-                            </div>
-                        </div>
-                        <div class="company_edit-footer">
-                            <div class="tax_inputs-item" id="tax_input">
-                                <div class="input-item">
-                                    <input type="number" step="any" id="tax_rate" placeholder="%" name="tax_rate" style="width: 90px;">
-                                    <label for="tax_rate">Ставка налога</label>
-                                </div>
-                                <div class="input-item">
-                                    <input type="date" value="" id="commencement_date" name="commencement_date">
-                                    <label for="commencement_date">Дата начала действия</label>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="add_tax-button" id="add_tax">Добавить ставку</button>
+            <p class="text__common-bold" style="word-break: break-all">Название подключения: {{ company.name }}</p>
+            <div class="company__buttons-wrapper">
+                <a class="accent-link" href="{% url 'users:api_key_edit' company.id %}">Редактировать</a>
+                <div id="delete-company" class="companies__delete-button">
+                    <p class="text__common-bold">Остановить</p>
+                    <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+                        <path class="company__delete-icon" fill-rule="evenodd" clip-rule="evenodd" d="M7.5 13.8281C4.00508 13.8281 1.17188 10.9949 1.17188 7.5C1.17188 5.99345 1.69834 4.60986 2.57733 3.52316L11.4768 12.4227C10.3901 13.3017 9.00655 13.8281 7.5 13.8281ZM12.3163 11.6049C13.259 10.4998 13.8281 9.06637 13.8281 7.5C13.8281 4.00508 10.9949 1.17188 7.5 1.17188C5.93362 1.17188 4.50019 1.74097 3.39514 2.68369L12.3163 11.6049ZM0 7.5C0 3.35786 3.35786 0 7.5 0C11.6421 0 15 3.35786 15 7.5C15 11.6421 11.6421 15 7.5 15C3.35786 15 0 11.6421 0 7.5Z" />
+                    </svg>
+                    <div class="delete__company-modal__container">
+                        <h1>Подтверждение отключения</h1>
+                        <p class="text__common-normal">Будут удалены все загруженные ранее отчеты WILDBERRIES и прочие данные</p>
+                        <form action="{% url 'users:company_delete' company.id %}" method="post" class="delete__company-form">
+                            {% csrf_token %}
+                            <button type="button" class="accent-button" id="cancel-company-delete">Отменить</button>
+                            <button type="submit" class="approve__delete-company__button">
+                                <p class="text__common-bold">Остановить</p>
+                                <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+                                    <path class="company__delete-icon" fill-rule="evenodd" clip-rule="evenodd" d="M7.5 13.8281C4.00508 13.8281 1.17188 10.9949 1.17188 7.5C1.17188 5.99345 1.69834 4.60986 2.57733 3.52316L11.4768 12.4227C10.3901 13.3017 9.00655 13.8281 7.5 13.8281ZM12.3163 11.6049C13.259 10.4998 13.8281 9.06637 13.8281 7.5C13.8281 4.00508 10.9949 1.17188 7.5 1.17188C5.93362 1.17188 4.50019 1.74097 3.39514 2.68369L12.3163 11.6049ZM0 7.5C0 3.35786 3.35786 0 7.5 0C11.6421 0 15 3.35786 15 7.5C15 11.6421 11.6421 15 7.5 15C3.35786 15 0 11.6421 0 7.5Z"/>
+                                </svg>
+                            </button>
+                        </form>
                     </div>
-            </div>
-            <div class="company_edit-buttons">
-                <button class="send_form-button" type="submit">Сохранить</button>
-            </div>
-            </form>
-        </div>
-        {% endif %}
-        <div class="delete_warning-wrapper" id="warning_wrapper">
-            <div class="delete_warning-container">
-                <img class="delete_warning-img" src="{% static 'images/iconizer-4201973.svg' %}" alt="">
-                <p class="delete_warning-text">С удалением магазина будут стерты все <br> данные, загруженные из Wildberries!</p>
-                <div class="delete_warning-buttons">
-                    <button class="cancel_delete-button" type="button" id="cancel_btn">Отменить</button>
-                    <button class="accept_delete-button" type="submit" id="accept_btn">Подтвердить удаление</button>
                 </div>
             </div>
         </div>
     </div>
+    {% endfor %}
+    {% if api_keys_count <= 10 %}
+    <a class="accent-button" href="{% url 'users:create_api_key' %}">Добавить подключение</a>
+    {% endif %}
 </div>
-<script src="{% static 'users/js/profile.js' %}"></script>
-<script src="{% static 'users/js/companies_list.js' %}"></script>
+{% endif %}
+
+<script src="{% static 'js/handleInputsValidation.js' %}"></script>
+<script src="{% static 'users/js/companies.js' %}"></script>
 {% endblock %}

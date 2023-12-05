@@ -1,133 +1,282 @@
 import datetime
-import json
 import logging
-from typing import List, Union
+from typing import List
 
-import pandas as pd
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, QuerySet
-from django.http import Http404, JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.views.generic.list import ListView
+from django.http import HttpResponse, Http404
 from django.contrib import messages
 
-from reports.forms import SaleReportForm, LoadReportAdditionalDataFrom, ReportByBarcodeForm
-from reports.services.check_datetime_format_service import check_datetime_format
-from reports.services.execute_generating_reports_services import get_full_user_report, get_detail_report_by_barcode, \
+from reports.forms import LoadReportAdditionalDataFrom
+from reports.mixins import RedirectUnauthenticatedToDemo
+from reports.services.execute_generating_reports_services import get_full_user_report, get_report_by_barcode, \
     get_report_by_barcodes
-from reports.services.generating_export_dataframe import get_barcodes_detail_dataframe
+from reports.services.generating_export_dataframe import get_barcodes_detail_dataframe, get_penalties_dataframe
 
 from reports.services.get_filters_db_data_service import get_filters_db_data
 from reports.services.handle_graphs_filter_data import get_filter_data
 from reports.services.handle_report_additional_data_filte_service import create_reports_additional_data
+from reports.services.report_generation_services.generate_period_filters_services import \
+    generate_period_filter_conditions
+from reports.services.report_generation_services.generating_report_db_data_services import get_penalties
+from reports.services.report_generation_services.get_demo_dashboard_data_services import get_demo_dashboard_data, \
+    get_demo_dashboard_by_barcode_data, get_demo_xyz_abc_data
 
-from users.models import SaleReport, IncorrectReport, UnloadedReports
+from users.models import SaleReport, IncorrectReport, SaleObject
 
 django_logger = logging.getLogger('django_logger')
 
 
-class DashboardView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
+class ReportsListView(ListView):
+    model = SaleReport
+    template_name = 'reports/reports_list.html'
+    unauthorized_template_name = 'reports/unauthorized_reports_list.html'
+    context_object_name = 'reports'
+    form_class = LoadReportAdditionalDataFrom
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(request, self.unauthorized_template_name)
+
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        incorrect_reports = IncorrectReport.objects.filter(owner=self.request.user, api_key__is_current=True)
+
+        correct_reports = (self.model.objects
+                           .filter(owner=self.request.user, api_key__is_current=True)
+                           .order_by('-create_dt')
+                           )
+
+        queryset = {"correct_reports": correct_reports, "incorrect_reports": incorrect_reports}
+
+        return queryset
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class()
+        return context
+
+
+class DemoDashboardMainView(View):
+    template_name = 'reports/demo_dashboard_main.html'
+
+    def get(self, request):
+        report = get_demo_dashboard_data()
+        return render(request, self.template_name, {"report": report})
+
+
+class DemoDashboardByBarcodeView(View):
+    template_name = 'reports/demo_dashboard_by_barcode.html'
+
+    def get(self, request):
+        report = get_demo_dashboard_by_barcode_data()
+        return render(request, self.template_name, {"report": report})
+
+
+class DemoDashboardAbcXyzView(View):
+    template_name = 'reports/demo_abc_xyz.html'
+
+    def get(self, request):
+        report = get_demo_xyz_abc_data()
+        return render(request, self.template_name, {"report": report})
+
+
+class DashboardMainView(RedirectUnauthenticatedToDemo, View):
+    template_name = 'reports/dashboard_main.html'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_main'
 
     def get(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
-            return render(request, 'reports/empty_dashboard.html')
+            return redirect(self.reverse_redirect_demo_url)
 
         try:
             current_filter_data: List[dict] = get_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
-                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                f'Unable to filter data by period in the DashboardMainView for the user- {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Ошибка фильтрации периода')
-            return redirect('reports:dashboard')
-
-        incorrect_reports_ids: Union[QuerySet, List[int]] = IncorrectReport.objects.filter(
-            api_key=current_api_key
-        ).values_list('realizationreport_id', flat=True)
-
-        filters_data: dict = get_filters_db_data(current_api_key)
+            return redirect('reports:dashboard_main')
 
         try:
             report = get_full_user_report(request.user, current_api_key, current_filter_data)
         except Exception as err:
             django_logger.critical(
-                f'It is impossible to calculate statistics in the dashboard for a user - {request.user.email}',
+                f'It is impossible to calculate statistics in the DashboardMainView for a user - {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Невозможно рассчитать статистику для отчётов. '
                                     'Пожалуйста, свяжитесь со службой поддержки')
-            return redirect('users:profile')
+            return redirect('reports:reports_list')
 
-        context = {
-            'report': report,
-            'incorrect_reports_ids': incorrect_reports_ids,
-            'filters_data': filters_data,
-            'current_filter_data': current_filter_data,
-            'is_unloaded_reports': UnloadedReports.objects.filter(api_key=current_api_key).exists()
-        }
-        return render(request, 'reports/dashboard.html', context)
+        filters_data: dict = get_filters_db_data(current_api_key)
+
+        return render(
+            request, self.template_name, {
+                "report": report,
+                'filters_data': filters_data,
+                'current_filter_data': current_filter_data
+            }
+        )
 
 
-class ReportByBarcodesView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
+class DashboardByBarcode(RedirectUnauthenticatedToDemo, View):
+    template_name = 'reports/dashboard_by_barcodes.html'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_by_barcode'
 
-    def get(self, request):
+    def get(self, request, barcode):
         current_api_key = request.user.keys.filter(is_current=True).first()
+        is_barcode_exists = SaleObject.objects.filter(api_key=current_api_key, barcode=barcode).exists()
+
+        if not is_barcode_exists:
+            raise Http404('Данного баркода не существует')
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
-            return render(request, 'reports/empty_dashboard.html')
+            return redirect(self.reverse_redirect_demo_url)
 
         try:
             current_filter_data: List[dict] = get_filter_data(dict(request.GET))
         except Exception as err:
             django_logger.critical(
-                f'Unable to filter data by period in the report for the user- {request.user.email}',
+                f'Unable to filter data by period in the DashboardByBarcode for the user- {request.user.email}',
                 exc_info=err
             )
             messages.error(request, 'Ошибка фильтрации периода')
-            return redirect('reports:dashboard')
+            return redirect('reports:dashboard_main')
+
+        try:
+            report_by_barcodes = get_report_by_barcode(
+                request.user,
+                current_api_key,
+                current_filter_data,
+                barcode
+            )
+        except Exception as err:
+            django_logger.critical(
+                f'It is impossible to calculate statistics in the DashboardByBarcode for a user - {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Невозможно рассчитать статистику для баркода. '
+                                    'Пожалуйста, свяжитесь со службой поддержки')
+            return redirect('reports:dashboard_main')
+
+        filters_data: dict = get_filters_db_data(current_api_key)
+
+        context = {
+            'report': report_by_barcodes,
+            'filters_data': filters_data,
+            'current_filter_data': current_filter_data,
+            'current_barcode': str(barcode)
+        }
+
+        return render(request, self.template_name, context)
+
+
+class DashboardAbcXyzView(RedirectUnauthenticatedToDemo, View):
+    template_name = 'reports/dashboard_abc_xyz.html'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_abc_xyz'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+
+        if not current_api_key or not current_api_key.is_wb_data_loaded:
+            return redirect(self.reverse_redirect_demo_url)
+
+        try:
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
+        except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the DashboardAbcXyzView for the user- {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Ошибка фильтрации периода')
+            return redirect('reports:dashboard_main')
 
         try:
             report_by_barcodes = get_report_by_barcodes(
                 request.user,
                 current_api_key,
-                current_filter_data
+                current_filter_data,
+                True
             )
         except Exception as err:
             django_logger.critical(
-                f'It is impossible to calculate statistics in the barcodes detail for a user - {request.user.email}',
+                f'It is impossible to calculate statistics in the DashboardAbcXyzView for a user - {request.user.email}',
                 exc_info=err
             )
-            messages.error(request, 'Невозможно рассчитать статистику для товаров. '
+            messages.error(request, 'Невозможно рассчитать статистику для баркода. '
                                     'Пожалуйста, свяжитесь со службой поддержки')
-            return redirect('reports:dashboard')
+            return redirect('reports:dashboard_main')
 
         filters_data: dict = get_filters_db_data(current_api_key)
 
         context = {
-            'report_by_barcodes': json.dumps(report_by_barcodes),
+            'report': report_by_barcodes,
             'filters_data': filters_data,
             'current_filter_data': current_filter_data,
         }
 
-        return render(request, 'reports/dashboard_by_barcodes.html', context)
+        return render(request, self.template_name, context)
 
 
-class ExportReportByBarcodesView(LoginRequiredMixin, View):
+class ExportReportByBarcodesView(RedirectUnauthenticatedToDemo, LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_by_barcode'
 
     def get(self, request):
         current_api_key = request.user.keys.filter(is_current=True).first()
 
         if not current_api_key or not current_api_key.is_wb_data_loaded:
-            return render(request, 'reports/empty_dashboard.html')
+            return redirect(self.reverse_redirect_demo_url)
+
+        try:
+            current_filter_data: List[dict] = get_filter_data(dict(request.GET))
+        except Exception as err:
+            django_logger.critical(
+                f'Unable to filter data by period in the ExportReportByBarcodesView for the user- {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Ошибка фильтрации периода')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        try:
+            report_by_barcodes = get_report_by_barcodes(request.user, current_api_key, current_filter_data)
+        except Exception as err:
+            django_logger.critical(
+                f'It is impossible to calculate statistics in the ExportReportByBarcodesView for a user - {request.user.email}',
+                exc_info=err
+            )
+            messages.error(request, 'Невозможно рассчитать статистику для товаров. '
+                                    'Пожалуйста, свяжитесь со службой поддержки')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = \
+            f'attachment; filename="barcodes_detail_report_{datetime.datetime.now().strftime("%d.%m.%Y")}.xlsx"'
+
+        report_by_barcodes_df = get_barcodes_detail_dataframe(report_by_barcodes.get('products_calculated_values'))
+        report_by_barcodes_df.to_excel(response, index=False)
+
+        return response
+
+
+class ExportPenaltiesListView(RedirectUnauthenticatedToDemo, LoginRequiredMixin, View):
+    login_url = 'users:login'
+    redirect_field_name = 'login'
+    reverse_redirect_demo_url = 'reports:demo_dashboard_main'
+
+    def get(self, request):
+        current_api_key = request.user.keys.filter(is_current=True).first()
+
+        if not current_api_key or not current_api_key.is_wb_data_loaded:
+            return redirect(self.reverse_redirect_demo_url)
 
         try:
             current_filter_data: List[dict] = get_filter_data(dict(request.GET))
@@ -137,141 +286,20 @@ class ExportReportByBarcodesView(LoginRequiredMixin, View):
                 exc_info=err
             )
             messages.error(request, 'Ошибка фильтрации периода')
-            return redirect('reports:dashboard')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
 
-        report_by_barcodes = get_report_by_barcodes(request.user, current_api_key, current_filter_data)
+        filter_period_conditions: dict = generate_period_filter_conditions(current_filter_data)
+
+        penalties = get_penalties(request.user, current_api_key, filter_period_conditions)
 
         response = HttpResponse(content_type='application/ms-excel')
         response['Content-Disposition'] = \
-            f'attachment; filename="barcodes_detail_report_{datetime.datetime.now().strftime("%d.%m.%Y")}.xlsx"'
+            f'attachment; filename="penalties_{datetime.datetime.now().strftime("%d.%m.%Y")}.xlsx"'
 
-        report_by_barcodes_df = get_barcodes_detail_dataframe(report_by_barcodes)
+        report_by_barcodes_df = get_penalties_dataframe(penalties)
         report_by_barcodes_df.to_excel(response, index=False)
 
         return response
-
-
-class ReportByBarcodeView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-    form_class = ReportByBarcodeForm
-
-    def post(self, request):
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        form = self.form_class(request.POST)
-
-        if is_ajax:
-            if form.is_valid():
-                current_api_key = request.user.keys.filter(is_current=True).first()
-                try:
-                    report_by_barcode = get_detail_report_by_barcode(
-                        request.user, current_api_key, form.cleaned_data['period_filters'],
-                        form.cleaned_data['barcode'], form.cleaned_data['nm_id'])
-                except Exception as err:
-                    django_logger.critical(
-                        f'It is impossible to calculate statistics in the dashboard by barcode for a user - '
-                        f'{request.user.email}',
-                        exc_info=err
-                    )
-                    return JsonResponse({'status': False}, status=400)
-                data = {
-                    'status': True,
-                    **report_by_barcode,
-                    'barcode': form.cleaned_data['barcode'],
-                    'abc_group': form.cleaned_data['abc_group'],
-                    'xyz_group': form.cleaned_data['xyz_group'],
-                    'nm_id': form.cleaned_data['nm_id'],
-                    'image': form.cleaned_data['image'],
-                    'product_name': form.cleaned_data['product_name']
-                }
-                return JsonResponse(data, status=200)
-            return JsonResponse({'status': False}, status=400)
-        return HttpResponseBadRequest('Invalid request')
-
-
-class ReportDetailView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-    form_class = SaleReportForm
-
-    def get(self, request, create_dt):
-        if not check_datetime_format(create_dt):
-            return redirect('users:profile')
-
-        reports = SaleReport.objects.filter(
-            api_key__is_current=True,
-            api_key__user=request.user,
-            create_dt__date=create_dt
-        ).order_by('realizationreport_id')
-
-        if len(reports) == 0:
-            raise Http404
-
-        blank_reports_list = SaleReport.objects.filter(
-            Q(storage_cost__isnull=True) |
-            Q(cost_paid_acceptance__isnull=True) |
-            Q(other_deductions__isnull=True) |
-            Q(supplier_costs__isnull=True),
-            owner=request.user,
-            api_key__is_current=True,
-            api_key__user=request.user,
-            ).values_list('create_dt', flat=True)
-
-        create_dt_list = SaleReport.objects.filter(
-            api_key__is_current=True, api_key__user=request.user).distinct('create_dt').order_by(
-            '-create_dt').values('create_dt', 'week_num')
-
-        context = {
-            'create_dt_list': create_dt_list,
-            'reports': reports,
-            'blank_reports_list': blank_reports_list,
-            'forms': [self.form_class(instance=report) for report in reports],
-            'file_load_form': LoadReportAdditionalDataFrom()
-        }
-        return render(request, 'reports/report_detail.html', context)
-
-    def post(self, request, create_dt):
-
-        storage_costs = request.POST.getlist('storage_cost')
-        cost_paid_acceptances = request.POST.getlist('cost_paid_acceptance')
-        other_deductions = request.POST.getlist('other_deductions')
-        reports = SaleReport.objects.filter(
-            api_key__is_current=True,
-            api_key__user=request.user,
-            create_dt__date=create_dt
-        ).order_by('realizationreport_id')
-
-        reports_forms = []
-
-        for storage_cost, cost_paid, deduction, report in zip(
-                storage_costs, cost_paid_acceptances, other_deductions, reports
-        ):
-            reports_forms.append(self.form_class({
-                'storage_cost': storage_cost,
-                'cost_paid_acceptance': cost_paid,
-                'other_deductions': deduction,
-                'supplier_costs': request.POST.get('supplier_costs')
-            }, instance=report))
-
-        if all([form.is_valid() for form in reports_forms]):
-            for reports_form in reports_forms:
-                reports_form.save()
-
-            messages.success(request, 'Данные успешно сохранены.')
-            return redirect(request.META.get('HTTP_REFERER', '/'))
-
-        messages.error(
-            request,
-            'Произошла ошибка валидцаии формы. Убедитесь, что количество символов в полях не превышает 13')
-
-        context = {
-            'create_dt_list': SaleReport.objects.filter(
-                api_key__is_current=True, api_key__user=request.user).distinct('create_dt').order_by(
-                '-create_dt').values('create_dt', 'week_num'),
-            'reports': reports,
-            'forms': reports_forms,
-        }
-        return render(request, 'reports/report_detail.html', context)
 
 
 class LoadReportAdditionalDataView(LoginRequiredMixin, View):
@@ -297,36 +325,22 @@ class LoadReportAdditionalDataView(LoginRequiredMixin, View):
                     request,
                     'Не удалось обработать файл. Пожалуйста, убедитесь в корректности данных внутри файла'
                 )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+                return redirect("reports:reports_list")
             if file_handling_status:
                 messages.success(
                     request,
                     'Значения успешно обновлены'
                 )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+                return redirect("reports:reports_list")
             else:
                 messages.error(
                     request,
                     'Ошибка валидации файла. Пожалуйста, убедитесь в корректности данных внутри файла'
                 )
-                return redirect(request.META.get('HTTP_REFERER', '/'))
+                return redirect("reports:reports_list")
+
         messages.error(
             request,
             'Не удалось загрузить файл. Пожалуйста, убедитесь, что расширение загружаемого файла - .xlsx'
         )
-        return redirect(request.META.get('HTTP_REFERER', '/'))
-
-
-class EmptyReportsView(LoginRequiredMixin, View):
-    login_url = 'users:login'
-    redirect_field_name = 'login'
-
-    def get(self, request):
-        current_api_key = request.user.keys.filter(is_current=True).first()
-
-        if current_api_key and current_api_key.is_wb_data_loaded:
-            return redirect(
-                'reports:report_detail', create_dt=SaleReport.objects.filter(
-                    api_key=current_api_key).order_by('-create_dt').first().create_dt.strftime('%Y-%m-%d'))
-
-        return render(request, 'reports/empty_reports.html')
+        return redirect("reports:reports_list")

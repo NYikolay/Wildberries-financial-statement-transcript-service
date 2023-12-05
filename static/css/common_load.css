@@ -1,0 +1,55 @@
+.common__load-container {
+    flex: 1;
+    align-self: flex-start;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 17px;
+}
+
+.common__load-medium {
+    max-width: 289px;
+}
+
+.common__load-description__item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.common__load-label {
+    color: var(--var-blue-accent-color) !important;
+    text-decoration: underline;
+}
+
+.common__load-label:hover {
+    text-decoration: none;
+    transition: .4s;
+}
+
+.common__load-status {
+    display: flex;
+    gap: 10px;
+}
+
+.common__load-form__buttons {
+    display: flex;
+    gap: 33px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.common__load-cancel__button {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #5C659D;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 15px;
+}
+
+.common__load-input {
+    display: none;
+}

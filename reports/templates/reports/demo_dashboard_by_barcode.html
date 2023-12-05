@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Потоварно - Commery {% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'reports/css/dashboard_by_barcodes.css' %}">
+<link rel="stylesheet" href="{% static 'reports/css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/products.css' %}">
+{% endblock %}
+{% block content %}
+<div class="filters__flex-container">
+    {% include 'reports/includes/graph_filters.html' %}
+    <a class="download_link" style="font-size: 12px">
+        Скачать в xlsx
+        <svg width="13" height="13" class="download-icon" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 0C6.89264 0 7.21094 0.318298 7.21094 0.710938V7.70789L8.88744 6.00172C9.16263 5.72165 9.61276 5.71771 9.89281 5.99291C10.1729 6.2681 10.1768 6.71821 9.90163 6.99828L7.0684 9.88167C6.77171 10.1836 6.28577 10.1857 5.98646 9.88641L3.10276 7.00271C2.82512 6.72508 2.82512 6.27492 3.10276 5.99729C3.38039 5.71965 3.83054 5.71965 4.10818 5.99729L5.78906 7.67818V0.710938C5.78906 0.318298 6.10736 0 6.5 0ZM0.710938 8.63281C1.10358 8.63281 1.42188 8.95111 1.42188 9.34375V10.1055C1.42188 10.9188 2.08121 11.5781 2.89453 11.5781H10.1055C10.9188 11.5781 11.5781 10.9188 11.5781 10.1055V9.36914C11.5781 8.9765 11.8964 8.6582 12.2891 8.6582C12.6817 8.6582 13 8.9765 13 9.36914V10.1055C13 11.7041 11.7041 13 10.1055 13H2.89453C1.29593 13 0 11.7041 0 10.1055V9.34375C0 8.95111 0.318298 8.63281 0.710938 8.63281Z" fill="white"/>
+        </svg>
+    </a>
+</div>
+<div class="dashboard-wrapper">
+    <div class="products-container">
+        {% for p in report.products_by_barcodes %}
+        <a href="">
+            <div class="product__item product__item-active">
+                {% if p.image %}
+                <img class="product-image" src="{{ p.image }}" alt="Артикул {{ p.nm_id }}">
+                {% else %}
+                <div class="empty__product-image__wrapper">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" fill="#32396B"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.591 10.2286C10.8958 9.92379 11.3901 9.92379 11.6949 10.2286L12.9415 11.4752C12.9885 11.4731 13.0358 11.472 13.0833 11.472H26.8996C28.6024 11.472 29.9829 12.8524 29.9829 14.5553V25.3663C29.9829 26.2348 29.6238 27.0194 29.046 27.5798L29.7714 28.3051C30.0762 28.61 30.0762 29.1042 29.7714 29.409C29.4665 29.7139 28.9723 29.7139 28.6675 29.409L27.6228 28.3643C27.3908 28.4201 27.1486 28.4496 26.8996 28.4496H13.0833C11.3804 28.4496 10 27.0692 10 25.3663V14.5553C10 13.5174 10.5128 12.5993 11.2989 12.0405L10.591 11.3325C10.2861 11.0277 10.2861 10.5335 10.591 10.2286ZM11.5612 14.5553C11.5612 13.9462 11.9189 13.4207 12.4358 13.1774L15.0054 15.747C14.3402 15.9837 13.8639 16.6189 13.8639 17.3654C13.8639 18.3138 14.6327 19.0827 15.5812 19.0827C16.3276 19.0827 16.9629 18.6064 17.1995 17.9411L20.2503 20.9918L18.5083 23.2978L17.2303 21.7137C16.4315 20.7238 14.952 20.6416 14.0485 21.537L11.5612 24.0024V14.5553ZM14.4994 13.0332L27.9419 26.4756C28.2372 26.198 28.4217 25.8037 28.4217 25.3663V24.9747L22.2551 18.7704L22.7235 18.5363L23.3674 18.3997L23.8943 18.3411L24.5578 18.4582L25.1237 18.7119L25.5921 19.0632L26.0604 19.5705L28.4217 22.4754V14.5553C28.4217 13.7147 27.7402 13.0332 26.8996 13.0332H14.4994Z" fill="#5C659D"/>
+                    </svg>
+                </div>
+                {% endif %}
+                <div class="product__item-description">
+                    <div class="product__item-description__inner">
+                        <p class="text__accent-bold">{{ p.product_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text__accent">Баркод: {{ p.barcode }}</p>
+                        <p class="text__accent">Артикул: {{ p.nm_id }}</p>
+                        <p class="text__accent">Размер: {{ p.ts_name }}</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div class="report-container">
+        <div class="indicators-container">
+            <div class="indicator-item" data-is-active="true" data-item-description="revenue" data-item-total='{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.revenue_total|floatformat:0|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">Выручка</p>
+                        <div class="tooltip">
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="#5C659D" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.914063 6.5C0.914063 9.58502 3.41498 12.0859 6.5 12.0859C9.58502 12.0859 12.0859 9.58502 12.0859 6.5C12.0859 3.41498 9.58502 0.914063 6.5 0.914063C3.41498 0.914063 0.914063 3.41498 0.914063 6.5ZM6.5 0C2.91014 0 0 2.91014 0 6.5C0 10.0899 2.91014 13 6.5 13C10.0899 13 13 10.0899 13 6.5C13 2.91014 10.0899 0 6.5 0ZM5.66211 8.88672C5.66211 8.52212 5.95767 8.22656 6.32227 8.22656C6.68686 8.22656 6.98242 8.52212 6.98242 8.88672C6.98242 9.25132 6.68686 9.54688 6.32227 9.54688C5.95767 9.54688 5.66211 9.25132 5.66211 8.88672ZM7.25488 4.43727C7.35652 4.60358 7.34763 4.81483 7.23236 4.97201L7.12397 5.11982C7.0915 5.16409 7.0543 5.20469 7.01301 5.24087L6.31237 5.85515C6.18818 5.96402 6.08427 6.09405 6.00547 6.2392C5.85076 6.5242 5.79999 6.85414 5.86186 7.17247L5.88534 7.29323C5.9335 7.541 6.1734 7.70283 6.42117 7.65466C6.66895 7.6065 6.83077 7.3666 6.78262 7.11883L6.75913 6.99806C6.73774 6.88797 6.7553 6.77385 6.8088 6.67528C6.83605 6.62508 6.87199 6.58011 6.91494 6.54247L7.61559 5.92819C7.70693 5.84812 7.78925 5.75831 7.86107 5.66036L7.96946 5.51256C8.30398 5.05638 8.3298 4.44332 8.03484 3.96064C7.81747 3.60494 7.45239 3.36514 7.03964 3.30692L6.64927 3.25186C6.42667 3.22047 6.20017 3.23096 5.98144 3.28282L5.78818 3.32864C5.31039 3.44193 4.92322 3.79081 4.76101 4.25429C4.67763 4.49254 4.80316 4.75326 5.04141 4.83665C5.27965 4.92003 5.54037 4.79449 5.62376 4.55626C5.68303 4.38692 5.82449 4.25944 5.99905 4.21805L6.19229 4.17223C6.30015 4.14666 6.41184 4.14149 6.52161 4.15697L6.91196 4.21203C7.05419 4.23208 7.17998 4.31471 7.25488 4.43727Z" />
+                            </svg>
+                            <span class="tooltiptext">Сумма продаж SKU по цене, учитывающей СПП (рассчитывается по полю Финансового отчета "Вайлдберриз реализовал Товар (Пр)")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="rom" data-item-total='{{ report.totals.rom_total }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.rom_total }}%</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">ROM</p>
+                        <div class="tooltip">
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="#5C659D" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.914063 6.5C0.914063 9.58502 3.41498 12.0859 6.5 12.0859C9.58502 12.0859 12.0859 9.58502 12.0859 6.5C12.0859 3.41498 9.58502 0.914063 6.5 0.914063C3.41498 0.914063 0.914063 3.41498 0.914063 6.5ZM6.5 0C2.91014 0 0 2.91014 0 6.5C0 10.0899 2.91014 13 6.5 13C10.0899 13 13 10.0899 13 6.5C13 2.91014 10.0899 0 6.5 0ZM5.66211 8.88672C5.66211 8.52212 5.95767 8.22656 6.32227 8.22656C6.68686 8.22656 6.98242 8.52212 6.98242 8.88672C6.98242 9.25132 6.68686 9.54688 6.32227 9.54688C5.95767 9.54688 5.66211 9.25132 5.66211 8.88672ZM7.25488 4.43727C7.35652 4.60358 7.34763 4.81483 7.23236 4.97201L7.12397 5.11982C7.0915 5.16409 7.0543 5.20469 7.01301 5.24087L6.31237 5.85515C6.18818 5.96402 6.08427 6.09405 6.00547 6.2392C5.85076 6.5242 5.79999 6.85414 5.86186 7.17247L5.88534 7.29323C5.9335 7.541 6.1734 7.70283 6.42117 7.65466C6.66895 7.6065 6.83077 7.3666 6.78262 7.11883L6.75913 6.99806C6.73774 6.88797 6.7553 6.77385 6.8088 6.67528C6.83605 6.62508 6.87199 6.58011 6.91494 6.54247L7.61559 5.92819C7.70693 5.84812 7.78925 5.75831 7.86107 5.66036L7.96946 5.51256C8.30398 5.05638 8.3298 4.44332 8.03484 3.96064C7.81747 3.60494 7.45239 3.36514 7.03964 3.30692L6.64927 3.25186C6.42667 3.22047 6.20017 3.23096 5.98144 3.28282L5.78818 3.32864C5.31039 3.44193 4.92322 3.79081 4.76101 4.25429C4.67763 4.49254 4.80316 4.75326 5.04141 4.83665C5.27965 4.92003 5.54037 4.79449 5.62376 4.55626C5.68303 4.38692 5.82449 4.25944 5.99905 4.21805L6.19229 4.17223C6.30015 4.14666 6.41184 4.14149 6.52161 4.15697L6.91196 4.21203C7.05419 4.23208 7.17998 4.31471 7.25488 4.43727Z" />
+                            </svg>
+                            <span class="tooltiptext">Рентабельность продукции показывает сколько прибыли получено с каждого рубля, потраченного на производство/закуп, и рассчитывается как отношение Валовой прибыли к Себестоимости продаж для выбранного SKU</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item " data-item-description="salesCount" data-item-total='{{ report.totals.sales_amount_total|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.sales_amount_total|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">Продажи</p>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="commission" data-item-total='{{ report.totals.commission_total|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.commission_total|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">Комиссия</p>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="penalty" data-item-total='{{ report.totals.penalty_total|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.penalty_total|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">Штрафы</p>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="totalPayable" data-item-total='{{ report.totals.total_payable|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.total_payable|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 7px;">
+                        <p class="text__common-normal">Валовая прибыль</p>
+                        <div class="tooltip">
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="#5C659D" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.914063 6.5C0.914063 9.58502 3.41498 12.0859 6.5 12.0859C9.58502 12.0859 12.0859 9.58502 12.0859 6.5C12.0859 3.41498 9.58502 0.914063 6.5 0.914063C3.41498 0.914063 0.914063 3.41498 0.914063 6.5ZM6.5 0C2.91014 0 0 2.91014 0 6.5C0 10.0899 2.91014 13 6.5 13C10.0899 13 13 10.0899 13 6.5C13 2.91014 10.0899 0 6.5 0ZM5.66211 8.88672C5.66211 8.52212 5.95767 8.22656 6.32227 8.22656C6.68686 8.22656 6.98242 8.52212 6.98242 8.88672C6.98242 9.25132 6.68686 9.54688 6.32227 9.54688C5.95767 9.54688 5.66211 9.25132 5.66211 8.88672ZM7.25488 4.43727C7.35652 4.60358 7.34763 4.81483 7.23236 4.97201L7.12397 5.11982C7.0915 5.16409 7.0543 5.20469 7.01301 5.24087L6.31237 5.85515C6.18818 5.96402 6.08427 6.09405 6.00547 6.2392C5.85076 6.5242 5.79999 6.85414 5.86186 7.17247L5.88534 7.29323C5.9335 7.541 6.1734 7.70283 6.42117 7.65466C6.66895 7.6065 6.83077 7.3666 6.78262 7.11883L6.75913 6.99806C6.73774 6.88797 6.7553 6.77385 6.8088 6.67528C6.83605 6.62508 6.87199 6.58011 6.91494 6.54247L7.61559 5.92819C7.70693 5.84812 7.78925 5.75831 7.86107 5.66036L7.96946 5.51256C8.30398 5.05638 8.3298 4.44332 8.03484 3.96064C7.81747 3.60494 7.45239 3.36514 7.03964 3.30692L6.64927 3.25186C6.42667 3.22047 6.20017 3.23096 5.98144 3.28282L5.78818 3.32864C5.31039 3.44193 4.92322 3.79081 4.76101 4.25429C4.67763 4.49254 4.80316 4.75326 5.04141 4.83665C5.27965 4.92003 5.54037 4.79449 5.62376 4.55626C5.68303 4.38692 5.82449 4.25944 5.99905 4.21805L6.19229 4.17223C6.30015 4.14666 6.41184 4.14149 6.52161 4.15697L6.91196 4.21203C7.05419 4.23208 7.17998 4.31471 7.25488 4.43727Z" />
+                            </svg>
+                            <span class="tooltiptext">Разница между выручкой, не учитывающей СПП (рассчитывается по полю Финансового отчета "Цена розничная с учетом согласованной скидки") и Комиссией, Логистикой, Штрафами, Доплатами, Себестоимостью продаж для выбранного SKU</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="marginality" data-item-total='{{ report.totals.marginality_total }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.marginality_total }}%</h1>
+                    <div style="display: flex; align-items: center; gap: 9px;">
+                        <p class="text__common-normal">Маржинальность</p>
+                        <div class="tooltip">
+                            <svg width="13" height="13" viewBox="0 0 13 13" fill="#5C659D" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.914063 6.5C0.914063 9.58502 3.41498 12.0859 6.5 12.0859C9.58502 12.0859 12.0859 9.58502 12.0859 6.5C12.0859 3.41498 9.58502 0.914063 6.5 0.914063C3.41498 0.914063 0.914063 3.41498 0.914063 6.5ZM6.5 0C2.91014 0 0 2.91014 0 6.5C0 10.0899 2.91014 13 6.5 13C10.0899 13 13 10.0899 13 6.5C13 2.91014 10.0899 0 6.5 0ZM5.66211 8.88672C5.66211 8.52212 5.95767 8.22656 6.32227 8.22656C6.68686 8.22656 6.98242 8.52212 6.98242 8.88672C6.98242 9.25132 6.68686 9.54688 6.32227 9.54688C5.95767 9.54688 5.66211 9.25132 5.66211 8.88672ZM7.25488 4.43727C7.35652 4.60358 7.34763 4.81483 7.23236 4.97201L7.12397 5.11982C7.0915 5.16409 7.0543 5.20469 7.01301 5.24087L6.31237 5.85515C6.18818 5.96402 6.08427 6.09405 6.00547 6.2392C5.85076 6.5242 5.79999 6.85414 5.86186 7.17247L5.88534 7.29323C5.9335 7.541 6.1734 7.70283 6.42117 7.65466C6.66895 7.6065 6.83077 7.3666 6.78262 7.11883L6.75913 6.99806C6.73774 6.88797 6.7553 6.77385 6.8088 6.67528C6.83605 6.62508 6.87199 6.58011 6.91494 6.54247L7.61559 5.92819C7.70693 5.84812 7.78925 5.75831 7.86107 5.66036L7.96946 5.51256C8.30398 5.05638 8.3298 4.44332 8.03484 3.96064C7.81747 3.60494 7.45239 3.36514 7.03964 3.30692L6.64927 3.25186C6.42667 3.22047 6.20017 3.23096 5.98144 3.28282L5.78818 3.32864C5.31039 3.44193 4.92322 3.79081 4.76101 4.25429C4.67763 4.49254 4.80316 4.75326 5.04141 4.83665C5.27965 4.92003 5.54037 4.79449 5.62376 4.55626C5.68303 4.38692 5.82449 4.25944 5.99905 4.21805L6.19229 4.17223C6.30015 4.14666 6.41184 4.14149 6.52161 4.15697L6.91196 4.21203C7.05419 4.23208 7.17998 4.31471 7.25488 4.43727Z" />
+                            </svg>
+                            <span class="tooltiptext">Отношение разницы между Выручкой, учитывающей СПП, и Себестоимостью продаж к Выручке, учитывающей СПП для выбранного SKU</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="returnsCount" data-item-total='{{ report.totals.returns_amount_total|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.returns_amount_total|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">Возвраты</p>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="logistics" data-item-total='{{ report.totals.logistics_total|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.logistics_total|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">Логистика</p>
+                    </div>
+                </div>
+            </div>
+            <div class="indicator-item" data-item-description="additionalPayment" data-item-total='{{ report.totals.penalty_total|floatformat:"-3g" }}'>
+                {% include 'reports/includes/inactive_indicator_item.html' %}
+                <div class="indicator__item-text__wrapper">
+                    <h1 class="dark_h1">{{ report.totals.penalty_total|floatformat:"-3g" }}</h1>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <p class="text__common-normal">Доплаты</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common__content-wrapper">
+            <h1 style="margin-bottom: 20px;" id="current-indicator-title"></h1>
+            <canvas id="mainGraph" data-report-by-weeks-data="{{ report.report_by_weeks }}"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="{% static 'reports/js/demoIndicators.js' %}"></script>
+<script src="{% static 'reports/js/linearChart.js' %}"></script>
+<script src="{% static 'reports/js/filterByPeriod.js' %}"></script>
+{% endblock %}

@@ -15,6 +15,21 @@ services:
       - .env
     expose:
       - "5432"
+  pgbouncer:
+    image: bitnami/pgbouncer:latest
+    container_name: commery_pgbouncer
+    restart: always
+    environment:
+      - POSTGRESQL_USERNAME=${DB_USER}
+      - PGBOUNCER_DATABASE=${DB_NAME}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD}
+      - POSTGRESQL_HOST=${DB_HOST}
+      - POSTGRESQL_DATABASE=${DB_NAME}
+      - POSTGRESQL_PORT=${DB_PORT}
+      - PGBOUNCER_POOL_MODE=${POOL_MODE}
+      - PGBOUNCER_MAX_CLIENT_CONN=${MAX_CLIENT_CONN}
+    depends_on:
+      - db
   web:
     build:
       dockerfile: Dockerfile
@@ -31,7 +46,28 @@ services:
       - .:/commery_project
       - /var/web_logs:/commery_project/logs
     expose:
-      - 8000
+      - "8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+  webasgi:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: "prod"
+    image: commery_docker:prod
+    restart: always
+    container_name: commery_django_asgi
+    command: >
+      bash -c "./manage.py collectstatic --noinput && ./manage.py migrate && uvicorn config.asgi:application --host 0.0.0.0 --port 9000"
+    volumes:
+      - static_volume:/commery_project/staticfiles
+      - media_volume:/commery_project/media
+      - .:/commery_project
+      - /var/web_logs:/commery_project/logs
+    expose:
+      - "9000"
     env_file:
       - .env
     depends_on:
@@ -86,8 +122,23 @@ services:
     volumes:
       - static_volume:/commery_project/staticfiles
       - media_volume:/commery_project/media
+      - ./docker_nginx/certbot/conf:/etc/letsencrypt
+      - ./docker_nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - web
+      - webasgi
     ports:
-      - 80:80
+      - "80:80"
+      - "443:443"
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    depends_on:
+      - nginx
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./docker_nginx/certbot/conf:/etc/letsencrypt
+      - ./docker_nginx/certbot/www:/var/www/certbot
   grafana:
     image: grafana/grafana:8.5.2
     container_name: commery_grafana
@@ -105,6 +156,22 @@ services:
     depends_on:
       - loki
       - prometheus
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: commery-node-exporter
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--no-collector.powersupplyclass'
+    expose:
+      - 9100
   promtail:
     image: grafana/promtail:2.5.0
     container_name: commery_promtail
@@ -132,7 +199,12 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
-    command: --config.file=/etc/prometheus/prometheus.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
 
 volumes:
   static_volume:

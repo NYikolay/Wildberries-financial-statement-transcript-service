@@ -1,0 +1,41 @@
+.support-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.support-list li {
+    align-self: flex-start;
+}
+
+.support-list a {
+    font-weight: bold;
+    color: var(--var-accent-text-color) !important;
+    font-size: 10px;
+    line-height: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 11px 20px 11px 20px;
+    border-radius: 7px;
+    border: 1px solid var(--var-border-color);
+    background: var(--var-bgcolor);
+}
+
+.support-list div {
+    font-weight: bold;
+    color: var(--var-accent-text-color) !important;
+    font-size: 10px;
+    line-height: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 11px 20px 11px 20px;
+    border-radius: 7px;
+    border: 1px solid var(--var-border-color);
+    background: var(--var-bgcolor);
+}
+
+.support__icon {
+    fill: var(--var-support-icon-color);
+}

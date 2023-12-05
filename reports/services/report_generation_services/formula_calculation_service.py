@@ -201,6 +201,12 @@ def calculate_profit(
     return profit
 
 
+def calculate_rom(total_payable: float, net_costs_sum: float):
+    if net_costs_sum > 0:
+        return (total_payable / net_costs_sum) * 100
+    return 0
+
+
 def calculate_profitability(
         profit: float,
         revenue: float

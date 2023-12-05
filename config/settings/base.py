@@ -5,18 +5,16 @@ from pathlib import Path
 
 from config.json_logging_formatters import CustomJsonFormatter
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env()
 environ.Env.read_env()
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 SECRET_CODE = env("SECRET_CODE")
+SSE_NOTIFICATION_SECRET = env("SSE_NOTIFICATION_SECRET")
+SETTINGS_TYPE = env("SETTINGS_TYPE")
+ASGI_DJANGO_DOCKER_HOST = "http://webasgi:9000" if not SETTINGS_TYPE == "dev" else "http://web:8000"
 
 # Application definition
 
@@ -35,9 +33,12 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'django_otp.plugins.otp_totp',
     'django_prometheus',
+    'channels',
+    'django_eventstream',
 ]
 
 MIDDLEWARE = [
+    'django_grip.GripMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -65,16 +66,15 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'users.context_processors.user_additional_data_context.current_user_api_key',
-                'users.context_processors.user_additional_data_context.user_last_report_date',
-                'users.context_processors.user_additional_data_context.user_product_article',
-                'users.context_processors.user_additional_data_context.general_report_message'
+                'users.context_processors.user_additional_data_context.user_additional_data',
+                'users.context_processors.user_additional_data_context.current_path',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 
 # Database
@@ -86,8 +86,8 @@ DATABASES = {
         'NAME': env("DB_NAME"),
         'USER': env("DB_USER"),
         'PASSWORD': env("DB_PASSWORD"),
-        'HOST': env("DB_HOST"),
-        'PORT': env("DB_PORT")
+        'HOST': env("PGBOUNCER_HOST"),
+        'PORT': env("PGBOUNCER_PORT"),
     }
 }
 
@@ -138,6 +138,9 @@ CACHES = {
         'LOCATION': env("CACHE_LOCATION"),
     }
 }
+
+# DJANGO EVENT STREAM
+EVENTSTREAM_STORAGE_CLASS = 'django_eventstream.storage.DjangoModelStorage'
 
 # REDIS SETTINGS
 REDIS_HOST = env("REDIS_HOST")

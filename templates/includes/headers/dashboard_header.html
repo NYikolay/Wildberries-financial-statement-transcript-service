@@ -1,0 +1,81 @@
+{% load static %}
+<header>
+    <div class="data_header">
+        <ul class="header-nav">
+            {% url 'reports:dashboard_main' as dashboard_main_url %}
+            {% url 'reports:demo_dashboard_main' as demo_dashboard_main_url %}
+            <li>
+                <a
+                        href="{{ dashboard_main_url }}"
+                        class="{% if request.path == dashboard_main_url or request.path == demo_dashboard_main_url %} active_link {% endif %}">
+                    Сводный отчёт
+                </a>
+            </li>
+            {% url 'reports:dashboard_by_barcode' random_product_barcode as dashboard_by_barcode_url %}
+            {% url 'reports:demo_dashboard_by_barcode' as demo_dashboard_by_barcode_url %}
+            <li>
+                <a
+                        href="{% if request.user.is_authenticated and current_api_key and current_api_key.is_wb_data_loaded %} {{ dashboard_by_barcode_url }} {% else %} {{ demo_dashboard_by_barcode_url }} {% endif %}"
+                        class="{% if request.resolver_match.view_name == 'reports:dashboard_by_barcode' or request.path == demo_dashboard_by_barcode_url %} active_link {% endif %}">
+                    Потоварно
+                </a>
+            </li>
+            {% url 'reports:dashboard_abc_xyz' as dashboard_abc_xyz_url %}
+            {% url 'reports:demo_dashboard_abc_xyz' as demo_dashboard_abc_xyz_url %}
+            <li>
+                <a
+                        href="{% if request.user.is_authenticated and current_api_key and current_api_key.is_wb_data_loaded %} {{ dashboard_abc_xyz_url }} {% else %} {{ demo_dashboard_abc_xyz_url }} {% endif %}"
+                        class="{% if request.path == dashboard_abc_xyz_url or request.path == demo_dashboard_abc_xyz_url %} active_link {% endif %}">
+                    ABC-XYZ анализ
+                </a>
+            </li>
+        </ul>
+        {% if current_api_key and request.user.is_authenticated %}
+        <div class="data__header-report">
+            {% if current_api_key.is_wb_data_loaded %}
+            <div class="data__header-info">
+                <p class="text__accent">Дата последней загрузки отчетов</p>
+                <p class="text__accent">{{ current_api_key.last_reports_update }}</p>
+            </div>
+            {% endif %}
+            <form action="{% url 'users:load_reports' %}" method="post">
+                {% csrf_token %}
+                {% if current_api_key.is_active_import %}
+                <button class="loader-button">
+                    <span class="loader"></span>
+                </button>
+                {% else %}
+                <button class="accent-button accent__button-container" type="submit">
+                    Загрузить отчёты
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5.117 2.31219L5.10827 2.30725L4.62459 2.59147L4.13652 2.8683V2.87828L2.52536 2.21334C2.21339 2.08458 1.85428 2.20672 1.68553 2.499L0.246483 4.99152C0.0785296 5.28242 0.150732 5.65263 0.415697 5.85909L1.79497 6.93386L1.78631 8.06105L1.79672 8.06705L0.416338 9.14069C0.151014 9.34706 0.0785762 9.71751 0.24663 10.0086L1.68508 12.5003C1.85392 12.7928 2.21334 12.9149 2.52541 12.7858L4.13881 12.1184L4.63083 12.3974L5.1185 12.684L5.35858 14.4191C5.40464 14.752 5.68927 15 6.02539 15H8.9025C9.24022 15 9.52566 14.7498 9.56987 14.415L9.7985 12.684L10.2861 12.3974L10.778 12.1185L12.4006 12.7781C12.712 12.9047 13.069 12.7822 13.2371 12.4911L14.6757 9.99942C14.8445 9.70695 14.7705 9.33464 14.5027 9.12895L13.1203 8.06725L13.1306 8.06128L13.122 6.93411L14.5035 5.87144C14.771 5.66566 14.8448 5.29359 14.676 5.0013L13.2371 2.50873C13.0691 2.21781 12.7124 2.09523 12.4011 2.22145L10.7807 2.87847L10.7804 2.87831V2.8683L10.2925 2.59156L9.80889 2.30736L9.80022 2.31236L9.79992 2.31219L9.5703 0.584478C9.52583 0.24992 9.24048 0 8.90298 0H6.02488C5.68897 0 5.40447 0.247633 5.35814 0.580333L5.117 2.31219ZM7.45847 4.97561C6.06833 4.97561 4.94139 6.10255 4.94139 7.49269C4.94139 8.88283 6.06833 10.0098 7.45847 10.0098C8.84861 10.0098 9.97553 8.88283 9.97553 7.49269C9.97553 6.10255 8.84861 4.97561 7.45847 4.97561Z" fill="white"/>
+                    </svg>
+                </button>
+                {% endif %}
+            </form>
+        </div>
+        {% else %}
+        <div>
+            {% if not current_api_key %}
+            <a
+                    href="{% url 'users:create_api_key' %}"
+                    class="accent-button accent__button-container">
+                Загрузить отчёты
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M5.117 2.31219L5.10827 2.30725L4.62459 2.59147L4.13652 2.8683V2.87828L2.52536 2.21334C2.21339 2.08458 1.85428 2.20672 1.68553 2.499L0.246483 4.99152C0.0785296 5.28242 0.150732 5.65263 0.415697 5.85909L1.79497 6.93386L1.78631 8.06105L1.79672 8.06705L0.416338 9.14069C0.151014 9.34706 0.0785762 9.71751 0.24663 10.0086L1.68508 12.5003C1.85392 12.7928 2.21334 12.9149 2.52541 12.7858L4.13881 12.1184L4.63083 12.3974L5.1185 12.684L5.35858 14.4191C5.40464 14.752 5.68927 15 6.02539 15H8.9025C9.24022 15 9.52566 14.7498 9.56987 14.415L9.7985 12.684L10.2861 12.3974L10.778 12.1185L12.4006 12.7781C12.712 12.9047 13.069 12.7822 13.2371 12.4911L14.6757 9.99942C14.8445 9.70695 14.7705 9.33464 14.5027 9.12895L13.1203 8.06725L13.1306 8.06128L13.122 6.93411L14.5035 5.87144C14.771 5.66566 14.8448 5.29359 14.676 5.0013L13.2371 2.50873C13.0691 2.21781 12.7124 2.09523 12.4011 2.22145L10.7807 2.87847L10.7804 2.87831V2.8683L10.2925 2.59156L9.80889 2.30736L9.80022 2.31236L9.79992 2.31219L9.5703 0.584478C9.52583 0.24992 9.24048 0 8.90298 0H6.02488C5.68897 0 5.40447 0.247633 5.35814 0.580333L5.117 2.31219ZM7.45847 4.97561C6.06833 4.97561 4.94139 6.10255 4.94139 7.49269C4.94139 8.88283 6.06833 10.0098 7.45847 10.0098C8.84861 10.0098 9.97553 8.88283 9.97553 7.49269C9.97553 6.10255 8.84861 4.97561 7.45847 4.97561Z" fill="white"/>
+                </svg>
+            </a>
+            {% elif not request.user.is_authenticated %}
+            <a
+                    href="{% url 'users:register' %}"
+                    class="accent-button accent__button-container">
+                Загрузить отчёты
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M5.117 2.31219L5.10827 2.30725L4.62459 2.59147L4.13652 2.8683V2.87828L2.52536 2.21334C2.21339 2.08458 1.85428 2.20672 1.68553 2.499L0.246483 4.99152C0.0785296 5.28242 0.150732 5.65263 0.415697 5.85909L1.79497 6.93386L1.78631 8.06105L1.79672 8.06705L0.416338 9.14069C0.151014 9.34706 0.0785762 9.71751 0.24663 10.0086L1.68508 12.5003C1.85392 12.7928 2.21334 12.9149 2.52541 12.7858L4.13881 12.1184L4.63083 12.3974L5.1185 12.684L5.35858 14.4191C5.40464 14.752 5.68927 15 6.02539 15H8.9025C9.24022 15 9.52566 14.7498 9.56987 14.415L9.7985 12.684L10.2861 12.3974L10.778 12.1185L12.4006 12.7781C12.712 12.9047 13.069 12.7822 13.2371 12.4911L14.6757 9.99942C14.8445 9.70695 14.7705 9.33464 14.5027 9.12895L13.1203 8.06725L13.1306 8.06128L13.122 6.93411L14.5035 5.87144C14.771 5.66566 14.8448 5.29359 14.676 5.0013L13.2371 2.50873C13.0691 2.21781 12.7124 2.09523 12.4011 2.22145L10.7807 2.87847L10.7804 2.87831V2.8683L10.2925 2.59156L9.80889 2.30736L9.80022 2.31236L9.79992 2.31219L9.5703 0.584478C9.52583 0.24992 9.24048 0 8.90298 0H6.02488C5.68897 0 5.40447 0.247633 5.35814 0.580333L5.117 2.31219ZM7.45847 4.97561C6.06833 4.97561 4.94139 6.10255 4.94139 7.49269C4.94139 8.88283 6.06833 10.0098 7.45847 10.0098C8.84861 10.0098 9.97553 8.88283 9.97553 7.49269C9.97553 6.10255 8.84861 4.97561 7.45847 4.97561Z" fill="white"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</header>
