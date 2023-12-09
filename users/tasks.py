@@ -38,9 +38,6 @@ def execute_wildberries_reports_loading(self, current_key_id, current_user_id):
     today_date = date.today()
     last_report_date = get_last_report_date(current_api_key)
 
-    current_api_key.is_active_import = True
-    current_api_key.save()
-
     try:
         report_status = execute_wildberries_request_data_handling(
             current_user,

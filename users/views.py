@@ -77,7 +77,7 @@ class NotifySseUserView(View):
             user_id = data['user_id']
             status = data['status']
             message = data['message']
-            time.sleep(1)
+
             send_event(
                 f'user-{user_id}',
                 'message',
@@ -852,6 +852,9 @@ class ExecuteLoadingReportsFromWildberriesView(LoginRequiredMixin, SubscriptionR
         if current_api_key.is_active_import:
             messages.error(request, 'Происходит загрузка отчётов. Пожалуйста, дождитесь завершения')
             return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        current_api_key.is_active_import = True
+        current_api_key.save()
 
         execute_wildberries_reports_loading.delay(current_api_key.id, request.user.id)
 
