@@ -37,7 +37,7 @@ def send_request_for_sales(date_from: str, date_to: str, current_api_key) -> dic
     }
 
     response = requests.get(
-        'https://statistics-api.wildberries.ru/api/v1/supplier/reportDetailByPeriod',
+        'https://statistics-api.wildberries.ru/api/v2/supplier/reportDetailByPeriod',
         headers=headers,
         params=query
     )

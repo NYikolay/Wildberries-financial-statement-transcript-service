@@ -1,19 +1,6 @@
 {% load static %}
 <header>
     <ul class="header-nav">
-        {% url 'users:profile_subscriptions' as profile_subscriptions %}
-        <li>
-            <a
-                    href="{{ profile_subscriptions }}"
-                    class="{% if request.path == profile_subscriptions %} active_link {% endif %} dot-link">
-                Подписка
-            </a>
-            {% if not request.user.is_subscribed %}
-            <svg width="7" height="7" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="7" height="7" rx="3.5" fill="#EC496B"/>
-            </svg>
-            {% endif %}
-        </li>
         {% url 'users:change_password' as change_password_url %}
         <li><a
                 href="{{ change_password_url }}"

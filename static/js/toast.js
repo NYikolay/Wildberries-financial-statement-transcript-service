@@ -1,11 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const toastError = document.getElementById('toast-error')
     const toastSuccess = document.getElementById('toast-success')
-    const toastDataWrapper = document.getElementById('toast-data-wrapper')
-    const userId = toastDataWrapper.getAttribute('data-user-id')
-    const dashboardUrl = toastDataWrapper.getAttribute("dashboard-url")
-    const reportUrl = toastDataWrapper.getAttribute("reports-url")
-    const isIncorrectReportsExist = toastDataWrapper.getAttribute('incorrect-reports-exists')
 
     let toastContainer
 
@@ -63,24 +58,5 @@ document.addEventListener("DOMContentLoaded", function () {
             })
         }
 
-    }
-
-    if (userId) {
-        let eventSource = new EventSource(`${window.location.origin}/events/user/${userId}/`)
-
-        eventSource.onmessage = (event) => {
-            const data = event.data
-            const parsedData = JSON.parse(data)
-            const status = parsedData.status
-
-            localStorage.setItem("notificationStatus", data)
-
-            if (status === "error" || isIncorrectReportsExist === "True") {
-                window.location.replace(reportUrl)
-            } else {
-                window.location.replace(dashboardUrl)
-            }
-
-        }
     }
 })

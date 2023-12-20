@@ -41,7 +41,7 @@
             <form action="{% url 'users:load_reports' %}" method="post">
                 {% csrf_token %}
                 {% if current_api_key.is_active_import %}
-                <button class="loader-button">
+                <button class="loader-button" disabled>
                     <span class="loader"></span>
                 </button>
                 {% else %}
