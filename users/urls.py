@@ -38,7 +38,7 @@ urlpatterns = [
          ConfirmRegistrationView.as_view(), name='activate_email'),
     path('email/confirmation/', ConfirmEmailPageView.as_view(), name='email_confirmation_info'),
 
-    path('profile/subscriptions/', ProfileSubscriptionsPage.as_view(), name='profile_subscriptions'),
+    # path('profile/subscriptions/', ProfileSubscriptionsPage.as_view(), name='profile_subscriptions'),
     path('create-api-key/', CreateApiKeyView.as_view(), name='create_api_key'),
     path('change-current-api-key/', ChangeCurrentApiKeyView.as_view(), name='change_current_api_key'),
     path('profile/change-password/', ChangePasswordView.as_view(), name='change_password'),

@@ -65,6 +65,9 @@
 
 </div>
 
+<script src="{% static 'django_eventstream/eventsource.min.js' %}"></script>
+<script src="{% static 'django_eventstream/reconnecting-eventsource.js' %}"></script>
+<script src="{% static 'js/sse.js' %}"></script>
 <script src="{% static 'js/toast.js' %}"></script>
 {% if request.user.is_authenticated and current_api_key %}
 <script src="{% static 'js/changeApiKey.js' %}"></script>

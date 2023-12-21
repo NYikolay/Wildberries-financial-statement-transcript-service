@@ -833,7 +833,7 @@ class DeleteNetCostView(LoginRequiredMixin, DeleteView):
         return url
 
 
-class ExecuteLoadingReportsFromWildberriesView(LoginRequiredMixin, SubscriptionRequiredMixin, View):
+class ExecuteLoadingReportsFromWildberriesView(LoginRequiredMixin, View):
     login_url = 'users:login'
     redirect_field_name = 'login'
 
