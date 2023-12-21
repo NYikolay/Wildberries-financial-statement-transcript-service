@@ -233,7 +233,7 @@ class LoginPageView(RedirectAuthenticatedUser, View):
 
             login(request, user)
             messages.success(request, "Вход был выполнен успешно")
-            return redirect('users:profile_subscriptions')
+            return redirect('users:companies_list')
 
         context = {'form': form}
         return render(request, self.template_name, context=context)
