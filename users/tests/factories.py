@@ -21,7 +21,7 @@ class WBApiKeyFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = WBApiKey
 
-    api_key = 'gAAAAABkjyVGfWU3jmrqyeJzcKe-mKfmo18_rvjYBrSLZSn9LcYVPiawoEXi0LI2gCVvV5ToHPDXXPZvTVnqsCIAONT3e-nXQg=='
+    api_key = ''
     name = factory.Faker('company')
     user = factory.SubFactory(UserFactory)
     is_current = True

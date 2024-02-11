@@ -17,7 +17,7 @@ def test_receipt_json():
         "items": [
             {
                 "name": "Оплата информационно-аналитических и консалтинговых услуг на "
-                        "портале сервиса commery.ru за 1 месяц",
+                        "портале сервиса за 1 месяц",
                 "quantity": 1,
                 "sum": 4200,
                 "payment_method": "full_payment",
